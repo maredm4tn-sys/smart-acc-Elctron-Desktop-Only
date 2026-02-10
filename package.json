@@ -1,0 +1,128 @@
+{
+    "name": "smart-acc-electron-desktop-only",
+    "version": "0.1.0",
+    "private": true,
+    "main": "electron/main.js",
+    "author": "Mared",
+    "description": "Smart Accountant - ISOLATED DESKTOP VERSION",
+    "scripts": {
+        "dev": "next dev -p 3016 -H 127.0.0.1",
+        "build": "next build",
+        "start": "next start",
+        "lint": "eslint",
+        "tauri": "tauri",
+        "android": "tauri android",
+        "electron:dev": "concurrently \"npm run dev\" \"wait-on http://127.0.0.1:3016 && electron .\"",
+        "electron:build": "build_clean_run.bat"
+    },
+    "build": {
+        "appId": "com.smart.accountant.desktop.only",
+        "productName": "SmartAcc",
+        "asar": false,
+        "files": [
+            "electron/**/*",
+            "package.json"
+        ],
+        "asarUnpack": [
+            "**/node_modules/better-sqlite3/**/*"
+        ],
+        "extraResources": [
+            {
+                "from": ".next/standalone",
+                "to": "app-server"
+            },
+            {
+                "from": ".next/static",
+                "to": "app-server/.next/static"
+            },
+            {
+                "from": "public",
+                "to": "app-server/public"
+            },
+            {
+                "from": "node_portable",
+                "to": "node_portable"
+            }
+        ],
+        "win": {
+            "target": "dir",
+            "requestedExecutionLevel": "asInvoker"
+        },
+        "directories": {
+            "output": "dist_new"
+        },
+        "npmRebuild": false
+    },
+    "dependencies": {
+        "@hookform/resolvers": "^3.9.0",
+        "@radix-ui/react-accordion": "^1.1.2",
+        "@radix-ui/react-alert-dialog": "^1.0.5",
+        "@radix-ui/react-avatar": "^1.0.4",
+        "@radix-ui/react-checkbox": "^1.0.4",
+        "@radix-ui/react-collapsible": "^1.0.3",
+        "@radix-ui/react-dialog": "^1.0.5",
+        "@radix-ui/react-dropdown-menu": "^2.0.6",
+        "@radix-ui/react-label": "^2.0.2",
+        "@radix-ui/react-popover": "^1.0.7",
+        "@radix-ui/react-progress": "^1.0.3",
+        "@radix-ui/react-radio-group": "^1.1.3",
+        "@radix-ui/react-scroll-area": "^1.0.5",
+        "@radix-ui/react-select": "^2.0.0",
+        "@radix-ui/react-separator": "^1.0.3",
+        "@radix-ui/react-slider": "^1.1.2",
+        "@radix-ui/react-slot": "^1.0.2",
+        "@radix-ui/react-switch": "^1.0.3",
+        "@radix-ui/react-tabs": "^1.0.4",
+        "@radix-ui/react-toast": "^1.1.5",
+        "@radix-ui/react-tooltip": "^1.0.7",
+        "axios": "^1.6.8",
+        "bcryptjs": "^2.4.3",
+        "better-sqlite3": "^12.6.2",
+        "class-variance-authority": "^0.7.0",
+        "clsx": "^2.1.0",
+        "date-fns": "^3.6.0",
+        "dotenv": "^16.4.5",
+        "drizzle-orm": "^0.30.7",
+        "form-data": "^4.0.0",
+        "javascript-obfuscator": "^4.1.0",
+        "jose": "^5.2.3",
+        "jsbarcode": "^3.11.6",
+        "lucide-react": "^0.363.0",
+        "next": "14.2.3",
+        "next-themes": "^0.3.0",
+        "node-os-utils": "^1.3.7",
+        "nodemailer": "^6.9.13",
+        "pg": "^8.11.3",
+        "react": "^18.2.0",
+        "react-day-picker": "^8.10.0",
+        "react-dom": "^18.2.0",
+        "react-hook-form": "^7.51.2",
+        "react-to-print": "^2.15.1",
+        "recharts": "^2.12.3",
+        "sonner": "^1.4.41",
+        "swr": "^2.2.5",
+        "tailwind-merge": "^2.2.2",
+        "tailwindcss-animate": "^1.0.7",
+        "xlsx": "^0.18.5",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@tauri-apps/cli": "^2.0.0-beta.16",
+        "@tauri-apps/plugin-sql": "^2.0.0-beta.6",
+        "@types/better-sqlite3": "^7.6.9",
+        "@types/node": "^20.11.30",
+        "@types/nodemailer": "^6.4.14",
+        "@types/react": "^18.2.73",
+        "@types/react-dom": "^18.2.22",
+        "autoprefixer": "^10.4.19",
+        "concurrently": "^8.2.2",
+        "cross-env": "^7.0.3",
+        "drizzle-kit": "^0.20.14",
+        "electron": "^33.4.11",
+        "electron-builder": "^25.1.8",
+        "postcss": "^8.4.38",
+        "tailwindcss": "^3.4.1",
+        "typescript": "^5.4.3",
+        "wait-on": "^7.2.0"
+    }
+}

@@ -1,0 +1,74 @@
+{
+    "Common": {
+        "Search": "بحث",
+        "Loading": "جاري التحميل...",
+        "Error": "حدث خطأ ما",
+        "Success": "تمت العملية بنجاح",
+        "Save": "حفظ",
+        "Cancel": "إلغاء",
+        "Delete": "حذف",
+        "Edit": "تعديل",
+        "Actions": "الإجراءات",
+        "DateRange": "النطاق الزمني",
+        "NoData": "لا توجد بيانات متاحة",
+        "Print": "طباعة",
+        "Settle": "تسوية وصرف",
+        "Direction": "rtl"
+    },
+    "Dashboard": {
+        "TotalSales": "إجمالي المبيعات",
+        "TotalCollected": "المبالغ المحصلة",
+        "SalesInvoices": "فواتير المبيعات"
+    },
+    "Invoices": {
+        "Table": {
+            "InvoiceNo": "رقم الفاتورة",
+            "Customer": "العميل",
+            "Date": "التاريخ",
+            "Total": "الإجمال",
+            "PaidAmount": "المحصل",
+            "Status": "الحالة",
+            "Paid": "محصل"
+        }
+    },
+    "Representatives": {
+        "Title": "المناديب والموزعين",
+        "Description": "إدارة المناديب وتتبع العمولات",
+        "MenuLabel": "المندوبين",
+        "AddDialog": {
+            "AddTitle": "إضافة مندوب جديد",
+            "EditTitle": "تعديل بيانات مندوب",
+            "Name": "الاسم",
+            "Phone": "الهاتف",
+            "Address": "العنوان",
+            "FixedSalary": "الراتب الثابت",
+            "CommissionRate": "نسبة العمولة %",
+            "Type": "النوع",
+            "Notes": "ملاحظات",
+            "Save": "حفظ",
+            "Update": "تحديث"
+        },
+        "Table": {
+            "Name": "الاسم",
+            "Type": "النوع",
+            "Phone": "الهاتف",
+            "Address": "العنوان",
+            "Commission": "نسبة العمولة",
+            "Notes": "ملاحظات",
+            "Actions": "الإجراءات"
+        },
+        "Report": {
+            "Title": "تقرير الأداء والمبيعات",
+            "Description": "عرض أداء المندوب وحساب العمولات.",
+            "CommissionRateCard": "نسبة العمولة",
+            "NoSales": "لا توجد مبيعات",
+            "CommissionDue": "العمولة المستحقة",
+            "SalaryPlus": "(الراتب + العمولة)"
+        },
+        "Types": {
+            "Sales": "مندوب مبيعات",
+            "Collection": "مندوب تحصيل",
+            "Delivery": "مندوب توصيل"
+        }
+    }
+}

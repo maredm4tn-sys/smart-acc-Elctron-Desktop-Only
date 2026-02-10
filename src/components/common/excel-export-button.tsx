@@ -1,0 +1,86 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { FileSpreadsheet } from "lucide-react";
+import { useState } from "react";
+import * as XLSX from "xlsx";
+import { toast } from "sonner";
+import { useTranslation } from "@/components/providers/i18n-provider";
+
+interface ExcelExportButtonProps {
+    getData: () => Promise<any[] | any>;
+    fileName?: string;
+    sheetName?: string;
+    label?: string;
+    className?: string; // allow overrides
+}
+
+export function ExcelExportButton({
+    getData,
+    fileName = "Export",
+    sheetName = "Sheet1",
+    label = "Export (Excel)",
+    className
+}: ExcelExportButtonProps) {
+    const [isLoading, setIsLoading] = useState(false);
+    const { dict } = useTranslation();
+
+    const handleExport = async () => {
+        try {
+            setIsLoading(true);
+            toast.info(dict.Common.Export.Preparing, { id: "export-loading" });
+
+            let data = await getData() as any;
+
+            // Handle wrapped response from withErrorHandling
+            if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+                if (!data.success) {
+                    throw new Error(data.message || "Failed to fetch export data");
+                }
+                data = data.data;
+            }
+
+            if (!data || data.length === 0) {
+                toast.dismiss("export-loading");
+                toast.warning(dict.Common.Export.NoData);
+                return;
+            }
+
+            // Create Workbook
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+            // Auto-width columns (simple heuristic)
+            const firstRow = data[0];
+            if (firstRow) {
+                const cols = Object.keys(firstRow).map(key => ({ wch: Math.max(20, key.length + 5) }));
+                worksheet["!cols"] = cols;
+            }
+
+            // Download
+            XLSX.writeFile(workbook, `${fileName}.xlsx`);
+            toast.dismiss("export-loading");
+            toast.success(dict.Common.Export.Success);
+
+        } catch (error) {
+            console.error("Export Error:", error);
+            toast.dismiss("export-loading");
+            toast.error(dict.Common.Export.Error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <Button
+            variant="outline"
+            className={`gap-2 ${className}`}
+            onClick={handleExport}
+            disabled={isLoading}
+        >
+            <FileSpreadsheet className="h-4 w-4 text-green-600" />
+            {isLoading ? dict.Common.Loading : label}
+        </Button>
+    );
+}

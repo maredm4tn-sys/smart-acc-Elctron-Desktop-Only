@@ -1,0 +1,274 @@
+"use client";
+
+import { useState, useTransition } from "react";
+// import useSWR from "swr";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Plus, FileText, Download, Calendar, User, RotateCcw, ArrowLeftRight } from "lucide-react";
+import { useTranslation } from "@/components/providers/i18n-provider";
+import { getInvoices } from "@/features/sales/actions";
+import { ReturnInvoiceDialog } from "@/features/sales/components/return-invoice-dialog";
+import { Badge } from "@/components/ui/badge";
+import { useSettings } from "@/components/providers/settings-provider";
+import { formatCurrency } from "@/lib/utils";
+
+export function InvoicesTable({ initialInvoices }: { initialInvoices: any[] }) {
+    const { dict: rawDict } = useTranslation();
+    const { currency } = useSettings();
+    const dict = rawDict as any;
+    const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+
+    // Pagination State
+    const [invoices, setInvoices] = useState<any[]>(initialInvoices || []);
+    const [page, setPage] = useState(1);
+    const [canNext, setCanNext] = useState((initialInvoices?.length || 0) === 50); // Heuristic
+    const [isPending, startTransition] = useTransition();
+
+    const loadPage = (newPage: number) => {
+        startTransition(async () => {
+            try {
+                const res = await getInvoices(newPage, 50) as any;
+                if (res.success && res.data) {
+                    setInvoices(res.data.invoices);
+                    setCanNext(res.data.hasNextPage);
+                    setPage(newPage);
+                }
+            } catch (e) {
+                console.error("Failed to load page", e);
+            }
+        });
+    };
+
+    const handleOpenReturn = (invoice: any) => {
+        setSelectedInvoice(invoice);
+        setReturnDialogOpen(true);
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">{dict.Sales.Title}</h1>
+                    <p className="text-muted-foreground">{dict.Sales.Description}</p>
+                </div>
+                <Link href="/dashboard/sales/create">
+                    <Button className="gap-2">
+                        <Plus size={16} />
+                        <span>{dict.Sales.NewInvoice}</span>
+                    </Button>
+                </Link>
+            </div>
+
+            {/* Desktop View */}
+            <div className="hidden md:block bg-white p-4 rounded-lg border shadow-sm container-desktop">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="text-start">{dict.Sales.Table.InvoiceNumber}</TableHead>
+                            <TableHead className="text-start">{dict.Sales.Table.Customer}</TableHead>
+                            <TableHead className="text-start">{dict.Sales.Table.Date}</TableHead>
+                            <TableHead className="text-start">{dict.Sales.Table.Type}</TableHead>
+                            <TableHead className="text-start">{dict.Sales.Table.SaleMode}</TableHead>
+                            <TableHead className="text-start">{dict.Sales.Table.Status}</TableHead>
+                            <TableHead className="text-center">{dict.Sales.Table.Total}</TableHead>
+                            <TableHead className="text-start">{dict.Sales.Table.Actions}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {invoices.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={8} className="h-24 text-center">
+                                    {dict.Sales.Table.NoInvoices}
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            invoices.map((invoice) => (
+                                <TableRow key={invoice?.id || Math.random()} className={invoice?.type === 'return' ? 'bg-orange-50/50' : ''}>
+                                    <TableCell className="font-medium text-start">
+                                        <Link href={`/dashboard/sales/${invoice?.id}`} className="flex items-center gap-2 hover:underline">
+                                            <FileText className="h-4 w-4 text-gray-400" />
+                                            {invoice?.invoiceNumber}
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell className="text-start">{invoice?.customerName}</TableCell>
+                                    <TableCell className="text-start">
+                                        <div className="flex flex-col items-start gap-0.5">
+                                            <span className="font-medium text-gray-700">{invoice?.issueDate}</span>
+                                            <span className="text-[11px] text-muted-foreground dir-ltr">
+                                                {invoice?.createdAt ? new Date(invoice.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : ''}
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-start">
+                                        <Badge variant={invoice?.type === 'return' ? 'destructive' : 'secondary'} className={invoice?.type === 'return' ? 'bg-orange-100 text-orange-700 hover:bg-orange-100' : ''}>
+                                            {invoice?.type === 'return' ? dict.Sales.Table.Types.Return : dict.Sales.Table.Types.Sale}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-start">
+                                        {invoice?.isInstallment ? (
+                                            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none">{dict.Sales.Table.Installment}</Badge>
+                                        ) : invoice?.paymentMethod === 'credit' ? (
+                                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none">{dict.Sales.Table.Credit}</Badge>
+                                        ) : invoice?.paymentMethod === 'card' ? (
+                                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 border-none">{dict.Sales.Table.Card}</Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="text-gray-400">{dict.Sales.Table.Cash}</Badge>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-start">
+                                        <StatusBadge status={invoice?.status} dict={dict} />
+                                    </TableCell>
+                                    <TableCell className={`font-bold dir-ltr text-center ${invoice?.type === 'return' ? 'text-orange-600' : ''}`}>
+                                        {formatCurrency(invoice?.totalAmount, currency)}
+                                    </TableCell>
+                                    <TableCell className="text-start">
+                                        <div className="flex justify-start gap-1">
+                                            {invoice?.type !== 'return' && invoice?.status !== 'cancelled' && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    title={dict.Sales.Table.CreateReturn}
+                                                    onClick={() => handleOpenReturn(invoice)}
+                                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-8 w-8"
+                                                >
+                                                    <RotateCcw size={16} />
+                                                </Button>
+                                            )}
+                                            <Link href={`/dashboard/sales/${invoice?.id}/print`} target="_blank">
+                                                <Button variant="ghost" size="icon" title={dict.Sales.Table.Print} className="h-8 w-8">
+                                                    <Download size={16} />
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4 container-mobile">
+                {invoices?.length === 0 ? (
+                    <div className="text-center p-8 text-muted-foreground">{dict.Sales.Table.NoInvoices}</div>
+                ) : (
+                    invoices.map((inv) => (
+                        <Card key={inv?.id || Math.random()} className={`overflow-hidden border-l-4 ${inv?.type === 'return' ? 'border-l-orange-500 bg-orange-50/30' : 'border-l-blue-500'}`}>
+                            <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+                                <div className="flex flex-col">
+                                    <div className="flex items-center gap-2">
+                                        <Link href={`/dashboard/sales/${inv?.id}`} className="font-bold text-lg hover:underline">
+                                            {inv?.invoiceNumber}
+                                        </Link>
+                                        <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                                            {inv.type === 'return' ? dict.Sales.Table.Types.Return : dict.Sales.Table.Types.Sale}
+                                        </Badge>
+                                        {inv.isInstallment && (
+                                            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none text-[10px] h-5 px-1.5">{dict.Sales.Table.Installment}</Badge>
+                                        )}
+                                        {!inv.isInstallment && inv.type !== 'return' && (
+                                            <Badge variant="outline" className="text-[10px] h-5 px-1.5 text-gray-400">{dict.Sales.Table.Cash}</Badge>
+                                        )}
+                                    </div>
+                                    <span className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                                        <Calendar size={12} />
+                                        {inv.issueDate}
+                                        {inv.createdAt && <span className="text-[10px] bg-gray-100 px-1 rounded mx-1 dir-ltr">{new Date(inv.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>}
+                                    </span>
+                                </div>
+                                <StatusBadge status={inv.status} dict={dict} />
+                            </CardHeader>
+                            <CardContent className="p-4 pt-2">
+                                <div className="flex justify-between items-end">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                            <User size={14} />
+                                            <span>{inv.customerName}</span>
+                                        </div>
+                                        <div className={`font-bold text-xl dir-ltr text-end ${inv.type === 'return' ? 'text-orange-600' : 'text-blue-600'}`}>
+                                            {formatCurrency(inv.totalAmount, currency)}
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {inv.type !== 'return' && (
+                                            <Button variant="outline" size="sm" onClick={() => handleOpenReturn(inv)} className="text-orange-600 border-orange-200 bg-orange-50">
+                                                <RotateCcw size={14} />
+                                            </Button>
+                                        )}
+                                        <Link href={`/dashboard/sales/${inv.id}/print`} target="_blank">
+                                            <Button variant="outline" size="sm" className="gap-2">
+                                                <Download size={14} />
+                                                {dict.Sales.Table.Print}
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))
+                )}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadPage(page - 1)}
+                    disabled={page <= 1 || isPending}
+                >
+                    {dict.Common.Previous}
+                </Button>
+                <div className="text-sm font-medium">
+                    {dict.Common.Page} {page}
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadPage(page + 1)}
+                    disabled={!canNext || isPending}
+                >
+                    {dict.Common.Next}
+                </Button>
+            </div>
+
+            {selectedInvoice && (
+                <ReturnInvoiceDialog
+                    open={returnDialogOpen}
+                    onOpenChange={setReturnDialogOpen}
+                    invoice={selectedInvoice}
+                />
+            )}
+        </div>
+    );
+}
+
+function StatusBadge({ status, dict }: { status: string, dict: any }) {
+    const styles: any = {
+        paid: 'bg-green-100 text-green-700',
+        issued: 'bg-blue-100 text-blue-700',
+        draft: 'bg-yellow-100 text-yellow-700',
+        cancelled: 'bg-red-100 text-red-700',
+        returned: 'bg-orange-100 text-orange-700', // Style for returned
+        partially_returned: 'bg-yellow-50 text-yellow-700 border border-yellow-200', // Style for partial
+    };
+
+    const labels: any = {
+        paid: dict.Sales.Table.Paid,
+        issued: dict.Sales.Table.Issued,
+        draft: dict.Sales.Table.Draft,
+        cancelled: dict.Sales.Table.Cancelled,
+        returned: dict.Sales.Table.StatusLabels.Returned,
+        partially_returned: dict.Sales.Table.StatusLabels.PartiallyReturned,
+    };
+
+    return (
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status] || styles.draft}`}>
+            {labels[status] || status}
+        </span>
+    );
+}

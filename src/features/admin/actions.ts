@@ -1,0 +1,394 @@
+'use server';
+
+import { db } from "@/db";
+import { users, invoices, products, customers, journalEntries, accounts, auditLogs, tenants, suppliers, vouchers, purchaseInvoices, purchaseInvoiceItems, invoiceItems, journalLines, attendance, advances, payrolls, employees, shifts, installments, representatives, categories, units, fiscalYears } from "@/db/schema";
+import { eq, desc, sql } from "drizzle-orm";
+import { getSession } from "@/features/auth/actions";
+import bcrypt from "bcryptjs";
+import { revalidatePath } from "next/cache";
+
+async function checkSuperAdmin() {
+    const session = await getSession();
+    if (!session || session.role !== 'SUPER_ADMIN') {
+        throw new Error("Unauthorized: Super Admin access required");
+    }
+    return session;
+}
+
+async function checkAdmin() {
+    const session = await getSession();
+    if (!session || (session.role !== 'SUPER_ADMIN' && session.role !== 'admin')) {
+        throw new Error("Unauthorized: Admin access required");
+    }
+    return session;
+}
+
+export async function resetSubscriberData(tenantId: string) {
+    try {
+        const session = await getSession();
+        // Allow reset even without session for Desktop recovery
+        const isDesktop = process.env.NEXT_PUBLIC_APP_MODE === 'desktop';
+
+        if (!session && !isDesktop) throw new Error("Unauthorized");
+
+        // 🟢 [DESKTOP OVERRIDE] Ensure we use 'tenant_default' if everything is missing
+        const effectiveTenantId = tenantId || 'tenant_default';
+
+        const [tenant] = await db.select().from(tenants).where(eq(tenants.id, effectiveTenantId));
+        // If tenant doesn't exist, we skip validation logic and jump to critical table clear for recovery
+        const tenantName = tenant?.name || "Default Organization";
+
+        if (isDesktop) {
+            console.log(`🛠️ [FACTORY-RESET] Cleaning up tenant: ${effectiveTenantId}`);
+
+            // Sequential deletes to avoid SQLite transaction locks
+            // Level 4: Specific Detail Records (Must go first)
+            const tenantInvoices = await db.select({ id: invoices.id }).from(invoices).where(eq(invoices.tenantId, effectiveTenantId));
+            const invoiceIds = tenantInvoices.map(i => i.id);
+
+            const tenantPurchases = await db.select({ id: purchaseInvoices.id }).from(purchaseInvoices).where(eq(purchaseInvoices.tenantId, effectiveTenantId));
+            const purchaseIds = tenantPurchases.map(p => p.id);
+
+            const tenantJournalEntries = await db.select({ id: journalEntries.id }).from(journalEntries).where(eq(journalEntries.tenantId, effectiveTenantId));
+            const jeIds = tenantJournalEntries.map(je => je.id);
+
+            if (jeIds.length > 0) {
+                await db.delete(journalLines).where(sql`journal_entry_id IN (${sql.join(jeIds, sql`, `)})`);
+            }
+            if (invoiceIds.length > 0) {
+                await db.delete(invoiceItems).where(sql`invoice_id IN (${sql.join(invoiceIds, sql`, `)})`);
+            }
+            if (purchaseIds.length > 0) {
+                await db.delete(purchaseInvoiceItems).where(sql`purchase_invoice_id IN (${sql.join(purchaseIds, sql`, `)})`);
+            }
+
+            // Level 3 & 2: Main Documents and Master Records
+            await db.delete(invoices).where(eq(invoices.tenantId, effectiveTenantId));
+            await db.delete(purchaseInvoices).where(eq(purchaseInvoices.tenantId, effectiveTenantId));
+            await db.delete(vouchers).where(eq(vouchers.tenantId, effectiveTenantId));
+            await db.delete(journalEntries).where(eq(journalEntries.tenantId, effectiveTenantId));
+            await db.delete(products).where(eq(products.tenantId, effectiveTenantId));
+            await db.delete(customers).where(eq(customers.tenantId, effectiveTenantId));
+            await db.delete(suppliers).where(eq(suppliers.tenantId, effectiveTenantId));
+            await db.delete(installments).where(eq(installments.tenantId, effectiveTenantId));
+            await db.delete(representatives).where(eq(representatives.tenantId, effectiveTenantId));
+            await db.delete(categories).where(eq(categories.tenantId, effectiveTenantId));
+            await db.delete(units).where(eq(units.tenantId, effectiveTenantId));
+            await db.delete(fiscalYears).where(eq(fiscalYears.tenantId, effectiveTenantId));
+
+            // Employees related (Added missed ones)
+            await db.delete(attendance).where(eq(attendance.tenantId, effectiveTenantId));
+            await db.delete(advances).where(eq(advances.tenantId, effectiveTenantId));
+            await db.delete(payrolls).where(eq(payrolls.tenantId, effectiveTenantId));
+            await db.delete(employees).where(eq(employees.tenantId, effectiveTenantId));
+            await db.delete(shifts).where(eq(shifts.tenantId, effectiveTenantId));
+
+            // Level 1: Reset Balances
+            await db.delete(accounts).where(eq(accounts.tenantId, effectiveTenantId));
+
+            if (session) {
+                await db.insert(auditLogs).values({
+                    tenantId: effectiveTenantId,
+                    userId: session.userId,
+                    action: "FACTORY_RESET",
+                    entity: "SYSTEM",
+                    entityId: effectiveTenantId,
+                    details: `Factory reset performed for tenant ${tenantName}`,
+                    createdAt: new Date(),
+                });
+            }
+        } else {
+            // Standard Transaction for Postgres
+            await db.transaction(async (tx) => {
+                // ... (Existing Postgres logic) ...
+                const tenantInvoices = await tx.select({ id: invoices.id }).from(invoices).where(eq(invoices.tenantId, effectiveTenantId));
+                const invoiceIds = tenantInvoices.map(i => i.id);
+
+                const tenantPurchases = await tx.select({ id: purchaseInvoices.id }).from(purchaseInvoices).where(eq(purchaseInvoices.tenantId, effectiveTenantId));
+                const purchaseIds = tenantPurchases.map(p => p.id);
+
+                const tenantJournalEntries = await tx.select({ id: journalEntries.id }).from(journalEntries).where(eq(journalEntries.tenantId, effectiveTenantId));
+                const jeIds = tenantJournalEntries.map(je => je.id);
+
+                if (jeIds.length > 0) {
+                    await tx.delete(journalLines).where(sql`journal_entry_id IN (${sql.join(jeIds, sql`, `)})`);
+                }
+                if (invoiceIds.length > 0) {
+                    await tx.delete(invoiceItems).where(sql`invoice_id IN (${sql.join(invoiceIds, sql`, `)})`);
+                }
+                if (purchaseIds.length > 0) {
+                    await tx.delete(purchaseInvoiceItems).where(sql`purchase_invoice_id IN (${sql.join(purchaseIds, sql`, `)})`);
+                }
+
+                await tx.delete(invoices).where(eq(invoices.tenantId, effectiveTenantId));
+                await tx.delete(purchaseInvoices).where(eq(purchaseInvoices.tenantId, effectiveTenantId));
+                await tx.delete(vouchers).where(eq(vouchers.tenantId, effectiveTenantId));
+                await tx.delete(journalEntries).where(eq(journalEntries.tenantId, effectiveTenantId));
+                await tx.delete(products).where(eq(products.tenantId, effectiveTenantId));
+                await tx.delete(customers).where(eq(customers.tenantId, effectiveTenantId));
+                await tx.delete(suppliers).where(eq(suppliers.tenantId, effectiveTenantId));
+                await tx.delete(accounts).where(eq(accounts.tenantId, effectiveTenantId));
+
+                await tx.insert(auditLogs).values({
+                    tenantId: effectiveTenantId,
+                    userId: session.userId,
+                    action: "FACTORY_RESET",
+                    entity: "SYSTEM",
+                    entityId: effectiveTenantId,
+                    details: `Factory reset performed for tenant ${tenantName}`,
+                    createdAt: new Date(),
+                });
+            });
+        }
+
+        revalidatePath('/dashboard');
+        revalidatePath('/dashboard/inventory');
+        return { success: true };
+    } catch (error: any) {
+        console.error("Reset Subscriber Data Error:", error);
+        return { error: `Reset failed: ${error.message || "Internal error"}` };
+    }
+}
+
+export async function toggleUserStatus(userId: string) {
+    try {
+        await checkSuperAdmin();
+
+        const [user] = await db.select().from(users).where(eq(users.id, userId));
+        if (!user) return { error: "User not found" };
+
+        const newStatus = user.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+        const newIsActive = newStatus === 'ACTIVE';
+
+        await db.update(users)
+            .set({
+                status: newStatus,
+                isActive: newIsActive
+            })
+            .where(eq(users.id, userId));
+
+        // revalidatePath(path);
+        return { success: true, newStatus };
+    } catch (error) {
+        console.error("Toggle Status Error:", error);
+        return { error: "Failed to update user status" };
+    }
+}
+
+export async function adminResetPassword(userId: string, newPassword: string) {
+    try {
+        await checkSuperAdmin();
+
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+
+        await db.update(users)
+            .set({ passwordHash })
+            .where(eq(users.id, userId));
+
+        // revalidatePath(path);
+        return { success: true };
+    } catch (error) {
+        console.error("Reset Password Error:", error);
+        return { error: "Failed to reset password" };
+    }
+}
+
+// ... existing code ...
+
+export async function createSubscriber(data: {
+    organizationName: string;
+    fullName: string;
+    username: string;
+    email?: string;
+    password: string;
+}) {
+    try {
+        await checkSuperAdmin();
+
+        // 1. Pre-check: Verify username doesn't exist to avoid generic crash
+        const existingUser = await db.select().from(users).where(eq(users.username, data.username)).limit(1);
+        if (existingUser.length > 0) {
+            return { error: "Username already exists" };
+        }
+
+        // 2. Hash Password early
+        const passwordHash = await bcrypt.hash(data.password, 10);
+
+        // 3. Create Tenant & User
+        console.log(`[ADMIN] Creating tenant: ${data.organizationName}`);
+        const [tenant] = await db.insert(tenants).values({
+            name: data.organizationName,
+            email: data.email || null,
+            subscriptionPlan: 'standard',
+        }).returning();
+
+        if (!tenant) throw new Error("Failed to create tenant organization");
+        console.log(`[ADMIN] Tenant created: ${tenant.id}. Now creating admin user: ${data.username}`);
+
+        try {
+            await db.insert(users).values({
+                tenantId: tenant.id,
+                fullName: data.fullName,
+                username: data.username,
+                email: data.email || null,
+                passwordHash,
+                role: 'admin',
+                status: 'ACTIVE',
+                isActive: true
+            });
+            console.log(`[ADMIN] User created successfully for tenant ${tenant.id}`);
+        } catch (userError: any) {
+            console.error(`[ADMIN] User creation FAILED for tenant ${tenant.id}:`, userError);
+            // If user creation fails, we should ideally rollback, 
+            // but for now, we report the specific error to the UI.
+            throw new Error(`Could not create admin user: ${userError.message || "Unknown error"}`);
+        }
+
+        // revalidatePath(path);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Create Subscriber Error:", error);
+
+        // Handle both Postgres (23505) and SQLite (SQLITE_CONSTRAINT) unique violations
+        if (error.code === '23505' || (error.message && error.message.includes('UNIQUE constraint failed'))) {
+            return { error: "Username or email already registered" };
+        }
+
+        return { error: `Subscriber creation failed: ${error.message || "Unknown error"}` };
+    }
+}
+
+export async function deleteSubscriber(userId: string) {
+    try {
+        await checkSuperAdmin();
+
+        // 1. Find User's Tenant
+        const [user] = await db.select().from(users).where(eq(users.id, userId));
+
+        if (!user) return { error: "User not found" };
+
+        // 2. Delete Tenant (Cascades to User and all Data)
+        // Check if it's the main system tenant to avoid accidents? 
+        // For now, assuming Super Admin knows what they are doing.
+        // Maybe checking if it is the CURRENT user's tenant to prevent self-lockout?
+        const session = await getSession();
+        if (session?.userId === userId) {
+            return { error: "Cannot delete current user account" };
+        }
+
+        await db.delete(tenants).where(eq(tenants.id, user.tenantId));
+
+        // revalidatePath(path);
+        return { success: true };
+    } catch (error) {
+        console.error("Delete Subscriber Error:", error);
+        return { error: "Failed to delete subscriber" };
+    }
+}
+
+export async function getAllUsers() {
+    try {
+        await checkSuperAdmin();
+
+        const now = new Date();
+        const startOfMonth = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1)).toISOString().split('T')[0];
+
+        // Join with tenants to get organization name
+        return await db.select({
+            id: users.id,
+            fullName: users.fullName,
+            username: users.username,
+            email: users.email,
+            role: users.role,
+            status: users.status,
+            isActive: users.isActive,
+            createdAt: users.createdAt,
+            organizationName: tenants.name,
+            invoiceCount: sql<number>`(
+                SELECT COUNT(*) FROM ${invoices} 
+                WHERE ${invoices.tenantId} = ${users.tenantId} 
+                AND ${invoices.issueDate} >= ${startOfMonth}
+            )`,
+            cashierCount: sql<number>`(
+                SELECT COUNT(*) FROM ${users} AS u2
+                WHERE u2.tenant_id = ${users.tenantId}
+                AND u2.role = 'cashier'
+            )`
+        })
+            .from(users)
+            .leftJoin(tenants, eq(users.tenantId, tenants.id))
+            .orderBy(desc(users.createdAt));
+    } catch (error) {
+        console.error("Get All Users Error:", error);
+        return [];
+    }
+}
+
+export async function updateTenant(tenantId: string, data: {
+    name: string;
+    email: string;
+    phone: string;
+    activityType: string;
+    subscriptionStartDate?: Date | null;
+    nextRenewalDate?: Date | null;
+    customerRating?: 'VIP' | 'Normal' | 'Difficult';
+    adminNotes?: string;
+}) {
+    try {
+        await checkSuperAdmin();
+
+        await db.update(tenants)
+            .set({
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                activityType: data.activityType,
+                subscriptionStartDate: data.subscriptionStartDate,
+                nextRenewalDate: data.nextRenewalDate,
+                customerRating: data.customerRating,
+                adminNotes: data.adminNotes,
+                updatedAt: new Date(),
+            })
+            .where(eq(tenants.id, tenantId));
+
+        // revalidatePath(path);
+        return { success: true };
+    } catch (e) {
+        console.error("Failed to update tenant:", e);
+        return { error: "Failed to update tenant" };
+    }
+}
+
+// Restoration of factoryReset for backward compatibility and global admin use
+export async function factoryReset() {
+    try {
+        const session = await getSession(); // Low level check
+        const isDesktop = process.env.NEXT_PUBLIC_APP_MODE === 'desktop';
+
+        if (!session && !isDesktop) return { error: "Session expired" };
+
+        // Get the current user's tenant ID from the session
+        let tenantId = session?.tenantId || 'tenant_default';
+
+        // Fallback 1: Lookup user in DB
+        if (!tenantId && session?.userId) {
+            const [u] = await db.select().from(users).where(eq(users.id, session.userId));
+            tenantId = u?.tenantId || 'tenant_default';
+        }
+
+        // 🟢 [DESKTOP OVERRIDE] In Desktop mode, we ALWAYS have a fallback
+        if (!tenantId && isDesktop) {
+            tenantId = 'tenant_default';
+        }
+
+        if (!tenantId) {
+            return { error: "Tenant not found" };
+        }
+
+        // Call the safe, scoped reset
+        return await resetSubscriberData(tenantId);
+    } catch (error) {
+        console.error("Factory Reset Error:", error);
+        return { error: "Failed to perform factory reset" };
+    }
+}

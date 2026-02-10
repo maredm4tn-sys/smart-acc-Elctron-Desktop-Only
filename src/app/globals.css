@@ -1,0 +1,203 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border) / 1);
+  }
+
+  body {
+    background-color: hsl(var(--background) / 1);
+    color: hsl(var(--foreground) / 1);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+}
+
+@layer utilities {
+
+  /* Force Latin Numerals for everything */
+  .force-latin-nums {
+    font-feature-settings: "tnum", "lnum";
+  }
+
+  /* Force LTR for numeric inputs */
+  input[type="number"],
+  .dir-ltr {
+    direction: ltr !important;
+    text-align: left;
+  }
+
+  /* Responsive Table Utility */
+  .rt-table-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .rt-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+    table-layout: auto;
+  }
+
+  @media (min-width: 768px) {
+    .rt-table {
+      min-width: 100%;
+    }
+  }
+
+  .rt-table th {
+    padding: 0.75rem 1rem;
+    background-color: rgb(249 250 251 / 0.5);
+    color: rgb(55 65 81);
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-bottom-width: 1px;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .rt-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border-bottom-width: 1px;
+    text-align: center;
+  }
+
+  /* Mobile Layout Helpers */
+  .safe-p {
+    padding: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .safe-p {
+      padding: 2rem;
+    }
+  }
+
+  .safe-pb {
+    padding-bottom: 6rem;
+  }
+
+  @media (min-width: 768px) {
+    .safe-pb {
+      padding-bottom: 2rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .rt-table {
+    display: block;
+    width: 100%;
+  }
+
+  .rt-table thead {
+    display: none;
+  }
+
+  .rt-table tbody,
+  .rt-table tr,
+  .rt-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .rt-table tr {
+    margin-bottom: 1rem;
+    border-width: 1px;
+    border-color: rgb(229 231 235);
+    border-radius: 0.75rem;
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .rt-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom-width: 1px;
+    border-color: rgb(249 250 251);
+    font-size: 0.875rem;
+  }
+
+  .rt-table td:last-child {
+    border-bottom-width: 0px;
+  }
+
+  .rt-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: rgb(107 114 128);
+    margin-left: 1rem;
+  }
+
+  .rt-table td.actions {
+    justify-content: center;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top-width: 1px;
+    border-color: rgb(243 244 246);
+  }
+
+  .rt-table td.actions::before {
+    content: none;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,35 @@
+Final Translation Audit Report
+==============================
+Total Keys in Arabic: 1836
+Total Keys in English: 1859
+
+Missing in English (Only in Arabic):
+ - Reports.IncomeStatement.CardDescription
+ - Reports.IncomeStatement.Table.Percentage
+
+Missing in Arabic (Only in English):
+ - Dialogs.AddSupplier
+ - Dialogs.AddSupplier.Address
+ - Dialogs.AddSupplier.Company
+ - Dialogs.AddSupplier.Email
+ - Dialogs.AddSupplier.Name
+ - Dialogs.AddSupplier.OpeningBalance
+ - Dialogs.AddSupplier.Phone
+ - Dialogs.AddSupplier.Save
+ - Dialogs.AddSupplier.Success
+ - Dialogs.AddSupplier.Title
+ - EmployeesManagement.Table.Active
+ - EmployeesManagement.Table.Inactive
+ - EmployeesManagement.Table.Phone
+ - Expenses.Table.Percentage
+ - General.CardDescription
+ - General.CardTitle
+ - General.CardTitle.CashBalance
+ - General.CardTitle.Expenses
+ - General.CardTitle.ProfitLoss
+ - General.CardTitle.Sales
+ - Inventory.ImportExcel
+ - Inventory.ProductForm.CreateSuccess
+ - Sales.Invoice.Form.DueDate
+ - Sales.SelectPriceType
+ - Sales.TodaySalesSummary

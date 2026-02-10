@@ -1,0 +1,8 @@
+SMART ACCOUNTANT - ELECTRON DESKTOP ONLY
+-------------------------------------
+PORT: 3016 (PERMANENT)
+
+This port (3016) is exclusively reserved for this Electron Desktop version of the Smart Accountant application.
+DO NOT CHANGE THIS PORT.
+
+Created: 01/21/2026 22:59:15

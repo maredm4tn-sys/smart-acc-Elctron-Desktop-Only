@@ -1,0 +1,130 @@
+"use server";
+
+import { db } from "@/db";
+import { shifts, invoices, vouchers } from "@/db/schema";
+import { and, eq, desc, sql } from "drizzle-orm";
+import { requireSession } from "@/lib/tenant-security";
+
+export async function getActiveShift() {
+    try {
+        const { tenantId, userId } = await requireSession();
+
+        const rows = await db.select().from(shifts).where(and(
+            eq(shifts.tenantId, tenantId),
+            eq(shifts.userId, userId),
+            eq(shifts.status, 'open')
+        )).orderBy(desc(shifts.startTime)).limit(1);
+
+        return rows.length > 0 ? rows[0] : null;
+    } catch (e) {
+        console.warn("Active shift check failed:", e);
+        return null;
+    }
+}
+
+export async function openShift(startBalance: number) {
+    try {
+        const { tenantId, userId } = await requireSession();
+
+        const active = await getActiveShift();
+        if (active) return { success: false, message: "You already have an open shift." };
+
+        const lastShiftRows = await db.select().from(shifts)
+            .where(eq(shifts.tenantId, tenantId))
+            .orderBy(desc(shifts.shiftNumber))
+            .limit(1);
+
+        const nextNumber = (lastShiftRows[0]?.shiftNumber || 0) + 1;
+
+        await db.insert(shifts).values({
+            tenantId,
+            userId: userId,
+            shiftNumber: nextNumber,
+            startBalance: String(startBalance),
+            status: 'open',
+            startTime: new Date(),
+        });
+
+        const newShiftRows = await db.select().from(shifts)
+            .where(and(eq(shifts.tenantId, tenantId), eq(shifts.shiftNumber, nextNumber)))
+            .limit(1);
+
+        return { success: true, data: newShiftRows[0] || null };
+    } catch (e: any) {
+        console.error("Error opening shift:", e);
+        return { success: false, message: e.message || "Failed to open shift" };
+    }
+}
+
+export async function getShiftSummary(shiftId: number) {
+    try {
+        const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL);
+        const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+
+        const invStats = await db.select({
+            totalCash: sql<number>`sum(case when ${invoices.paymentMethod} = 'cash' then ${castNum(invoices.totalAmount)} else 0 end)`,
+            totalVisa: sql<number>`sum(case when ${invoices.paymentMethod} = 'card' then ${castNum(invoices.totalAmount)} else 0 end)`,
+            totalUnpaid: sql<number>`sum(case when ${invoices.paymentStatus} != 'paid' then ${castNum(invoices.totalAmount)} - ${castNum(invoices.amountPaid)} else 0 end)`,
+        })
+            .from(invoices)
+            .where(eq(invoices.shiftId, shiftId));
+
+        const voucherStats = await db.select({
+            totalReceipts: sql<number>`sum(case when ${vouchers.type} = 'receipt' then ${castNum(vouchers.amount)} else 0 end)`,
+            totalPayments: sql<number>`sum(case when ${vouchers.type} = 'payment' then ${castNum(vouchers.amount)} else 0 end)`,
+        })
+            .from(vouchers)
+            .where(eq(vouchers.shiftId, shiftId));
+
+        const cashSales = invStats[0]?.totalCash || 0;
+        const visaSales = invStats[0]?.totalVisa || 0;
+        const unpaidSales = invStats[0]?.totalUnpaid || 0;
+        const receipts = voucherStats[0]?.totalReceipts || 0;
+        const payments = voucherStats[0]?.totalPayments || 0;
+
+        return {
+            cashSales,
+            visaSales,
+            unpaidSales,
+            receipts,
+            payments,
+            netCashMovement: cashSales + receipts - payments
+        };
+    } catch (e) {
+        console.error("Error calculating shift summary:", e);
+        return { cashSales: 0, visaSales: 0, unpaidSales: 0, receipts: 0, payments: 0, netCashMovement: 0 };
+    }
+}
+
+export async function closeShift(shiftId: number, actualCash: number, notes?: string) {
+    try {
+        const { tenantId, userId } = await requireSession();
+
+        const rows = await db.select().from(shifts)
+            .where(and(eq(shifts.id, shiftId), eq(shifts.tenantId, tenantId)))
+            .limit(1);
+
+        const shift = rows.length > 0 ? rows[0] : null;
+        if (!shift || shift.status !== 'open') return { success: false, message: "Shift not found or already closed" };
+
+        const summary = await getShiftSummary(shiftId);
+
+        const startBal = Number(shift.startBalance || 0);
+        const expectedCash = startBal + summary.netCashMovement;
+
+        await db.update(shifts).set({
+            endBalance: String(actualCash),
+            systemCashBalance: String(expectedCash),
+            systemVisaBalance: String(summary.visaSales),
+            systemUnpaidBalance: String(summary.unpaidSales),
+            status: 'closed',
+            endTime: new Date(),
+            notes: notes
+        }).where(and(eq(shifts.id, shiftId), eq(shifts.tenantId, tenantId)));
+
+        return { success: true };
+    } catch (e: any) {
+        console.error("Error closing shift:", e);
+        return { success: false, message: e.message || "Failed to close shift" };
+    }
+}

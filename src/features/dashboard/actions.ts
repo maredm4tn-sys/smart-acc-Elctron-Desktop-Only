@@ -1,0 +1,262 @@
+"use server";
+
+import { db } from "@/db";
+import { invoices, accounts, products, purchaseInvoices, journalLines, journalEntries, installments, customers } from "@/db/schema";
+import { count, sum, sql, eq, and, gt, desc, gte, or, like, asc } from "drizzle-orm";
+import { getCashierStats } from "@/features/sales/stats";
+import { getSession } from "@/features/auth/actions";
+
+export async function getDashboardStats() {
+    const session = await getSession();
+    if (!session) throw new Error("Unauthorized");
+
+    const role = session.role;
+
+    if (role === 'cashier') {
+        const cashierStats = await getCashierStats(session.userId);
+        return { role: 'cashier', data: cashierStats };
+    }
+
+    // Admin Stats
+    try {
+        const tenantId = session.tenantId;
+
+        const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
+        const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+
+        const [
+            revenueRes,
+            accRes,
+            prodRes,
+            invRes,
+            recRes,
+            lowStockItems,
+            overdueInvoices,
+            duePurchases,
+            cashLiquidityRes,
+            upcomingInstallmentsTotalRes,
+            upcomingInstallments,
+            dailySalesRes,
+            dailyCountRes
+        ] = await Promise.all([
+            db.select({ value: sql`COALESCE(SUM(${castNum(invoices.totalAmount)}), 0)` })
+                .from(invoices)
+                .where(and(eq(invoices.tenantId, tenantId), eq(invoices.type, 'sale'))).then(res => res[0]),
+            db.select({ value: count() }).from(accounts).where(eq(accounts.tenantId, tenantId)).then(res => res[0]),
+            db.select({ value: count() }).from(products).where(eq(products.tenantId, tenantId)).then(res => res[0]),
+            db.select({ value: count() }).from(invoices).where(eq(invoices.tenantId, tenantId)).then(res => res[0]),
+            db.select({ value: sql`COALESCE(SUM(${castNum(invoices.totalAmount)} - ${castNum(invoices.amountPaid)}), 0)` })
+                .from(invoices)
+                .where(and(
+                    eq(invoices.tenantId, tenantId),
+                    eq(invoices.type, 'sale'),
+                    gt(sql`${castNum(invoices.totalAmount)} - ${castNum(invoices.amountPaid)}`, 0.5) // Allow small floating point tolerance
+                )).then(res => res[0]),
+            db.select({
+                id: products.id,
+                name: products.name,
+                stockQuantity: products.stockQuantity
+            }).from(products).where(and(eq(products.tenantId, tenantId), sql`${castNum(products.stockQuantity)} <= 10`)).limit(5),
+            db.select({
+                id: invoices.id,
+                customer: invoices.customerName,
+                amount: sql`${castNum(invoices.totalAmount)} - ${castNum(invoices.amountPaid)}`,
+                date: invoices.issueDate,
+                dueDate: invoices.dueDate
+            }).from(invoices).where(
+                and(
+                    eq(invoices.tenantId, tenantId),
+                    eq(invoices.type, 'sale'),
+                    gt(sql`${castNum(invoices.totalAmount)} - ${castNum(invoices.amountPaid)}`, 0)
+                )
+            ).orderBy(asc(invoices.dueDate), desc(invoices.issueDate)).limit(10),
+            db.select({
+                id: purchaseInvoices.id,
+                supplier: purchaseInvoices.supplierName,
+                amount: sql`${castNum(purchaseInvoices.totalAmount)} - ${castNum(purchaseInvoices.amountPaid)}`,
+                date: purchaseInvoices.issueDate
+            }).from(purchaseInvoices).where(
+                and(
+                    eq(purchaseInvoices.tenantId, tenantId),
+                    gt(sql`${castNum(purchaseInvoices.totalAmount)} - ${castNum(purchaseInvoices.amountPaid)}`, 0)
+                )
+            ).orderBy(desc(purchaseInvoices.issueDate)).limit(5),
+            db.select({ value: sql`COALESCE(SUM(${castNum(journalLines.debit)} - ${castNum(journalLines.credit)}), 0)` })
+                .from(journalLines)
+                .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
+                .where(and(eq(accounts.tenantId, tenantId), eq(accounts.type, 'asset'))).then(res => res[0]),
+            db.select({ value: sql`COALESCE(SUM(${castNum(installments.amount)}), 0)` })
+                .from(installments)
+                .where(and(eq(installments.tenantId, tenantId), eq(installments.status, 'unpaid')))
+                .then(res => res[0]),
+            db.select({
+                id: installments.id,
+                customer: customers.name,
+                amount: installments.amount,
+                due: installments.dueDate
+            })
+                .from(installments)
+                .innerJoin(customers, eq(installments.customerId, customers.id))
+                .where(and(eq(installments.tenantId, tenantId), eq(installments.status, 'unpaid')))
+                .orderBy(installments.dueDate)
+                .limit(5),
+            db.select({ value: sql`COALESCE(SUM(${castNum(invoices.totalAmount)}), 0)` })
+                .from(invoices)
+                .where(and(
+                    eq(invoices.tenantId, tenantId),
+                    gte(invoices.issueDate, new Date().toISOString().split('T')[0])
+                ))
+                .then(res => res[0]),
+            db.select({ value: count() })
+                .from(invoices)
+                .where(and(
+                    eq(invoices.tenantId, tenantId),
+                    gte(invoices.issueDate, new Date().toISOString().split('T')[0])
+                ))
+                .then(res => res[0])
+        ]);
+
+        const dailyTotal = Number(dailySalesRes?.value || 0);
+        const dailyCount = Number(dailyCountRes?.value || 0);
+        const averageBasket = dailyCount > 0 ? dailyTotal / dailyCount : 0;
+
+        return {
+            role: 'admin',
+            data: {
+                totalRevenue: Number(revenueRes?.value || 0).toFixed(2),
+                totalAccounts: Number(accRes?.value || 0),
+                activeProducts: Number(prodRes?.value || 0),
+                invoicesCount: Number(invRes?.value || 0),
+                totalReceivables: Number(recRes?.value || 0).toFixed(2),
+                cashLiquidity: Number(cashLiquidityRes?.value || 0).toFixed(2),
+                avgBasket: averageBasket.toFixed(2),
+                lowStockItems: lowStockItems.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    quantity: p.stockQuantity
+                })),
+                overdueInvoices,
+                duePurchases,
+                upcomingInstallmentsTotal: Number(upcomingInstallmentsTotalRes?.value || 0).toFixed(2),
+                upcomingInstallments: upcomingInstallments,
+                topProducts: await db.select({
+                    name: products.name,
+                    sold: sql<number>`SUM(${castNum(sql`invoice_items.quantity`)})`
+                })
+                    .from(products)
+                    .innerJoin(sql`invoice_items`, sql`invoice_items.product_id = products.id`)
+                    .innerJoin(invoices, sql`invoice_items.invoice_id = invoices.id`)
+                    .where(and(eq(products.tenantId, tenantId), eq(invoices.type, 'sale')))
+                    .groupBy(products.id)
+                    .orderBy(desc(sql`SUM(${castNum(sql`invoice_items.quantity`)})`))
+                    .limit(5),
+                inventoryValue: await db.select({
+                    total: sql`SUM(${castNum(products.buyPrice)} * ${castNum(products.stockQuantity)})`
+                }).from(products).where(eq(products.tenantId, tenantId)).then(res => res[0]?.total || 0),
+            }
+        };
+    } catch (e: any) {
+        console.error("Dashboard stats error (Possible migration pending)", e);
+        // Fallback for when tables are not yet created (First run)
+        return {
+            role: 'admin',
+            data: {
+                totalRevenue: 0,
+                totalAccounts: 0,
+                activeProducts: 0,
+                invoicesCount: 0,
+                totalReceivables: 0,
+                cashLiquidity: 0,
+                avgBasket: 0,
+                lowStockItems: [],
+                overdueInvoices: [],
+                duePurchases: [],
+                upcomingInstallmentsTotal: 0,
+                upcomingInstallments: [],
+                topProducts: [],
+                inventoryValue: 0,
+            },
+            // Don't mark as error to allow UI to render zeros instead of crashing
+            error: false
+        };
+    }
+}
+
+export async function getAnalyticsData() {
+    const session = await getSession();
+    const tenantId = session?.tenantId;
+    if (!tenantId) return null;
+
+    try {
+        const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
+        const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+        const getMonthSql = (col: any) => isPg ? sql`TO_CHAR(${col}, 'MM')` : sql`strftime('%m', ${col})`;
+
+        const [topProducts, incomeCompare] = await Promise.all([
+            db.select({
+                name: products.name,
+                value: sql<number>`SUM(${castNum(sql`invoice_items.quantity`)})`
+            })
+                .from(products)
+                .innerJoin(sql`invoice_items`, sql`invoice_items.product_id = products.id`)
+                .innerJoin(invoices, sql`invoice_items.invoice_id = invoices.id`)
+                .where(and(eq(products.tenantId, tenantId), eq(invoices.type, 'sale')))
+                .groupBy(products.id)
+                .orderBy(desc(sql`SUM(${castNum(sql`invoice_items.quantity`)})`))
+                .limit(5),
+
+            db.select({
+                month: getMonthSql(journalEntries.transactionDate),
+                profit: sql<number>`SUM(CASE WHEN ${accounts.type} IN ('revenue', 'income') THEN ${castNum(journalLines.credit)} - ${castNum(journalLines.debit)} ELSE 0 END)`,
+                expense: sql<number>`SUM(CASE WHEN ${accounts.type} = 'expense' THEN ${castNum(journalLines.debit)} - ${castNum(journalLines.credit)} ELSE 0 END)`
+            })
+                .from(journalLines)
+                .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
+                .innerJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
+                .where(eq(journalEntries.tenantId, tenantId))
+                .groupBy(getMonthSql(journalEntries.transactionDate))
+                .orderBy(getMonthSql(journalEntries.transactionDate))
+                .limit(12)
+        ]);
+
+        return {
+            topProducts,
+            incomeCompare: incomeCompare.map(i => ({
+                name: i.month,
+                profit: Number(i.profit || 0),
+                expense: Number(i.expense || 0)
+            }))
+        };
+    } catch (e) {
+        console.error("Analytics Data Error", e);
+        return null;
+    }
+}
+
+export async function getRevenueChartData() {
+    const session = await getSession();
+    const tenantId = session?.tenantId;
+    if (!tenantId) return [];
+
+    try {
+        const rawData = await db.select({
+            date: invoices.issueDate,
+            amount: invoices.totalAmount
+        })
+            .from(invoices)
+            .where(eq(invoices.tenantId, tenantId))
+            .limit(100);
+
+        const daysMap: Record<string, number> = {};
+        rawData.forEach(inv => {
+            if (!inv.date) return;
+            const dayName = new Date(inv.date).toLocaleDateString('en-US', { weekday: 'long' });
+            daysMap[dayName] = (daysMap[dayName] || 0) + Number(inv.amount);
+        });
+
+        return Object.entries(daysMap).map(([name, value]) => ({ name, value }));
+    } catch (e) {
+        console.error("Chart data error", e);
+        return [];
+    }
+}

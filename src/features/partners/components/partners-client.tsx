@@ -1,0 +1,148 @@
+"use client";
+
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Num } from "@/components/ui/num";
+import { Button } from "@/components/ui/button";
+import { Plus, Wallet, FileText, TrendingUp, UserPlus, Users } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+import { useSettings } from "@/components/providers/settings-provider";
+import { getPartners } from "../actions";
+import { AddPartnerDialog } from "./add-partner-dialog";
+import { PartnerTransactionDialog } from "./partner-transaction-dialog";
+import { ProfitDistributionDialog } from "./profit-distribution-dialog";
+import { PartnerStatementDialog } from "./partner-statement-dialog";
+
+import { TranslationKeys } from "@/lib/translation-types";
+
+interface PartnersClientProps {
+    initialPartners: any[];
+    dict: TranslationKeys;
+}
+
+export function PartnersClient({ initialPartners, dict }: PartnersClientProps) {
+    const { currency } = useSettings();
+    const [partners, setPartners] = useState(initialPartners);
+    const [loading, setLoading] = useState(false);
+
+    const refresh = async () => {
+        setLoading(true);
+        const res = await getPartners();
+        if (res.success) setPartners(res.data);
+        setLoading(false);
+    };
+
+    const totalCapital = partners.reduce((acc, p) => acc + parseFloat(p.currentCapital || "0"), 0);
+
+    return (
+        <div className="space-y-6 pb-10" dir={dict.Common.Direction as any}>
+            {/* Header with Stats */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-3xl border shadow-md relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                <div className="relative text-start">
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-4">
+                        <Users className="text-blue-600 w-10 h-10" />
+                        {dict.PartnersManagement?.Title || "الشركاء ورأس المال"}
+                    </h1>
+                    <p className="text-slate-500 font-bold mt-2 text-lg italic">{dict.PartnersManagement?.Description || "إدارة حصص الشركاء"}</p>
+                </div>
+
+                <div className="flex gap-3">
+                    <ProfitDistributionDialog dict={dict} onSuccess={refresh} />
+                    <AddPartnerDialog dict={dict} onSuccess={refresh} />
+                </div>
+            </div>
+
+            {/* Main Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="bg-gradient-to-br from-slate-800 to-slate-950 text-white border-none shadow-xl p-2 group hover:scale-[1.02] transition-transform">
+                    <CardHeader className="pb-1">
+                        <CardTitle className="text-xs font-black opacity-80 uppercase tracking-widest flex items-center gap-2 text-start">
+                            <TrendingUp size={16} /> {dict.PartnersManagement?.CurrentCapital || "رأس المال الحالي"}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-start">
+                        <div className="text-4xl font-black tracking-tighter tabular-nums">{formatCurrency(totalCapital, currency)}</div>
+                        <p className="text-[10px] font-bold mt-3 text-slate-400 uppercase tracking-widest">{dict.PartnersManagement?.TotalInvestments || "إجمالي الاستثمارات"}</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-white border-slate-200 shadow-sm p-2">
+                    <CardHeader className="pb-1">
+                        <CardTitle className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 text-start">
+                            <Users size={16} /> {dict.PartnersManagement?.Count || "عدد الشركاء"}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-start">
+                        <div className="text-4xl font-black text-slate-900 tracking-tighter tabular-nums">
+                            <Num value={partners.filter(p => p.isActive).length} />
+                        </div>
+                        <p className="text-[10px] font-bold mt-3 text-slate-400 uppercase tracking-widest italic">{dict.PartnersManagement?.ActiveCount || "الشركاء النشطين"}</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Partners Table */}
+            <Card className="border-slate-200 shadow-xl rounded-2xl overflow-hidden bg-white">
+                <Table>
+                    <TableHeader className="bg-slate-50/50">
+                        <TableRow>
+                            <TableHead className="font-black text-slate-900 text-start">{dict.PartnersManagement?.Table?.Name || "اسم الشريك"}</TableHead>
+                            <TableHead className="font-black text-slate-900 text-start">{dict.PartnersManagement?.Table?.Role || "الصفة/الدور"}</TableHead>
+                            <TableHead className="font-black text-slate-900 text-start">{dict.PartnersManagement?.Table?.Share || "نسبة المساهمة"}</TableHead>
+                            <TableHead className="font-black text-slate-900 text-start">{dict.PartnersManagement?.Table?.Capital || "المساهمة الحالية"}</TableHead>
+                            <TableHead className="font-black text-slate-900 text-start">{dict.PartnersManagement?.Table?.Balance || "رصيد الأرباح"}</TableHead>
+                            <TableHead className="font-black text-slate-900 text-start">{dict.PartnersManagement?.Table?.Actions || "العمليات"}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {partners.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center py-20 text-slate-400 font-bold italic">
+                                    {dict.PartnersManagement?.NoPartners || "لا يوجد شركاء مسجلين."}
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            partners.map((partner) => (
+                                <TableRow key={partner.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <TableCell className="font-bold text-slate-900 text-start">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">
+                                                {partner.name?.[0]?.toUpperCase()}
+                                            </div>
+                                            {partner.name}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-slate-500 font-medium italic text-start">{partner.role || "-"}</TableCell>
+                                    <TableCell className="text-start">
+                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-50 text-blue-700 border border-blue-100 font-mono tabular-nums">
+                                            <Num value={parseFloat(partner.sharePercentage || "0")} precision={2} />%
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-start font-black text-slate-800 font-mono tabular-nums">
+                                        {formatCurrency(parseFloat(partner.currentCapital || "0"), currency)}
+                                    </TableCell>
+                                    <TableCell className="text-start">
+                                        <span className={`font-black font-mono tabular-nums ${parseFloat(partner.currentBalance) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            {formatCurrency(Math.abs(parseFloat(partner.currentBalance || "0")), currency)}
+                                            <span className="text-[10px] ms-1 opacity-60 font-bold">
+                                                {parseFloat(partner.currentBalance) >= 0 ? `(${dict.PartnersManagement?.ProfitLabel || "أرباح"})` : `(${dict.PartnersManagement?.DebtLabel || "مديونية"})`}
+                                            </span>
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className="text-start">
+                                        <div className="flex items-center gap-2">
+                                            <PartnerTransactionDialog partner={partner} dict={dict} onSuccess={refresh} />
+                                            <PartnerStatementDialog partner={partner} dict={dict} />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </Card>
+        </div>
+    );
+}

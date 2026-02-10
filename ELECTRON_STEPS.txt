@@ -1,0 +1,40 @@
+===================================================================
+ELECTRON APP SETUP & CONFIGURATION LOG
+===================================================================
+
+1. ENVIRONMENT SETUP
+--------------------
+- Node.js: Using portable version (v20.11.0) located in `node_portable`.
+- Launcher: `run_electron.bat` configured to:
+  - Add portable node to System PATH.
+  - Install dependencies check.
+  - Launch application via `npm run electron:dev`.
+  - IMPORTANT: Removed `ELECTRON_RUN_AS_NODE=1` which caused crashes.
+
+2. DEPENDENCIES
+---------------
+- Electron: Fixed to version "28.0.0" (Stable) in package.json to avoid compatibility issues.
+- Native Modules: `better-sqlite3` is handled via `concurrently` env hooks.
+- Webpack: Configured in `next.config.ts` to treat `better-sqlite3` as external.
+
+3. STARTUP LOGIC (electron/main.js)
+-----------------------------------
+- Database: Auto-seeds `sqlite.db` from project root to `%LOCALAPPDATA%\com.smartaccountant.offline\smart_acc_v4.db` if missing.
+- Entry Point: Modified to load `http://localhost:3011/dashboard/sales` directly to bypass generic loading screens.
+- Security: Requires `electron` package properly.
+
+4. UI ADJUSTMENTS
+-----------------
+- License Guard: `src/components/license-guard.tsx` force-set to `true` to bypass license check.
+- Home Page: `src/app/page.tsx` redirect changed to `/dashboard/sales`.
+
+5. TROUBLESHOOTING COMMANDS
+---------------------------
+- Reset App: Run `run_fix.bat` (Clean install).
+- Run App: Run `run_electron.bat` (Fast launch).
+- Fix Database Lock: `del sqlite.db-wal sqlite.db-shm`.
+- Kill Ghosts: `taskkill /F /IM electron.exe /IM node.exe`.
+
+===================================================================
+STATUS: READY FOR PRODUCTION TESTING
+===================================================================

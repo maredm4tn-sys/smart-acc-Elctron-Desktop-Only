@@ -1,0 +1,11 @@
+node_modules/
+.next/
+dist/
+dist_new/
+*.db
+*.sqlite
+.env
+node_portable/
+out/
+build/
+.DS_Store

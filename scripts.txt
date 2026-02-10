@@ -1,0 +1,20 @@
+Lifecycle scripts included in smart-acc-electron-desktop-only@0.1.0:
+  start
+    next start
+
+available via `npm run-script`:
+  dev
+    next dev -p 3016 -H 127.0.0.1
+  build
+    next build
+  lint
+    eslint
+  tauri
+    tauri
+  android
+    tauri android
+  electron:dev
+    concurrently "npm run dev" "wait-on http://127.0.0.1:3016 && electron ."
+  electron:build
+    npm run build && electron-builder --win --x64 --dir
+
