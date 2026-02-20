@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslation } from "@/components/providers/i18n-provider";
+import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useSettings } from "@/components/providers/settings-provider";
@@ -19,12 +20,12 @@ export function VouchersTable({ vouchers = [] }: { vouchers?: any[] }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>{dict.Vouchers.Table.Number}</TableHead>
-                            <TableHead>{dict.Vouchers.Table.Date}</TableHead>
-                            <TableHead>{dict.Vouchers.Table.Type}</TableHead>
-                            <TableHead>{dict.Vouchers.Table.Party}</TableHead>
-                            <TableHead>{dict.Vouchers.Table.Amount}</TableHead>
-                            <TableHead>{dict.Vouchers.Table.Status}</TableHead>
+                            <TableHead className="text-start">{dict.Vouchers.Table.Number}</TableHead>
+                            <TableHead className="text-start">{dict.Vouchers.Table.Date}</TableHead>
+                            <TableHead className="text-start">{dict.Vouchers.Table.Type}</TableHead>
+                            <TableHead className="text-start">{dict.Vouchers.Table.Party}</TableHead>
+                            <TableHead className="text-start">{dict.Vouchers.Table.Amount}</TableHead>
+                            <TableHead className="text-start">{dict.Vouchers.Table.Status}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -37,18 +38,20 @@ export function VouchersTable({ vouchers = [] }: { vouchers?: any[] }) {
                         ) : (
                             vouchers?.map((v) => (
                                 <TableRow key={v.id}>
-                                    <TableCell className="font-medium">
-                                        <Num value={v.voucherNumber} />
+                                    <TableCell className="font-medium text-start">
+                                        <Link href={`/dashboard/vouchers/${v.id}`} className="hover:text-blue-600 transition-colors">
+                                            <Num value={v.voucherNumber} />
+                                        </Link>
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="text-start">
                                         <Num value={v.date} />
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="text-start">
                                         <Badge variant={v.type === 'receipt' ? 'default' : 'secondary'}>
                                             {v.type === 'receipt' ? dict.Vouchers.Receipt : dict.Vouchers.Payment}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="text-start">
                                         <div className="flex flex-col">
                                             <span className="font-medium text-slate-700">
                                                 {v.partyType === 'customer' && (v.customer?.name || dict.Vouchers.Form.Types.Customer)}
@@ -58,8 +61,8 @@ export function VouchersTable({ vouchers = [] }: { vouchers?: any[] }) {
                                             {v.partyId && <span className="text-[10px] text-gray-400">#<Num value={v.partyId} /></span>}
                                         </div>
                                     </TableCell>
-                                    <TableCell>{formatCurrency(v.amount, currency)}</TableCell>
-                                    <TableCell>
+                                    <TableCell className="text-start">{formatCurrency(v.amount, currency)}</TableCell>
+                                    <TableCell className="text-start">
                                         <Badge variant="outline">
                                             {v.status === 'posted' ? dict.Vouchers.Table.StatusLabels.Posted :
                                                 v.status === 'draft' ? dict.Vouchers.Table.StatusLabels.Draft : v.status}
@@ -82,7 +85,9 @@ export function VouchersTable({ vouchers = [] }: { vouchers?: any[] }) {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h3 className="font-bold text-gray-900">
-                                        <Num value={v?.voucherNumber} />
+                                        <Link href={`/dashboard/vouchers/${v?.id}`} className="hover:text-blue-600 transition-colors">
+                                            <Num value={v?.voucherNumber} />
+                                        </Link>
                                     </h3>
                                     <p className="text-[10px] text-gray-400 font-mono">
                                         <Num value={v.date} />

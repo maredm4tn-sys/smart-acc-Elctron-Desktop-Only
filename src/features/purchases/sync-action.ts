@@ -98,7 +98,7 @@ export async function syncAllPurchasesToLedger() {
         return { success: true, fixedCount, skippedCount };
     } catch (e: any) {
         console.error("Sync Error:", e);
-        const errorMessage = e.message || "An unexpected error occurred during synchronization.";
+        const errorMessage = e.message ;
         return { success: false, error: errorMessage };
     }
 }

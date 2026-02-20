@@ -131,8 +131,8 @@ export default function CustomerStatementClient({ data, dict, currency }: any) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {/* Opening Balance */}
-                                {customer?.openingBalance !== 0 && (
+                                {/* Opening Balance - Only show if NOT already in transactions list */}
+                                {customer?.openingBalance !== 0 && !transactions.some((t: any) => t.type === 'OPENING' || t.description?.includes(dict.Customers.Statement.Table.OpeningBalance)) && (
                                     <TableRow className="bg-muted/50 border-slate-200">
                                         <TableCell>-</TableCell>
                                         <TableCell>-</TableCell>
@@ -161,9 +161,13 @@ export default function CustomerStatementClient({ data, dict, currency }: any) {
                                             {t.dueDate ? SafeFormatDate(t.dueDate, "dd/MM/yyyy") : "-"}
                                         </TableCell>
                                         <TableCell className="text-start">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${t.type === 'INVOICE' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${t.type === 'INVOICE' ? 'bg-blue-100 text-blue-700' :
+                                                (t.type === 'OPENING' || t.description?.includes(dict.Customers.Statement.Table.OpeningBalance)) ? 'bg-slate-100 text-slate-700' :
+                                                    'bg-green-100 text-green-700'
                                                 }`}>
-                                                {t.type === 'INVOICE' ? dict.Customers.Statement.Table.Invoice : dict.Customers.Statement.Table.Payment}
+                                                {t.type === 'INVOICE' ? dict.Customers.Statement.Table.Invoice :
+                                                    (t.type === 'OPENING' || t.description?.includes(dict.Customers.Statement.Table.OpeningBalance)) ? dict.Customers.Statement.Table.OpeningBalance :
+                                                        dict.Customers.Statement.Table.Payment}
                                             </span>
                                         </TableCell>
                                         <TableCell className="font-mono text-xs text-start">{t.reference || t.ref || "-"}</TableCell>
@@ -195,15 +199,15 @@ export default function CustomerStatementClient({ data, dict, currency }: any) {
                 {/* Print Footer */}
                 <div className="hidden print:flex justify-between items-end mt-20 pt-10 border-t">
                     <div className="text-center">
-                        <p className="font-bold underline mb-10">{dict.PrintSettings?.AccountantSignature || "توقيع المحاسب"}</p>
+                        <p className="font-bold underline mb-10">{dict.PrintSettings?.AccountantSignature}</p>
                         <p className="text-slate-300">..............................</p>
                     </div>
                     <div className="text-center">
-                        <p className="font-bold underline mb-10">{dict.PrintSettings?.ReviewSignature || "توقيع المراجعة"}</p>
+                        <p className="font-bold underline mb-10">{dict.PrintSettings?.ReviewSignature}</p>
                         <p className="text-slate-300">..............................</p>
                     </div>
                     <div className="text-center">
-                        <p className="font-bold underline mb-10">{dict.PrintSettings?.Stamp || "ختم المؤسسة"}</p>
+                        <p className="font-bold underline mb-10">{dict.PrintSettings?.Stamp}</p>
                         <div className="h-20 w-20 border-4 border-slate-100 rounded-full mx-auto opacity-20"></div>
                     </div>
                 </div>

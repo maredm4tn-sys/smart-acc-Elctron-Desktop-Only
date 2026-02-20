@@ -21,7 +21,7 @@ export default async function SettingsPage() {
                         {dict.Sidebar.Settings}
                     </h1>
                     <p className="text-slate-500 text-lg font-medium">
-                        {dict.Settings?.Description || "Manage system settings and customize user experience."}
+                        {dict.Settings?.Description}
                     </p>
                 </div>
             </div>

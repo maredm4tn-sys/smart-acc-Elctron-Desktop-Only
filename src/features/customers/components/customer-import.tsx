@@ -21,7 +21,7 @@ export function CustomerImport() {
                 const result = await (window as any).electron.importExcel();
 
                 if (!result.success) {
-                    if (result.message !== 'Canceled') toast.error(result.error || "Failed to read file");
+                    if (result.message !== 'Canceled') toast.error(result.error );
                     setIsUploading(false);
                     return;
                 }
@@ -30,7 +30,7 @@ export function CustomerImport() {
                 const importRes = await bulkImportCustomers(result.data);
 
                 if (importRes.success) {
-                    toast.success(importRes.data || "Import Successful");
+                    toast.success(importRes.data );
                     window.location.reload();
                 } else {
                     toast.error(importRes.message);
@@ -62,9 +62,9 @@ export function CustomerImport() {
             });
 
             if (response.ok) {
-                toast.success(dict.Common?.Success || "Success");
+                toast.success(dict.Common?.Success);
             } else {
-                toast.error(dict.Common?.Error || "Error");
+                toast.error(dict.Common?.Error);
             }
         } catch (error) {
             toast.error(dict.Common.Error);

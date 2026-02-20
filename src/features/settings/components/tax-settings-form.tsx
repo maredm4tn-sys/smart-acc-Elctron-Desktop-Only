@@ -36,17 +36,17 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
             const result = await updateSettings(payload);
 
             if (result.success) {
-                toast.success(dict.Common?.Success || "Success", {
-                    description: dict.Settings?.Form?.Success || "Updated successfully",
+                toast.success(dict.Common?.Success, {
+                    description: dict.Settings?.Form?.Success,
                 });
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
             } else {
-                toast.error((dict.Common?.Error || "Error") + ": " + result.message);
+                toast.error((dict.Common?.Error) + ": " + result.message);
             }
         } catch (error: any) {
-            toast.error(error.message || "An error occurred");
+            toast.error(error.message );
         } finally {
             setIsLoading(false);
         }
@@ -56,7 +56,7 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
         <Card className="border-none shadow-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <span>{dict.Settings?.Taxes?.Title || "Tax Settings"}</span>
+                    <span>{dict.Settings?.Taxes?.Title}</span>
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -64,8 +64,8 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
                 {/* Enable/Disable Tax */}
                 <div className="flex items-center justify-between p-4 border rounded-xl bg-slate-50">
                     <div className="space-y-0.5">
-                        <Label className="text-base">{dict.Settings?.Taxes?.Enable || "Enable Tax"}</Label>
-                        <p className="text-xs text-muted-foreground">{dict.Settings?.Taxes?.EnableHint || "Enable automatic tax calculation in invoices"}</p>
+                        <Label className="text-base">{dict.Settings?.Taxes?.Enable}</Label>
+                        <p className="text-xs text-muted-foreground">{dict.Settings?.Taxes?.EnableHint}</p>
                     </div>
                     <div className="flex items-center">
                         <Switch
@@ -81,17 +81,17 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
 
                     {/* Tax Name (Ar) */}
                     <div className="space-y-2">
-                        <Label>{dict.Settings?.Taxes?.NameAr || "Tax Name (Arabic)"}</Label>
+                        <Label>{dict.Settings?.Taxes?.NameAr}</Label>
                         <Input
                             value={settings.taxName}
                             onChange={(e) => setSettings(s => ({ ...s, taxName: e.target.value }))}
-                            placeholder={dict.Settings?.Taxes?.Placeholders?.NameAr || "e.g. VAT"}
+                            placeholder={dict.Settings?.Taxes?.Placeholders?.NameAr}
                         />
                     </div>
 
                     {/* Tax Name (En) */}
                     <div className="space-y-2">
-                        <Label>{dict.Settings?.Taxes?.NameEn || "Tax Name (English)"}</Label>
+                        <Label>{dict.Settings?.Taxes?.NameEn}</Label>
                         <Input
                             value={settings.taxNameEn}
                             onChange={(e) => setSettings(s => ({ ...s, taxNameEn: e.target.value }))}
@@ -102,7 +102,7 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
 
                     {/* Tax Rate */}
                     <div className="space-y-2">
-                        <Label>{dict.Settings?.Taxes?.Rate || "Rate (%)"}</Label>
+                        <Label>{dict.Settings?.Taxes?.Rate}</Label>
                         <div className="relative">
                             <Input
                                 type="number"
@@ -116,7 +116,7 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
 
                     {/* Tax Registration Number */}
                     <div className="space-y-2">
-                        <Label>{dict.Settings?.Taxes?.TaxId || "Tax ID"}</Label>
+                        <Label>{dict.Settings?.Taxes?.TaxId}</Label>
                         <Input
                             value={settings.taxId}
                             onChange={(e) => setSettings(s => ({ ...s, taxId: e.target.value }))}
@@ -126,7 +126,7 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
 
                     {/* Tax Calculation Method */}
                     <div className="space-y-2 md:col-span-2">
-                        <Label>{dict.Settings?.Taxes?.CalculationMethod || "Tax Calculation Method"}</Label>
+                        <Label>{dict.Settings?.Taxes?.CalculationMethod}</Label>
                         <Select
                             value={settings.taxType}
                             onValueChange={(val) => setSettings(s => ({ ...s, taxType: val as any }))}
@@ -135,12 +135,12 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="inclusive">{dict.Settings?.Taxes?.Inclusive || "Inclusive"}</SelectItem>
-                                <SelectItem value="exclusive">{dict.Settings?.Taxes?.Exclusive || "Exclusive"}</SelectItem>
+                                <SelectItem value="inclusive">{dict.Settings?.Taxes?.Inclusive}</SelectItem>
+                                <SelectItem value="exclusive">{dict.Settings?.Taxes?.Exclusive}</SelectItem>
                             </SelectContent>
                         </Select>
                         <p className="text-[11px] text-slate-500 pt-1">
-                            * {dict.Settings?.Taxes?.Hint || "Can be changed per invoice."}
+                            * {dict.Settings?.Taxes?.Hint}
                         </p>
                     </div>
 
@@ -149,7 +149,7 @@ export function TaxSettingsForm({ initialData }: { initialData: any }) {
                 <div className="pt-4 flex justify-end border-t">
                     <Button onClick={handleSave} disabled={isLoading} className="gap-2 min-w-[120px]">
                         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                        {dict.Settings?.Form?.Save || "Save Settings"}
+                        {dict.Settings?.Form?.Save}
                     </Button>
                 </div>
 

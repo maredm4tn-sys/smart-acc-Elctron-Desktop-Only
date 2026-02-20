@@ -46,7 +46,7 @@ export function ReturnInvoiceDialog({ open, onOpenChange, invoice }: ReturnInvoi
                     if (res && res.success) {
                         setFullInvoice(res.data);
                     } else {
-                        toast.error(dict.Sales?.Invoice?.Error || "Failed to load invoice items");
+                        toast.error(dict.Sales?.Invoice?.Error);
                     }
                     setIsLoadingItems(false);
                 });
@@ -63,7 +63,7 @@ export function ReturnInvoiceDialog({ open, onOpenChange, invoice }: ReturnInvoi
             return;
         }
         if (qty > maxQty) {
-            toast.error(dict.Invoices?.Errors?.ReturnQtyLimit || "Quantity exceeds original invoice quantity");
+            toast.error(dict.Invoices?.Errors?.ReturnQtyLimit);
             setReturnQuantities(prev => ({ ...prev, [itemId]: maxQty }));
             return;
         }
@@ -82,7 +82,7 @@ export function ReturnInvoiceDialog({ open, onOpenChange, invoice }: ReturnInvoi
 
     const handleReturn = async () => {
         if (!fullInvoice?.items) {
-            toast.error(dict.Sales?.Invoice?.Error || "Incomplete invoice data");
+            toast.error(dict.Sales?.Invoice?.Error);
             return;
         }
 
@@ -96,7 +96,7 @@ export function ReturnInvoiceDialog({ open, onOpenChange, invoice }: ReturnInvoi
             .filter((item: any) => item.quantity > 0);
 
         if (itemsToReturn.length === 0) {
-            toast.warning(dict.Sales?.Returns?.Messages?.SelectItems || "Please select at least one item to return");
+            toast.warning(dict.Sales?.Returns?.Messages?.SelectItems);
             return;
         }
 
@@ -119,7 +119,7 @@ export function ReturnInvoiceDialog({ open, onOpenChange, invoice }: ReturnInvoi
             }
         } catch (error) {
             console.error(error);
-            toast.error(dict.Common?.Errors?.Unexpected || "An unexpected error occurred");
+            toast.error(dict.Common?.Errors?.Unexpected);
         } finally {
             setIsPending(false);
         }

@@ -143,15 +143,15 @@ export default function DashboardView({ data, lang, settings }: { data: any, lan
             <div className="grid gap-2 grid-cols-2 md:grid-cols-4 lg:grid-cols-4 pt-1">
                 <CardWrapper icon={<DollarSign className="h-3.5 w-3.5" />} color="blue" title={dict.Dashboard.TotalRevenue} value={<Num value={stats.totalRevenue || 0} showGrouping={true} />} suffix={settings?.currency || "EGP"} />
                 <CardWrapper icon={<Wallet className="h-3.5 w-3.5" />} color="emerald" title={dict.Dashboard.CashLiquidity} value={<Num value={stats.cashLiquidity || 0} showGrouping={true} />} suffix={settings?.currency || "EGP"} />
+                <CardWrapper icon={<Activity className="h-3.5 w-3.5" />} color="indigo" title={dict.Dashboard.TotalAssets} value={<Num value={stats.totalAssets || 0} showGrouping={true} />} suffix={settings?.currency || "EGP"} />
                 <CardWrapper icon={<Package className="h-3.5 w-3.5" />} color="orange" title={dict.Dashboard.InventoryValue} value={<Num value={stats.inventoryValue || 0} showGrouping={true} />} suffix={settings?.currency || "EGP"} />
-                <CardWrapper icon={<Users className="h-3.5 w-3.5" />} color="purple" title={dict.Dashboard.CustomerReceivables} value={<Num value={stats.totalReceivables || 0} showGrouping={true} />} suffix={settings?.currency || "EGP"} />
             </div>
 
             <div className="grid gap-2 grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
-                <CardWrapper icon={<ShoppingBag className="h-3.5 w-3.5" />} color="purple" title={dict.Dashboard.AvgBasket} value={<Num value={stats.avgBasket || 0} showGrouping={true} />} suffix={settings?.currency || "EGP"} />
+                <CardWrapper icon={<Users className="h-3.5 w-3.5" />} color="purple" title={dict.Dashboard.CustomerReceivables} value={<Num value={stats.totalReceivables || 0} showGrouping={true} />} suffix={settings?.currency || "EGP"} />
+                <CardWrapper icon={<Truck className="h-3.5 w-3.5" />} color="cyan" title={dict.Dashboard.SupplierPayables} value={<Num value={stats.totalPayables || 0} showGrouping={true} />} suffix={settings?.currency || "EGP"} />
                 <CardWrapper icon={<CreditCard className="h-3.5 w-3.5" />} color="blue" title={dict.Dashboard.SalesInvoices} value={<Num value={stats.invoicesCount || 0} />} suffix={dict.Dashboard.Invoice} />
                 <CardWrapper icon={<Package className="h-3.5 w-3.5" />} color="orange" title={dict.Dashboard.ActiveProducts} value={<Num value={stats.activeProducts || 0} />} suffix={dict.Dashboard.Item} />
-                <CardWrapper icon={<Activity className="h-3.5 w-3.5" />} color="emerald" title={dict.Dashboard.FinancialAccounts} value={<Num value={stats.totalAccounts || 0} />} suffix={dict.Dashboard.Account} />
             </div>
 
             {/* 3. ALERTS & TRENDS (BOTTOM) */}
@@ -297,7 +297,7 @@ function QuickActionSquare({ icon, title, href, color, isPlaceholder, isAction }
 // --- HELPER: STAT CARD ---
 interface CardWrapperProps {
     icon: React.ReactNode;
-    color: 'blue' | 'purple' | 'orange' | 'emerald';
+    color: 'blue' | 'purple' | 'orange' | 'emerald' | 'indigo' | 'cyan';
     title: string;
     value: string | number | React.ReactNode;
     suffix?: string;
@@ -309,7 +309,9 @@ function CardWrapper({ icon, color, title, value, suffix, pill }: CardWrapperPro
         blue: 'bg-blue-500/10 text-blue-600',
         purple: 'bg-purple-500/10 text-purple-600',
         orange: 'bg-orange-500/10 text-orange-600',
-        emerald: 'bg-emerald-500/10 text-emerald-600'
+        emerald: 'bg-emerald-500/10 text-emerald-600',
+        indigo: 'bg-indigo-500/10 text-indigo-600',
+        cyan: 'bg-cyan-500/10 text-cyan-600'
     };
 
     return (

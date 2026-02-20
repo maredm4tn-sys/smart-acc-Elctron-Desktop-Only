@@ -16,12 +16,12 @@ export default async function CreateCustomerPage() {
         <div className="space-y-6 max-w-2xl mx-auto pb-10">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">{dict.Dialogs?.AddCustomer?.Title || "Add Customer"}</h1>
-                    <p className="text-muted-foreground">{dict.Dialogs?.AddCustomer?.Description || "Create a new customer profile"}</p>
+                    <h1 className="text-2xl font-bold tracking-tight">{dict.Dialogs?.AddCustomer?.Title}</h1>
+                    <p className="text-muted-foreground">{dict.Dialogs?.AddCustomer?.Description}</p>
                 </div>
                 <Link href="/dashboard/customers">
                     <Button variant="outline">
-                        {dict.Common?.Back || "Back"}
+                        {dict.Common?.Back}
                     </Button>
                 </Link>
             </div>

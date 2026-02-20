@@ -60,7 +60,7 @@ export function StorageLocationForm({ initialData }: { initialData: any }) {
                 toast.error(res.message);
             }
         } catch (error) {
-            toast.error(dict.Common?.Error || "Error");
+            toast.error(dict.Common?.Error);
         }
     };
 
@@ -82,7 +82,7 @@ export function StorageLocationForm({ initialData }: { initialData: any }) {
                     <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100 flex items-center justify-between animate-pulse-slow">
                         <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                            <span className="text-xs font-bold text-blue-700">{dict.StorageLocation.ActivePath || "Current Active Path:"}</span>
+                            <span className="text-xs font-bold text-blue-700">{dict.StorageLocation.ActivePath}</span>
                         </div>
                         <code className="text-[10px] bg-white px-2 py-1 rounded border border-blue-100 text-slate-600 font-mono dir-ltr max-w-[250px] truncate">
                             {initialData?.activeDbPath || "Determining..."}
@@ -108,7 +108,7 @@ export function StorageLocationForm({ initialData }: { initialData: any }) {
                                 type="button"
                                 onClick={handleBrowse}
                                 className="h-14 w-14 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-md active:scale-95 flex items-center justify-center p-0"
-                                title={dict.Common?.Open || "Browse"}
+                                title={dict.Common?.Open}
                             >
                                 <FolderOpen size={24} />
                             </button>
@@ -118,7 +118,7 @@ export function StorageLocationForm({ initialData }: { initialData: any }) {
                     <div className="flex items-start gap-3 p-5 rounded-2xl bg-amber-50/70 border border-amber-100 text-amber-900 shadow-sm animate-pulse-slow">
                         <AlertTriangle className="h-6 w-6 text-amber-600 mt-0.5 shrink-0" />
                         <div className="space-y-1">
-                            <p className="text-sm font-bold">{dict.Common?.Note || "Note"}</p>
+                            <p className="text-sm font-bold">{dict.Common?.Note}</p>
                             <p className="text-xs leading-relaxed opacity-90">{dict.StorageLocation.Hint}</p>
                         </div>
                     </div>
@@ -129,12 +129,12 @@ export function StorageLocationForm({ initialData }: { initialData: any }) {
                         {isSubmitting ? (
                             <div className="flex items-center gap-2">
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                <span>{dict.Settings?.Form?.Saving || "Saving..."}</span>
+                                <span>{dict.Settings?.Form?.Saving}</span>
                             </div>
                         ) : (
                             <>
                                 <Save size={22} />
-                                <span>{dict.Settings?.Form?.Save || "Save"}</span>
+                                <span>{dict.Settings?.Form?.Save}</span>
                             </>
                         )}
                     </Button>

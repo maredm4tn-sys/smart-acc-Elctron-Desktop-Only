@@ -7,6 +7,7 @@ import { MobileNav } from "./mobile-nav";
 import { ShiftManager } from "@/features/shifts/components/shift-manager";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "./notification-bell";
 
 interface DashboardShellProps {
     children: React.ReactNode;
@@ -14,7 +15,6 @@ interface DashboardShellProps {
     dict: any;
     isRtl: boolean;
 }
-
 export function DashboardShell({ children, user, dict, isRtl }: DashboardShellProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const pathname = usePathname();
@@ -88,7 +88,7 @@ export function DashboardShell({ children, user, dict, isRtl }: DashboardShellPr
                         </div>
 
                         <div className="flex items-center gap-4">
-                            {/* User profile / notifications icon can go here */}
+                            <NotificationBell />
                         </div>
                     </header>
                 )}
@@ -123,5 +123,3 @@ function ClockDisplay() {
         </span>
     );
 }
-
-// Keep the existing file content after this...

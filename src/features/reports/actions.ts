@@ -62,7 +62,9 @@ export async function getIncomeStatementData(filters?: { fromDate?: string; toDa
                     or(
                         eq(accounts.type, 'revenue'),
                         eq(accounts.type, 'income'),
-                        like(accounts.code, '4%') // Assuming '4' is the prefix for revenue accounts
+                        like(accounts.code, '4%'), // Group 4: Revenue
+                        like(accounts.name, '%إيراد%'),
+                        like(accounts.name, '%مبيعات%')
                     )
                 )
             );
@@ -95,7 +97,12 @@ export async function getIncomeStatementData(filters?: { fromDate?: string; toDa
             .where(
                 and(
                     ...sharedWhere,
-                    eq(accounts.type, 'expense')
+                    or(
+                        eq(accounts.type, 'expense'),
+                        like(accounts.code, '5%'), // Group 5: Expenses
+                        like(accounts.name, '%مصروف%'),
+                        like(accounts.name, '%تكلفة%')
+                    )
                 )
             );
 
@@ -116,7 +123,16 @@ export async function getIncomeStatementData(filters?: { fromDate?: string; toDa
             .from(journalLines)
             .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
             .innerJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
-            .where(and(...sharedWhere, eq(accounts.type, 'expense')))
+            .where(
+                and(
+                    ...sharedWhere,
+                    or(
+                        eq(accounts.type, 'expense'),
+                        like(accounts.code, '5%'),
+                        like(accounts.name, '%مصروف%')
+                    )
+                )
+            )
             .orderBy(desc(journalEntries.transactionDate), desc(journalEntries.id));
 
         const formattedExpenses = expenseDetails.map(item => ({
@@ -148,7 +164,8 @@ export async function getIncomeStatementData(filters?: { fromDate?: string; toDa
                     or(
                         eq(accounts.type, 'revenue'),
                         eq(accounts.type, 'income'),
-                        like(accounts.code, '4%') // Assuming '4' is the prefix for revenue accounts
+                        like(accounts.code, '4%'),
+                        like(accounts.name, '%إيراد%')
                     )
                 )
             )
@@ -173,7 +190,7 @@ export async function getIncomeStatementData(filters?: { fromDate?: string; toDa
                 value: interestIncome
             });
 
-            const salesIdx = formattedRevenue.findIndex(r => r.accountCode?.startsWith('401') || r.accountName.toLowerCase().includes("sales"));
+            const salesIdx = formattedRevenue.findIndex(r => r.accountName.toLowerCase().includes("sales") || r.accountName.includes("مبيعات"));
             if (salesIdx !== -1) {
                 formattedRevenue[salesIdx].value -= interestIncome;
                 formattedRevenue[salesIdx].name += " (Net of Interest)";
@@ -310,25 +327,48 @@ export async function getSalesSummary() {
             getSum(gte(invoices.issueDate, startOfMonth)),
             getSum(gte(invoices.issueDate, startOfYear)),
             db.select({
-                total: sql<number>`sum(COALESCE(${castNum(invoices.totalAmount)}, 0) - COALESCE(${castNum(invoices.amountPaid)}, 0))`
-            }).from(invoices).where(and(eq(invoices.tenantId, tenantId), eq(invoices.type, 'sale'))),
-            db.select({
-                total: sql<number>`sum(COALESCE(${castNum(purchaseInvoices.totalAmount)}, 0) - COALESCE(${castNum(purchaseInvoices.amountPaid)}, 0))`
-            }).from(purchaseInvoices).where(and(eq(purchaseInvoices.tenantId, tenantId), eq(purchaseInvoices.type, 'purchase'))),
-            db.select({ count: sql<number>`count(*)` }).from(products).where(eq(products.tenantId, tenantId)),
-            db.select({ count: sql<number>`count(*)` }).from(customers).where(eq(customers.tenantId, tenantId)),
-            db.select({ count: sql<number>`count(*)` }).from(suppliers).where(eq(suppliers.tenantId, tenantId)),
-            db.select({
-                balance: sql<number>`sum(COALESCE(${castNum(journalLines.debit)}, 0)) - sum(COALESCE(${castNum(journalLines.credit)}, 0))`
+                total: sql<number>`sum(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
             }).from(journalLines).innerJoin(accounts, eq(journalLines.accountId, accounts.id)).where(
                 and(
                     eq(accounts.tenantId, tenantId),
                     or(
-                        like(accounts.code, '101%'), // Cash accounts
-                        like(accounts.code, '102%'), // Bank accounts
+                        eq(accounts.type, 'customer'),
+                        like(accounts.name, '%عميل%'),
+                        like(accounts.name, '%عملاء%'),
+                        like(accounts.code, '1103%')
+                    )
+                )
+            ),
+            db.select({
+                total: sql<number>`sum(COALESCE(${castNum(journalLines.credit)}, 0) - COALESCE(${castNum(journalLines.debit)}, 0))`
+            }).from(journalLines).innerJoin(accounts, eq(journalLines.accountId, accounts.id)).where(
+                and(
+                    eq(accounts.tenantId, tenantId),
+                    or(
+                        eq(accounts.type, 'supplier'),
+                        like(accounts.name, '%مورد%'),
+                        like(accounts.name, '%موردين%'),
+                        like(accounts.code, '2101%')
+                    )
+                )
+            ),
+            db.select({ count: sql<number>`count(*)` }).from(products).where(eq(products.tenantId, tenantId)),
+            db.select({ count: sql<number>`count(*)` }).from(customers).where(eq(customers.tenantId, tenantId)),
+            db.select({ count: sql<number>`count(*)` }).from(suppliers).where(eq(suppliers.tenantId, tenantId)),
+            db.select({
+                balance: sql<number>`sum(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
+            }).from(journalLines).innerJoin(accounts, eq(journalLines.accountId, accounts.id)).where(
+                and(
+                    eq(accounts.tenantId, tenantId),
+                    or(
+                        eq(accounts.type, 'cash'),
+                        eq(accounts.type, 'bank'),
+                        like(accounts.name, '%خزينة%'),
+                        like(accounts.name, '%بنك%'),
+                        like(accounts.name, '%صندوق%'),
                         like(accounts.name, '%Cash%'),
-                        like(accounts.name, '%Treasury%'),
-                        like(accounts.name, '%Bank%')
+                        like(accounts.name, '%Bank%'),
+                        like(accounts.code, '1101%')
                     )
                 )
             ),
@@ -366,29 +406,41 @@ export async function getSalesSummary() {
 
 export async function getInventoryReport() {
     const { db, withErrorHandling, logToDesktop } = await import("@/db");
-    const { products } = await import("@/db/schema");
-    const { and, eq } = await import("drizzle-orm");
+    const { products, stockLevels, warehouses } = await import("@/db/schema");
+    const { and, eq, sql } = await import("drizzle-orm");
 
     return await withErrorHandling("getInventoryReport", async () => {
         const session = await getSession();
         const tenantId = session?.tenantId || await getActiveTenantId() || "tenant_default";
         if (!tenantId) return null;
 
-        // Fetch all GOODS (exclude services)
+        // Fetch all GOODS
         const allProducts = await db.select().from(products)
-            .where(
-                and(
-                    eq(products.tenantId, tenantId),
-                    eq(products.type, 'goods')
-                )
-            );
+            .where(and(eq(products.tenantId, tenantId), eq(products.type, 'goods')));
+
+        // Fetch stock levels joined with warehouses
+        const allStockLevels = await db.select({
+            productId: stockLevels.productId,
+            warehouseName: warehouses.name,
+            quantity: stockLevels.quantity
+        })
+            .from(stockLevels)
+            .innerJoin(warehouses, eq(stockLevels.warehouseId, warehouses.id))
+            .where(eq(stockLevels.tenantId, tenantId));
+
+        // Group by product
+        const stockByProduct: Record<number, any[]> = {};
+        allStockLevels.forEach(sl => {
+            if (!stockByProduct[sl.productId]) stockByProduct[sl.productId] = [];
+            stockByProduct[sl.productId].push(sl);
+        });
 
         let totalCostValue = 0;
         let totalSalesValue = 0;
-        let lowStockItems: typeof allProducts = [];
+        let lowStockItems: any[] = [];
         const LOW_STOCK_THRESHOLD = 5;
 
-        allProducts.forEach(product => {
+        const reportItems = allProducts.map(product => {
             const qty = Number(product.stockQuantity || 0);
             const cost = Number(product.buyPrice || 0);
             const price = Number(product.sellPrice || 0);
@@ -398,9 +450,16 @@ export async function getInventoryReport() {
                 totalSalesValue += (qty * price);
             }
 
+            const itemWithBreakdown = {
+                ...product,
+                stockBreakdown: stockByProduct[product.id] || []
+            };
+
             if (qty <= LOW_STOCK_THRESHOLD) {
-                lowStockItems.push(product);
+                lowStockItems.push(itemWithBreakdown);
             }
+
+            return itemWithBreakdown;
         });
 
         logToDesktop(`📊 [getInventoryReport] Processed ${allProducts.length} items`);
@@ -409,7 +468,8 @@ export async function getInventoryReport() {
             totalCostValue,
             totalSalesValue,
             potentialProfit: totalSalesValue - totalCostValue,
-            lowStockItems: lowStockItems.sort((a, b) => Number(a.stockQuantity) - Number(b.stockQuantity))
+            lowStockItems: lowStockItems.sort((a, b) => Number(a.stockQuantity) - Number(b.stockQuantity)),
+            allProducts: reportItems
         };
     });
 }
@@ -451,7 +511,7 @@ export async function getCategorySales(startDate: Date, endDate: Date) {
 
         logToDesktop(`📊 [getCategorySales] Found ${data.length} categories`);
         return data.map(item => ({
-            name: item.categoryName || dict.Common?.Uncategorized || "General",
+            name: item.categoryName || dict.Common?.Uncategorized,
             value: Number(item.totalAmount) || 0,
             count: Number(item.count) || 0
         }));
@@ -543,20 +603,102 @@ export async function getStagnantProducts(days: number = 30) {
     });
 }
 
+/**
+ * 🛠️ [SERVER ACTION] getBalanceSheetData
+ */
+export async function getBalanceSheetData() {
+    const { db, withErrorHandling, logToDesktop } = await import("@/db");
+    const { accounts, journalLines } = await import("@/db/schema");
+    const { and, eq, sql, or, like } = await import("drizzle-orm");
+
+    return await withErrorHandling("getBalanceSheetData", async () => {
+        const session = await getSession();
+        const tenantId = session?.tenantId || "tenant_default";
+
+        const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
+        const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+
+        // Fetch all account balances
+        // Logic: Group 1=Assets, 2=Liabilities, 3=Equity
+        const balances = await db
+            .select({
+                id: accounts.id,
+                name: accounts.name,
+                code: accounts.code,
+                type: accounts.type,
+                balance: sql<number>`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
+            })
+            .from(accounts)
+            .leftJoin(journalLines, eq(accounts.id, journalLines.accountId))
+            .where(eq(accounts.tenantId, tenantId))
+            .groupBy(accounts.id, accounts.name, accounts.code, accounts.type);
+
+        const assets: any[] = [];
+        const liabilities: any[] = [];
+        const equity: any[] = [];
+        let netProfit = 0;
+
+        balances.forEach(acc => {
+            const bal = Number(acc.balance || 0);
+            if (bal === 0 && !acc.code) return; // Skip empty/unused
+
+            // Classification based on Code (Primary) or Type (Secondary)
+            if (acc.code?.startsWith('1') || ['asset', 'cash', 'bank', 'customer', 'inventory'].includes(acc.type || '')) {
+                assets.push({ name: acc.name, value: bal });
+            } else if (acc.code?.startsWith('2') || ['liability', 'supplier'].includes(acc.type || '')) {
+                // Liabilities are usually credit balances, so show them as positive in the report (credit - debit)
+                liabilities.push({ name: acc.name, value: -bal });
+            } else if (acc.code?.startsWith('3') || ['equity'].includes(acc.type || '')) {
+                equity.push({ name: acc.name, value: -bal });
+            } else if (acc.code?.startsWith('4') || acc.code?.startsWith('5') || ['revenue', 'income', 'expense'].includes(acc.type || '')) {
+                // Net Profit = (Credits - Debits) for revenue - (Debits - Credits) for expenses
+                // Which is just -(Debits - Credits) total for these groups.
+                netProfit += -bal;
+            }
+        });
+
+        // Add Net Profit to Equity
+        if (Math.abs(netProfit) > 0.01) {
+            equity.push({
+                name: "Current Year Net Profit / Loss",
+                value: netProfit,
+                isGenerated: true
+            });
+        }
+
+        const totalAssets = assets.reduce((sum, a) => sum + a.value, 0);
+        const totalLiabilities = liabilities.reduce((sum, l) => sum + l.value, 0);
+        const totalEquity = equity.reduce((sum, e) => sum + e.value, 0);
+
+        logToDesktop(`📊 [getBalanceSheetData] Assets: ${totalAssets}, L+E: ${totalLiabilities + totalEquity}, Net Profit: ${netProfit}`);
+        return {
+            assets,
+            liabilities,
+            equity,
+            totalAssets,
+            totalLiabilities,
+            totalEquity,
+            netProfit,
+            isBalanced: Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 0.01
+        };
+    });
+}
+
 export async function getCreditReport() {
     const { db, withErrorHandling, logToDesktop } = await import("@/db");
-    const { invoices } = await import("@/db/schema");
+    const { invoices, customers, accounts, journalLines } = await import("@/db/schema");
     const { and, eq, sql, gt, asc, desc } = await import("drizzle-orm");
 
     return await withErrorHandling("getCreditReport", async () => {
         const session = await getSession();
-        const tenantId = session?.tenantId || await getActiveTenantId() || "tenant_default";
+        const tenantId = session?.tenantId || "tenant_default";
         if (!tenantId) throw new Error("Unauthorized");
 
         const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
         const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
 
-        const data = await db.select({
+        // 1. Fetch Invoices for detailed overdue tracking
+        const detailedInvoices = await db.select({
             id: invoices.id,
             invoiceNumber: invoices.invoiceNumber,
             customerName: invoices.customerName,
@@ -571,19 +713,445 @@ export async function getCreditReport() {
                     eq(invoices.tenantId, tenantId),
                     eq(invoices.type, 'sale'),
                 )
-            )
-            .orderBy(asc(invoices.dueDate), desc(invoices.issueDate));
+            );
 
-        const result = data.map(i => {
+        // 2. Fetch Customer Balances from Ledger (to capture Opening Balances / Manual Entries)
+        const customerBalances = await db.select({
+            id: customers.id,
+            customerName: customers.name,
+            balance: sql<number>`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
+        })
+            .from(customers)
+            .innerJoin(accounts, eq(accounts.tenantId, tenantId))
+            .innerJoin(journalLines, eq(journalLines.accountId, accounts.id))
+            .where(and(
+                eq(customers.tenantId, tenantId),
+                eq(accounts.code, sql`'1103-' || ${customers.id}`)
+            ))
+            .groupBy(customers.id, customers.name);
+
+        const result: any[] = [];
+        const handledInvoices = new Set<string>();
+
+        // Add detailed invoices first
+        detailedInvoices.forEach(i => {
             const total = Number(i.totalAmount || 0);
             const paid = Number(i.amountPaid || 0);
-            return {
-                ...i,
-                remaining: total - paid
-            };
-        }).filter(i => i.remaining > 0.01);
+            const remaining = total - paid;
+            if (remaining > 0.01) {
+                result.push({
+                    ...i,
+                    remaining
+                });
+                handledInvoices.add(i.invoiceNumber);
+            }
+        });
 
-        logToDesktop(`📊 [getCreditReport] Found ${result.length} overdue invoices for tenant ${tenantId}`);
-        return result;
+        // Add Customers with balances that aren't fully covered by invoices (e.g. Opening Balances)
+        for (const cb of customerBalances) {
+            const totalDue = Number(cb.balance || 0);
+            const invoiceSum = detailedInvoices
+                .filter(i => i.customerName === cb.customerName)
+                .reduce((sum, i) => sum + (Number(i.totalAmount) - Number(i.amountPaid)), 0);
+
+            const gap = totalDue - invoiceSum;
+            if (gap > 0.1) {
+                result.push({
+                    id: `legacy-${cb.id}`,
+                    invoiceNumber: "رصيد سابق / افتتاحية",
+                    customerName: cb.customerName,
+                    totalAmount: totalDue,
+                    amountPaid: invoiceSum,
+                    remaining: gap,
+                    issueDate: null,
+                    dueDate: null,
+                });
+            }
+        }
+
+        logToDesktop(`📊 [getCreditReport] Found ${result.length} items for tenant ${tenantId}`);
+        return result.sort((a, b) => {
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return a.dueDate.localeCompare(b.dueDate);
+        });
+    });
+}
+
+export async function getFinancialCommandData() {
+    const { db, withErrorHandling, logToDesktop } = await import("@/db");
+    const { invoices, customers, suppliers, accounts, journalLines, products } = await import("@/db/schema");
+    const { and, eq, sql, gt, lte, lt, or, like } = await import("drizzle-orm");
+
+    return await withErrorHandling("getFinancialCommandData", async () => {
+        const session = await getSession();
+        const tenantId = session?.tenantId || "tenant_default";
+        if (!tenantId) throw new Error("Unauthorized");
+
+        const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
+        const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+        // 1. LIQUIDITY: Cash & Bank
+        const cashRes = await db.select({
+            balance: sql<number>`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
+        })
+            .from(accounts)
+            .innerJoin(journalLines, eq(journalLines.accountId, accounts.id))
+            .where(and(
+                eq(accounts.tenantId, tenantId),
+                sql`${accounts.type} IN ('asset', 'cash', 'bank')`,
+                sql`${accounts.code} LIKE '1101-%' OR ${accounts.code} LIKE '1102-%' OR ${accounts.code} = '1101' OR ${accounts.code} = '1102'` // Cash & Banks
+            ));
+        const cashLiquidity = Number(cashRes[0]?.balance || 0);
+
+        // 2. LIQUIDITY: Inventory Value
+        const inventoryRes = await db.select({
+            totalValue: sql<number>`SUM(COALESCE(${castNum(products.stockQuantity)}, 0) * COALESCE(${castNum(products.buyPrice)}, 0))`
+        })
+            .from(products)
+            .where(eq(products.tenantId, tenantId));
+        const inventoryValue = Number(inventoryRes[0]?.totalValue || 0);
+
+        // 3. RECEIVABLES: Detailed Aging + Ledger Total
+        const [allReceivables, ledgerRecRes] = await Promise.all([
+            db.select({
+                id: invoices.id,
+                total: invoices.totalAmount,
+                paid: invoices.amountPaid,
+                dueDate: invoices.dueDate
+            })
+                .from(invoices)
+                .where(and(
+                    eq(invoices.tenantId, tenantId),
+                    eq(invoices.type, 'sale'),
+                    gt(sql`COALESCE(${castNum(invoices.totalAmount)}, 0) - COALESCE(${castNum(invoices.amountPaid)}, 0)`, 0.01)
+                )),
+            db.select({
+                balance: sql<number>`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
+            }).from(journalLines).innerJoin(accounts, eq(journalLines.accountId, accounts.id)).where(
+                and(
+                    eq(accounts.tenantId, tenantId),
+                    or(
+                        eq(accounts.type, 'customer'),
+                        like(accounts.code, '1103%')
+                    )
+                )
+            )
+        ]);
+
+        const totalLedgerReceivables = Number(ledgerRecRes[0]?.balance || 0);
+
+        let rec_current = 0, rec_1_30 = 0, rec_31_plus = 0;
+        let invoiceDebtSum = 0;
+
+        allReceivables.forEach(r => {
+            const remaining = Number(r.total || 0) - Number(r.paid || 0);
+            invoiceDebtSum += remaining;
+            if (!r.dueDate || r.dueDate >= today.toISOString().split('T')[0]) {
+                rec_current += remaining;
+            } else if (r.dueDate >= thirtyDaysAgo) {
+                rec_1_30 += remaining;
+            } else {
+                rec_31_plus += remaining;
+            }
+        });
+
+        // If there's a gap (Opening Balance / Manual Entry), add it to current
+        const recGap = totalLedgerReceivables - invoiceDebtSum;
+        if (recGap > 1) {
+            rec_current += recGap;
+        }
+
+        // 4. PAYABLES: Detailed Aging + Ledger Total
+        const [allPayables, ledgerPayRes] = await Promise.all([
+            db.select({
+                id: invoices.id,
+                total: invoices.totalAmount,
+                paid: invoices.amountPaid,
+                dueDate: invoices.dueDate
+            })
+                .from(invoices)
+                .where(and(
+                    eq(invoices.tenantId, tenantId),
+                    eq(invoices.type, 'purchase'),
+                    gt(sql`COALESCE(${castNum(invoices.totalAmount)}, 0) - COALESCE(${castNum(invoices.amountPaid)}, 0)`, 0.01)
+                )),
+            db.select({
+                balance: sql<number>`SUM(COALESCE(${castNum(journalLines.credit)}, 0) - COALESCE(${castNum(journalLines.debit)}, 0))`
+            }).from(journalLines).innerJoin(accounts, eq(journalLines.accountId, accounts.id)).where(
+                and(
+                    eq(accounts.tenantId, tenantId),
+                    or(
+                        eq(accounts.type, 'supplier'),
+                        like(accounts.code, '2101%')
+                    )
+                )
+            )
+        ]);
+
+        const totalLedgerPayables = Number(ledgerPayRes[0]?.balance || 0);
+
+        let pay_current = 0, pay_1_30 = 0, pay_31_plus = 0;
+        let purchaseDebtSum = 0;
+
+        allPayables.forEach(p => {
+            const remaining = Number(p.total || 0) - Number(p.paid || 0);
+            purchaseDebtSum += remaining;
+            if (!p.dueDate || p.dueDate >= today.toISOString().split('T')[0]) {
+                pay_current += remaining;
+            } else if (p.dueDate >= thirtyDaysAgo) {
+                pay_1_30 += remaining;
+            } else {
+                pay_31_plus += remaining;
+            }
+        });
+
+        // Add gap to current payables
+        const payGap = totalLedgerPayables - purchaseDebtSum;
+        if (payGap > 1) {
+            pay_current += payGap;
+        }
+
+        // 5. Net Position = Total Equity (which is Sum of all Debits - Sum of all Credits across all accounts)
+        // More accurately from Balance Sheet perspective:
+        const totalPosRes = await db.select({
+            balance: sql<number>`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
+        })
+            .from(accounts)
+            .innerJoin(journalLines, eq(journalLines.accountId, accounts.id))
+            .where(eq(accounts.tenantId, tenantId));
+
+        const netPosition = Number(totalPosRes[0]?.balance || 0);
+
+        // Assets (Positive accounts of type asset)
+        const assetsRes = await db.select({
+            balance: sql<number>`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
+        })
+            .from(accounts)
+            .innerJoin(journalLines, eq(journalLines.accountId, accounts.id))
+            .where(and(
+                eq(accounts.tenantId, tenantId),
+                eq(accounts.type, 'asset')
+            ))
+            .groupBy(accounts.id)
+            .having(gt(sql`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`, 0));
+
+        const totalAssets = assetsRes.reduce((acc, r) => acc + Number(r.balance || 0), 0);
+
+        // Liabilities (Negative accounts of type asset (Credit customers) + Positive accounts of type liability (Credit suppliers))
+        const totalLiabilities = totalAssets - netPosition;
+
+        return {
+            liquidity: {
+                cash: cashLiquidity,
+                inventory: inventoryValue,
+                total: cashLiquidity + inventoryValue
+            },
+            receivables: {
+                current: rec_current,
+                aged_1_30: rec_1_30,
+                aged_31_plus: rec_31_plus,
+                total: rec_current + rec_1_30 + rec_31_plus
+            },
+            payables: {
+                current: pay_current,
+                aged_1_30: pay_1_30,
+                aged_31_plus: pay_31_plus,
+                total: pay_current + pay_1_30 + pay_31_plus
+            },
+            netPosition,
+            totalAssets,
+            totalLiabilities
+        };
+    });
+}
+
+export async function getSupplierDebitReport() {
+    const { db, withErrorHandling, logToDesktop } = await import("@/db");
+    const { purchaseInvoices, suppliers, accounts, journalLines } = await import("@/db/schema");
+    const { and, eq, sql, gt, asc } = await import("drizzle-orm");
+
+    return await withErrorHandling("getSupplierDebitReport", async () => {
+        const session = await getSession();
+        const tenantId = session?.tenantId || "tenant_default";
+        if (!tenantId) throw new Error("Unauthorized");
+
+        const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
+        const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+
+        // 1. Fetch Purchase Invoices for detailed overdue tracking
+        const detailedInvoices = await db.select({
+            id: purchaseInvoices.id,
+            invoiceNumber: purchaseInvoices.invoiceNumber,
+            supplierName: purchaseInvoices.supplierName,
+            totalAmount: purchaseInvoices.totalAmount,
+            amountPaid: purchaseInvoices.amountPaid,
+            issueDate: purchaseInvoices.issueDate,
+            dueDate: purchaseInvoices.dueDate,
+        })
+            .from(purchaseInvoices)
+            .where(
+                and(
+                    eq(purchaseInvoices.tenantId, tenantId),
+                    eq(purchaseInvoices.type, 'purchase'),
+                )
+            );
+
+        // 2. Fetch Supplier Balances from Ledger
+        const supplierBalances = await db.select({
+            id: suppliers.id,
+            supplierName: suppliers.name,
+            balance: sql<number>`SUM(COALESCE(${castNum(journalLines.credit)}, 0) - COALESCE(${castNum(journalLines.debit)}, 0))`
+        })
+            .from(suppliers)
+            .innerJoin(accounts, eq(accounts.tenantId, tenantId))
+            .innerJoin(journalLines, eq(journalLines.accountId, accounts.id))
+            .where(and(
+                eq(suppliers.tenantId, tenantId),
+                eq(accounts.code, sql`'2101-' || ${suppliers.id}`)
+            ))
+            .groupBy(suppliers.id, suppliers.name);
+
+        const result: any[] = [];
+
+        // Add detailed invoices first
+        detailedInvoices.forEach(i => {
+            const total = Number(i.totalAmount || 0);
+            const paid = Number(i.amountPaid || 0);
+            const remaining = total - paid;
+            if (remaining > 0.01) {
+                result.push({
+                    ...i,
+                    remaining
+                });
+            }
+        });
+
+        // Add Suppliers with balances that aren't fully covered by invoices
+        for (const sb of supplierBalances) {
+            const totalDue = Number(sb.balance || 0);
+            const invoiceSum = detailedInvoices
+                .filter(i => i.supplierName === sb.supplierName)
+                .reduce((sum, i) => sum + (Number(i.totalAmount) - Number(i.amountPaid)), 0);
+
+            const gap = totalDue - invoiceSum;
+            if (gap > 0.1) {
+                result.push({
+                    id: `legacy-sup-${sb.id}`,
+                    invoiceNumber: "رصيد سابق / افتتاحية",
+                    supplierName: sb.supplierName,
+                    totalAmount: totalDue,
+                    amountPaid: invoiceSum,
+                    remaining: gap,
+                    issueDate: null,
+                    dueDate: null,
+                });
+            }
+        }
+
+        return result.sort((a, b) => {
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return a.dueDate.localeCompare(b.dueDate);
+        });
+    });
+}
+
+export async function getCustomerCreditReport() {
+    const { db, withErrorHandling, logToDesktop } = await import("@/db");
+    const { customers, accounts, journalLines } = await import("@/db/schema");
+    const { and, eq, sql, lt } = await import("drizzle-orm");
+
+    return await withErrorHandling("getCustomerCreditReport", async () => {
+        const session = await getSession();
+        const tenantId = session?.tenantId || "tenant_default";
+        if (!tenantId) throw new Error("Unauthorized");
+
+        const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
+        const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+
+        // Fetch Customer Balances from Ledger (where Balance is negative = they have money with us)
+        const creditBalances = await db.select({
+            id: customers.id,
+            customerName: customers.name,
+            phone: customers.phone,
+            balance: sql<number>`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`
+        })
+            .from(customers)
+            .innerJoin(accounts, eq(accounts.tenantId, tenantId))
+            .innerJoin(journalLines, eq(journalLines.accountId, accounts.id))
+            .where(and(
+                eq(customers.tenantId, tenantId),
+                eq(accounts.code, sql`'1103-' || ${customers.id}`)
+            ))
+            .groupBy(customers.id, customers.name, customers.phone)
+            .having(lt(sql`SUM(COALESCE(${castNum(journalLines.debit)}, 0) - COALESCE(${castNum(journalLines.credit)}, 0))`, -0.01));
+
+        return creditBalances.map(b => ({
+            ...b,
+            creditAmount: Math.abs(Number(b.balance || 0))
+        }));
+    });
+}
+
+/**
+ * 🛠️ [SERVER ACTION] getTrialBalanceData
+ */
+export async function getTrialBalanceData() {
+    const { db, withErrorHandling, logToDesktop } = await import("@/db");
+    const { accounts, journalLines } = await import("@/db/schema");
+    const { eq, sql } = await import("drizzle-orm");
+
+    return await withErrorHandling("getTrialBalanceData", async () => {
+        const session = await getSession();
+        const tenantId = session?.tenantId || await getActiveTenantId() || "tenant_default";
+
+        const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
+        const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+
+        // Fetch all accounts and their movement from journalLines
+        const balances = await db
+            .select({
+                id: accounts.id,
+                code: accounts.code,
+                name: accounts.name,
+                type: accounts.type,
+                totalDebit: sql<number>`SUM(COALESCE(${castNum(journalLines.debit)}, 0))`,
+                totalCredit: sql<number>`SUM(COALESCE(${castNum(journalLines.credit)}, 0))`
+            })
+            .from(accounts)
+            .leftJoin(journalLines, eq(accounts.id, journalLines.accountId))
+            .where(eq(accounts.tenantId, tenantId))
+            .groupBy(accounts.id, accounts.name, accounts.code, accounts.type)
+            .orderBy(accounts.code);
+
+        const rows = balances.map(b => {
+            const deb = Number(b.totalDebit || 0);
+            const cre = Number(b.totalCredit || 0);
+
+            return {
+                code: b.code || "",
+                name: b.name,
+                type: b.type,
+                totalDebit: deb,
+                totalCredit: cre,
+                balanceDebit: deb > cre ? deb - cre : 0,
+                balanceCredit: cre > deb ? cre - deb : 0
+            };
+        }).filter(r => r.totalDebit !== 0 || r.totalCredit !== 0 || (r.code && r.code.length <= 4));
+
+        const totalDebit = rows.reduce((sum, r) => sum + r.balanceDebit, 0);
+        const totalCredit = rows.reduce((sum, r) => sum + r.balanceCredit, 0);
+
+        logToDesktop(`📊 [getTrialBalanceData] Generated ${rows.length} rows. Total D: ${totalDebit}, Total C: ${totalCredit}`);
+
+        return {
+            rows,
+            totalDebit,
+            totalCredit,
+            isBalanced: Math.abs(totalDebit - totalCredit) < 0.01
+        };
     });
 }

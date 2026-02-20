@@ -35,7 +35,7 @@ export function JournalEntryDetailsDialog({ entry, open, onOpenChange, dict, cur
         if (!printWindow) return;
 
         printWindow.document.write(`
-            <html dir="${dict.Common?.Direction || 'rtl'}">
+            <html dir="${dict.Common?.Direction}">
                 <head>
                     <title>${entry.entryNumber}</title>
                     <style>
@@ -62,19 +62,27 @@ export function JournalEntryDetailsDialog({ entry, open, onOpenChange, dict, cur
                     </div>
                     <div class="meta">
                         <div class="meta-item"><span class="meta-label">${dict.Journal.Table.Date}:</span> ${new Date(entry.transactionDate).toLocaleDateString()}</div>
-                        <div class="meta-item"><span class="meta-label">${dict.Journal.Table.Type}:</span> ${entry.type}</div>
-                        <div class="meta-item"><span class="meta-label">${dict.Journal.Table.Reference || 'Reference'}:</span> ${entry.reference || '-'}</div>
-                        <div class="meta-item"><span class="meta-label">${dict.Journal.Table.Status}:</span> ${entry.status}</div>
+                        <div class="meta-item">
+                            <span class="meta-label">${dict.Journal.Table.Type}:</span> 
+                            ${entry.type === 'Invoice' ? dict.Journal.Types.Invoice :
+                entry.type === 'Payment' ? dict.Journal.Types.Payment :
+                    dict.Journal.Types.Manual}
+                        </div>
+                        <div class="meta-item"><span class="meta-label">${dict.Journal.Table.Reference}:</span> ${entry.reference || '-'}</div>
+                        <div class="meta-item">
+                            <span class="meta-label">${dict.Journal.Table.Status}:</span> 
+                            ${entry.status === 'posted' ? dict.Journal.Table.Posted : dict.Journal.Table.Draft}
+                        </div>
                     </div>
                     <div style="margin-bottom: 20px;">
-                        <span class="meta-label">${dict.Journal.Table.Description || 'Description'}:</span>
+                        <span class="meta-label">${dict.Journal.Table.Description}:</span>
                         <p style="margin-top: 5px;">${entry.description || '-'}</p>
                     </div>
                     <table>
                         <thead>
                             <tr>
                                 <th>${dict.Journal.Table.Account}</th>
-                                <th>${dict.Journal.Table.Description || 'Description'}</th>
+                                <th>${dict.Journal.Table.Description}</th>
                                 <th style="text-align: end">${dict.Journal.Table.Debit}</th>
                                 <th style="text-align: end">${dict.Journal.Table.Credit}</th>
                             </tr>
@@ -106,19 +114,19 @@ export function JournalEntryDetailsDialog({ entry, open, onOpenChange, dict, cur
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader className="border-b pb-4">
+                <DialogHeader className="border-b pb-4" dir="rtl">
                     <DialogTitle className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <FileText className="h-5 w-5 text-blue-600" />
                             <span>{dict.Journal.Table.EntryNumber}: {entry.entryNumber}</span>
                         </div>
                         <Badge variant={entry.status === 'posted' ? 'default' : 'secondary'} className={entry.status === 'posted' ? 'bg-emerald-600' : ''}>
-                            {entry.status === 'posted' ? dict.Journal.Table.Posted : entry.status}
+                            {entry.status === 'posted' ? dict.Journal.Table.Posted : dict.Journal.Table.Draft}
                         </Badge>
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-6 py-4" ref={printRef}>
+                <div className="space-y-6 py-4" ref={printRef} dir="rtl">
                     {/* Header Info Grid */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-1">
@@ -126,14 +134,14 @@ export function JournalEntryDetailsDialog({ entry, open, onOpenChange, dict, cur
                                 <Calendar className="h-3 w-3" />
                                 {dict.Journal.Table.Date}
                             </div>
-                            <div className="font-bold text-sm">{new Date(entry.transactionDate).toLocaleDateString()}</div>
+                            <div className="font-bold text-sm text-right">{new Date(entry.transactionDate).toLocaleDateString()}</div>
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-black uppercase tracking-wider">
                                 <Tag className="h-3 w-3" />
                                 {dict.Journal.Table.Type}
                             </div>
-                            <div className="font-bold text-sm">
+                            <div className="font-bold text-sm text-right">
                                 <Badge variant="outline" className="text-[10px] py-0">
                                     {entry.type === 'Invoice' ? dict.Journal.Types.Invoice :
                                         entry.type === 'Payment' ? dict.Journal.Types.Payment :
@@ -144,22 +152,22 @@ export function JournalEntryDetailsDialog({ entry, open, onOpenChange, dict, cur
                         <div className="space-y-1">
                             <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-black uppercase tracking-wider">
                                 <Hash className="h-3 w-3" />
-                                {dict.Journal.Table.Reference || 'المرجع'}
+                                {dict.Journal.Table.Reference}
                             </div>
-                            <div className="font-bold text-sm font-mono text-blue-600">{entry.reference || '-'}</div>
+                            <div className="font-bold text-sm font-mono text-blue-600 text-right">{entry.reference || '-'}</div>
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-black uppercase tracking-wider">
                                 <Info className="h-3 w-3" />
-                                {dict.Journal.Table.Currency || 'العملة'}
+                                {dict.Journal.Table.Currency}
                             </div>
-                            <div className="font-bold text-sm">{entry.currency || currency}</div>
+                            <div className="font-bold text-sm text-right">{entry.currency || currency}</div>
                         </div>
                     </div>
 
                     {entry.description && (
                         <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 italic text-slate-600 text-sm">
-                            <span className="font-black not-italic text-slate-400 text-[10px] block uppercase mb-1">{dict.Journal.Table.Description || 'البيان'}</span>
+                            <span className="font-black not-italic text-slate-400 text-[10px] block uppercase mb-1">{dict.Journal.Table.Description}</span>
                             {entry.description}
                         </div>
                     )}
@@ -168,24 +176,24 @@ export function JournalEntryDetailsDialog({ entry, open, onOpenChange, dict, cur
                         <table className="w-full text-sm">
                             <thead className="bg-slate-50">
                                 <tr>
-                                    <th className="text-start px-4 py-2 font-black text-slate-600 text-[10px] uppercase">{dict.Journal.Table.Account}</th>
-                                    <th className="text-start px-4 py-2 font-black text-slate-600 text-[10px] uppercase">{dict.Journal.Table.Description || 'البيان'}</th>
-                                    <th className="text-end px-4 py-2 font-black text-slate-600 text-[10px] uppercase">{dict.Journal.Table.Debit}</th>
-                                    <th className="text-end px-4 py-2 font-black text-slate-600 text-[10px] uppercase">{dict.Journal.Table.Credit}</th>
+                                    <th className="text-right px-4 py-2 font-black text-slate-600 text-[10px] uppercase">{dict.Journal.Table.Account}</th>
+                                    <th className="text-right px-4 py-2 font-black text-slate-600 text-[10px] uppercase">{dict.Journal.Table.Description}</th>
+                                    <th className="text-right px-4 py-2 font-black text-slate-600 text-[10px] uppercase">{dict.Journal.Table.Debit}</th>
+                                    <th className="text-right px-4 py-2 font-black text-slate-600 text-[10px] uppercase">{dict.Journal.Table.Credit}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {entry.lines.map((line: any) => (
                                     <tr key={line.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-4 py-3">
+                                        <td className="px-4 py-3 text-right">
                                             <div className="font-bold text-slate-900">{line.account.name}</div>
                                             <div className="text-[10px] font-mono text-slate-400">{line.account.code}</div>
                                         </td>
-                                        <td className="px-4 py-3 text-slate-500 italic max-w-[200px] truncate" title={line.description}>{line.description || '-'}</td>
-                                        <td className="px-4 py-3 text-end font-mono font-bold text-emerald-600">
+                                        <td className="px-4 py-3 text-right text-slate-500 italic max-w-[200px] truncate" title={line.description}>{line.description || '-'}</td>
+                                        <td className="px-4 py-3 text-right font-mono font-bold text-emerald-600">
                                             {Number(line.debit) > 0 ? formatCurrency(Number(line.debit), currency) : '-'}
                                         </td>
-                                        <td className="px-4 py-3 text-end font-mono font-bold text-rose-600">
+                                        <td className="px-4 py-3 text-right font-mono font-bold text-rose-600">
                                             {Number(line.credit) > 0 ? formatCurrency(Number(line.credit), currency) : '-'}
                                         </td>
                                     </tr>
@@ -197,18 +205,18 @@ export function JournalEntryDetailsDialog({ entry, open, onOpenChange, dict, cur
                     <div className="flex justify-end pt-4">
                         <div className="bg-slate-900 text-white rounded-xl p-4 min-w-[300px] shadow-lg">
                             <div className="flex justify-between items-center mb-2">
-                                <span className="text-[10px] font-black uppercase opacity-60">{dict.Journal.Table.DebitTotal || 'إجمالي المدين'}</span>
+                                <span className="text-[10px] font-black uppercase opacity-60">{dict.Journal.Table.TotalDebit}</span>
                                 <span className="font-mono font-bold">{formatCurrency(entry.debitTotal, currency)}</span>
                             </div>
                             <div className="flex justify-between items-center mb-3">
-                                <span className="text-[10px] font-black uppercase opacity-60">{dict.Journal.Table.CreditTotal || 'إجمالي الدائن'}</span>
+                                <span className="text-[10px] font-black uppercase opacity-60">{dict.Journal.Table.TotalCredit}</span>
                                 <span className="font-mono font-bold">{formatCurrency(entry.creditTotal, currency)}</span>
                             </div>
                             <Separator className="bg-white/20 mb-3" />
                             <div className="flex justify-between items-center">
-                                <span className="text-xs font-black uppercase">{dict.Journal.Table.Balance || 'التوازن'}</span>
+                                <span className="text-xs font-black uppercase">{dict.Journal.Table.Difference}</span>
                                 <Badge variant="outline" className="bg-emerald-500/20 text-emerald-400 border-none">
-                                    Balanced
+                                    {dict.Journal.Table.Posted}
                                 </Badge>
                             </div>
                         </div>
@@ -217,11 +225,11 @@ export function JournalEntryDetailsDialog({ entry, open, onOpenChange, dict, cur
 
                 <DialogFooter className="border-t pt-4 gap-2 sm:gap-0">
                     <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">
-                        {dict.Common?.Close || 'إغلاق'}
+                        {dict.Common?.Close}
                     </Button>
                     <Button onClick={handlePrint} className="gap-2 rounded-xl bg-slate-900 hover:bg-slate-800">
                         <Printer size={16} />
-                        {dict.Journal?.Print || 'طباعة القيد'}
+                        {dict.Journal?.Print}
                     </Button>
                 </DialogFooter>
             </DialogContent>

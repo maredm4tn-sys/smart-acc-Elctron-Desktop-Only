@@ -26,27 +26,28 @@ export function JournalEntryForm({ accounts }: { accounts: AccountOption[] }) {
     const dict = rawDict as any;
 
     const journalEntrySchema = z.object({
-        date: z.string().min(1, dict.Common?.Date || "Date Required"),
+        date: z.string().min(1, dict.Common?.Date),
         description: z.string().optional(),
         lines: z.array(z.object({
-            accountId: z.string().min(1, dict.Accounting?.Journal?.InvalidData || "Account Required"),
+            accountId: z.string().min(1, dict.Accounting?.Journal?.InvalidData),
             debit: z.coerce.number().min(0),
             credit: z.coerce.number().min(0),
             description: z.string().optional(),
-        })).min(2, dict.Accounting?.Journal?.NotBalanced || "Need at least 2 lines")
+        })).min(2, dict.Accounting?.Journal?.NotBalanced)
             .refine((lines) => {
                 const debits = lines.reduce((sum, l) => sum + l.debit, 0);
                 const credits = lines.reduce((sum, l) => sum + l.credit, 0);
                 return Math.abs(debits - credits) < 0.01;
             }, {
-                message: dict.Accounting?.Journal?.NotBalanced || "Entry not balanced",
+                message: dict.Accounting?.Journal?.NotBalanced,
                 path: ["root"],
             }),
     });
 
     type JournalFormValues = z.infer<typeof journalEntrySchema>;
 
-    const [totals, setTotals] = useState({ debit: 0, credit: 0, diff: 0 });
+    // State for totals removed in favor of direct calculation
+
 
     const { control, register, handleSubmit, watch, formState: { errors } } = useForm<JournalFormValues>({
         resolver: zodResolver(journalEntrySchema),
@@ -66,11 +67,16 @@ export function JournalEntryForm({ accounts }: { accounts: AccountOption[] }) {
 
     const watchedLines = watch("lines");
 
-    useEffect(() => {
-        const debit = watchedLines.reduce((sum, line) => sum + (Number(line.debit) || 0), 0);
-        const credit = watchedLines.reduce((sum, line) => sum + (Number(line.credit) || 0), 0);
-        setTotals({ debit, credit, diff: debit - credit });
-    }, [watchedLines]);
+    // Calculate totals directly from watched values to ensure instant updates
+    const currentLines = watchedLines || [];
+    const debitTotal = currentLines.reduce((sum, line) => sum + (Number(line.debit) || 0), 0);
+    const creditTotal = currentLines.reduce((sum, line) => sum + (Number(line.credit) || 0), 0);
+    const diffTotal = debitTotal - creditTotal;
+
+    // Sync state for other usages if needed, or just use these derived values directly in JSX
+    // For simplicity in this refactor, let's just use these derived values in the render and remove the state `totals`.
+    // We'll map them to a `totals` object to keep the rest of the code compatible.
+    const totals = { debit: debitTotal, credit: creditTotal, diff: diffTotal };
 
     const router = useRouter(); // Import assumed present
     const onSubmit = async (data: JournalFormValues) => {

@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from "@/db";
-import { users, invoices, products, customers, journalEntries, accounts, auditLogs, tenants, suppliers, vouchers, purchaseInvoices, purchaseInvoiceItems, invoiceItems, journalLines, attendance, advances, payrolls, employees, shifts, installments, representatives, categories, units, fiscalYears } from "@/db/schema";
+import { users, invoices, products, customers, journalEntries, accounts, auditLogs, tenants, suppliers, vouchers, purchaseInvoices, purchaseInvoiceItems, invoiceItems, journalLines, attendance, advances, payrolls, employees, shifts, installments, representatives, categories, units, fiscalYears, partners, partnerTransactions } from "@/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { getSession } from "@/features/auth/actions";
 import bcrypt from "bcryptjs";
@@ -36,7 +36,7 @@ export async function resetSubscriberData(tenantId: string) {
 
         const [tenant] = await db.select().from(tenants).where(eq(tenants.id, effectiveTenantId));
         // If tenant doesn't exist, we skip validation logic and jump to critical table clear for recovery
-        const tenantName = tenant?.name || "Default Organization";
+        const tenantName = tenant?.name ;
 
         if (isDesktop) {
             console.log(`🛠️ [FACTORY-RESET] Cleaning up tenant: ${effectiveTenantId}`);
@@ -72,6 +72,11 @@ export async function resetSubscriberData(tenantId: string) {
             await db.delete(suppliers).where(eq(suppliers.tenantId, effectiveTenantId));
             await db.delete(installments).where(eq(installments.tenantId, effectiveTenantId));
             await db.delete(representatives).where(eq(representatives.tenantId, effectiveTenantId));
+
+            // 🟢 [ADDED] Clear Partners Data
+            await db.delete(partnerTransactions).where(eq(partnerTransactions.tenantId, effectiveTenantId));
+            await db.delete(partners).where(eq(partners.tenantId, effectiveTenantId));
+
             await db.delete(categories).where(eq(categories.tenantId, effectiveTenantId));
             await db.delete(units).where(eq(units.tenantId, effectiveTenantId));
             await db.delete(fiscalYears).where(eq(fiscalYears.tenantId, effectiveTenantId));
@@ -127,6 +132,8 @@ export async function resetSubscriberData(tenantId: string) {
                 await tx.delete(products).where(eq(products.tenantId, effectiveTenantId));
                 await tx.delete(customers).where(eq(customers.tenantId, effectiveTenantId));
                 await tx.delete(suppliers).where(eq(suppliers.tenantId, effectiveTenantId));
+                await tx.delete(partnerTransactions).where(eq(partnerTransactions.tenantId, effectiveTenantId));
+                await tx.delete(partners).where(eq(partners.tenantId, effectiveTenantId));
                 await tx.delete(accounts).where(eq(accounts.tenantId, effectiveTenantId));
 
                 await tx.insert(auditLogs).values({
@@ -146,7 +153,7 @@ export async function resetSubscriberData(tenantId: string) {
         return { success: true };
     } catch (error: any) {
         console.error("Reset Subscriber Data Error:", error);
-        return { error: `Reset failed: ${error.message || "Internal error"}` };
+        return { error: `Reset failed: ${error.message }` };
     }
 }
 
@@ -241,7 +248,7 @@ export async function createSubscriber(data: {
             console.error(`[ADMIN] User creation FAILED for tenant ${tenant.id}:`, userError);
             // If user creation fails, we should ideally rollback, 
             // but for now, we report the specific error to the UI.
-            throw new Error(`Could not create admin user: ${userError.message || "Unknown error"}`);
+            throw new Error(`Could not create admin user: ${userError.message }`);
         }
 
         // revalidatePath(path);
@@ -254,7 +261,7 @@ export async function createSubscriber(data: {
             return { error: "Username or email already registered" };
         }
 
-        return { error: `Subscriber creation failed: ${error.message || "Unknown error"}` };
+        return { error: `Subscriber creation failed: ${error.message }` };
     }
 }
 

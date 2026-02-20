@@ -1,0 +1,100 @@
+{
+    "Logo": "المحاسب الذكي",
+    "General": {
+        "Overview": "نظرة عامة"
+    },
+    "Common": {
+        "CashCustomer": "عميل نقدي",
+        "Previous": "السابق",
+        "Next": "التالي",
+        "Page": "صفحة",
+        "Error": "حدث خطأ ما",
+        "Success": "تمت العملية بنجاح",
+        "Back": "عودة",
+        "Cancel": "إلغاء",
+        "Confirm": "تأكيد",
+        "Save": "حفظ",
+        "Yes": "نعم",
+        "No": "لا",
+        "From": "من",
+        "To": "إلى",
+        "All": "الكل",
+        "NA": "غير متوفر",
+        "ReportDate": "تاريخ التقرير",
+        "AM": "ص",
+        "PM": "م",
+        "SelectFolder": "اختر المجلد...",
+        "Errors": {
+            "NotFound": "غير موجود",
+            "Loading": "جاري التحميل..."
+        },
+        "Offline": {
+            "Status": "تعمل بدون إنترنت",
+            "Syncing": "جاري مزامنة البيانات...",
+            "SyncSuccess": "تمت المزامنة بنجاح",
+            "SyncFailed": "فشلت المزامنة. إعادة المحاولة؟",
+            "OfflineSaved": "تم الحفظ أوفلاين بنجاح",
+            "SyncRequired": "المزامنة مطلوبة للمتابعة",
+            "DaysLeft": "أيام متبقية للأوفلاين: {days}",
+            "ConnectionLost": "فقد الاتصال. تحويل للوضع الأوفلاين.",
+            "ConnectionRestored": "عاد الاتصال. جاري المزامنة..."
+        }
+    },
+    "Accounting": {
+        "Title": "المحاسبة",
+        "Errors": {
+            "NoCashAccount": "لم يتم العثور على حساب الصندوق",
+            "InsufficientFunds": "رصيد غير كافٍ في الحساب",
+            "NotBalanced": "القيد غير متزن"
+        },
+        "System": {
+            "CommissionDefault": "مصروف عمولة مبيعات",
+            "OpeningBalance": "رصيد أول المدة"
+        }
+    },
+    "Representatives": {
+        "Title": "المناديب/المحصلين",
+        "Description": "إدارة المناديب وتتبع العمولات والتحصيل",
+        "Settlement": "تسوية مندوب",
+        "CommissionDue": "استحقاق عمولة",
+        "PaymentToRep": "صرف مستحقات لمندوب"
+    },
+    "Inventory": {
+        "Table": {
+            "MainStore": "المخزن الرئيسي",
+            "MovementTypes": {
+                "Return": "مرتجع",
+                "Sale": "مبيعات"
+            }
+        }
+    },
+    "Sales": {
+        "Invoice": {
+            "Form": {
+                "CashCustomer": "عميل نقدي",
+                "Table": {
+                    "Item": "الصنف"
+                }
+            }
+        }
+    },
+    "POS": {
+        "MainStore": "المخزن الرئيسي",
+        "SelectCustomer": "اختر عميل..."
+    },
+    "Settings": {
+        "Backup": {
+            "QuickSetup": "إعداد سريع",
+            "Messages": {
+                "MaxTimesReached": "عفواً، الحد الأقصى 4 أوقات فقط",
+                "FillTelegramInfo": "برجاء التأكد من إدخال توكن البوت ومعرف الشات",
+                "FillEmailInfo": "برجاء التأكد من إدخال كافة بيانات السيرفر والبريد",
+                "TestTelegramSuccess": "تم إرسال رسالة تجريبية لتيليجرام بنجاح",
+                "TestEmailSuccess": "تم إرسال بريد تجريبي بنجاح"
+            }
+        },
+        "Form": {
+            "SaveAll": "حفظ كافة الإعدادات"
+        }
+    }
+}

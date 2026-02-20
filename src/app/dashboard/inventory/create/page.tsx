@@ -14,12 +14,12 @@ export default async function CreateProductPage() {
         <div className="space-y-6 max-w-4xl mx-auto pb-10">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">{dict.Dialogs?.AddProduct?.Title || "Add Product"}</h1>
-                    <p className="text-muted-foreground">{dict.Dialogs?.AddProduct?.Description || "Create a new product in inventory"}</p>
+                    <h1 className="text-2xl font-bold tracking-tight">{dict.Dialogs?.AddProduct?.Title}</h1>
+                    <p className="text-muted-foreground">{dict.Dialogs?.AddProduct?.Description}</p>
                 </div>
                 <Link href="/dashboard/inventory">
                     <Button variant="outline">
-                        {dict.Common?.Back || "Back"}
+                        {dict.Common?.Back}
                     </Button>
                 </Link>
             </div>

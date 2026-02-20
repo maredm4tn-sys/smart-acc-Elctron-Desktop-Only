@@ -82,9 +82,9 @@ export function BackupManager({ initialData: settings }: BackupManagerProps) {
                 });
             }
 
-            toast.success(dict.Settings?.Form?.Success || "تم حفظ كافة الإعدادات بنجاح");
+            toast.success(dict.Settings?.Form?.Success);
         } catch (error: any) {
-            toast.error(error.message || "فشل حفظ الإعدادات");
+            toast.error(error.message );
         } finally {
             setLoading(false);
         }
@@ -96,7 +96,7 @@ export function BackupManager({ initialData: settings }: BackupManagerProps) {
             // @ts-ignore
             const result = await window.electron.backupDatabase();
             if (result.success) {
-                toast.success(dict.Settings?.Backup?.Messages?.BackupSuccess || "Backup Success");
+                toast.success(dict.Settings?.Backup?.Messages?.BackupSuccess);
             } else {
                 toast.error(result.error || dict.Settings?.Backup?.Messages?.BackupFailed);
             }
@@ -143,7 +143,7 @@ export function BackupManager({ initialData: settings }: BackupManagerProps) {
 
     const addBackupTime = () => {
         if (autoBackupTimes.length >= 4) {
-            toast.error(dict.Settings?.Backup?.Messages?.MaxTimesReached || "Max 4 times");
+            toast.error(dict.Settings?.Backup?.Messages?.MaxTimesReached);
             return;
         }
         setAutoBackupTimes([...autoBackupTimes, "12:00"]);
@@ -174,7 +174,7 @@ export function BackupManager({ initialData: settings }: BackupManagerProps) {
             if (result.success) toast.success(dict.Settings?.Backup?.Messages?.TestTelegramSuccess);
             else toast.error(result.error);
         } catch (err: any) {
-            toast.error(err.message || "Failed to test telegram");
+            toast.error(err.message );
         } finally {
             setLoading(false);
         }
@@ -196,9 +196,9 @@ export function BackupManager({ initialData: settings }: BackupManagerProps) {
                 recipient: backupRecipientEmail
             });
             if (result.success) toast.success(dict.Settings?.Backup?.Messages?.TestEmailSuccess);
-            else toast.error(result.error || "Connection failed");
+            else toast.error(result.error );
         } catch (err: any) {
-            toast.error(err.message || "Email test failed");
+            toast.error(err.message );
         } finally {
             setLoading(false);
         }
@@ -366,7 +366,7 @@ export function BackupManager({ initialData: settings }: BackupManagerProps) {
                                 className="w-full h-11 rounded-xl border-sky-200 text-sky-700 hover:bg-sky-100/50 gap-2 font-black transition-all"
                             >
                                 <Zap size={16} />
-                                {dict.Settings?.Backup?.TestTelegram || "اختبار الاتصال"}
+                                {dict.Settings?.Backup?.TestTelegram}
                             </Button>
                         </div>
                     </CardContent>
@@ -417,12 +417,12 @@ export function BackupManager({ initialData: settings }: BackupManagerProps) {
                                     disabled={loading || !smtpHost}
                                     className="w-full h-12 rounded-2xl border-indigo-200 text-indigo-700 font-black bg-indigo-50/50 hover:bg-indigo-100/50 gap-3 shadow-sm transition-all"
                                 >
-                                    <Zap size={18} className="fill-indigo-200" /> {dict.Common?.Test || "اختبار الاتصال بالبريد"}
+                                    <Zap size={18} className="fill-indigo-200" /> {dict.Common?.Test}
                                 </Button>
 
                                 <div className="flex items-center gap-2 py-1">
                                     <div className="h-[1px] flex-1 bg-indigo-50"></div>
-                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{dict.Settings?.Backup?.QuickSetup || "Quick Setup"}</span>
+                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{dict.Settings?.Backup?.QuickSetup}</span>
                                     <div className="h-[1px] flex-1 bg-indigo-50"></div>
                                 </div>
 
@@ -451,7 +451,7 @@ export function BackupManager({ initialData: settings }: BackupManagerProps) {
                         className="bg-indigo-600 hover:bg-indigo-700 h-16 rounded-3xl font-black min-w-[340px] px-12 gap-4 shadow-[0_15px_40px_-10px_rgba(79,70,229,0.3)] hover:scale-105 active:scale-95 transition-all text-xl border-4 border-white text-white"
                     >
                         <Save className="h-7 w-7 text-indigo-200" />
-                        {loading ? dict.Common?.Loading : (dict.Settings?.Form?.SaveAll || "حفظ كافة الإعدادات")}
+                        {loading ? dict.Common?.Loading : dict.Settings?.Form?.SaveAll}
                     </Button>
                 </div>
             </div>

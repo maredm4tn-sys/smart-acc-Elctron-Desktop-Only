@@ -6,12 +6,11 @@ import { Languages } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function LanguageSwitcher() {
-    const { lang } = useTranslation();
+    const { dict, lang } = useTranslation();
     const router = useRouter();
 
     const toggleLanguage = () => {
         const newLang = lang === "ar" ? "en" : "ar";
-        // Set cookie
         // Set cookie broadly
         document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000`;
         // Hard reload for Electron
@@ -21,7 +20,7 @@ export function LanguageSwitcher() {
     return (
         <Button variant="ghost" size="sm" onClick={toggleLanguage} className="gap-2 font-mono">
             <Languages size={16} />
-            {lang === "ar" ? "English" : "عربي"}
+            {lang === "ar" ? dict.Common?.English : dict.Common?.Arabic}
         </Button>
     )
 }

@@ -33,15 +33,15 @@ export function InvoiceSettingsForm({ initialData }: { initialData: any }) {
             const result = await updateSettings(payload);
 
             if (result.success) {
-                toast.success(dict.Common?.Success || "Success", {
-                    description: dict.Settings?.Form?.Success || "Saved successfully",
+                toast.success(dict.Common?.Success, {
+                    description: dict.Settings?.Form?.Success,
                 });
             } else {
-                throw new Error(result.message || dict.Common?.Error || "Error");
+                throw new Error(result.message || dict.Common?.Error);
             }
         } catch (error: any) {
-            toast.error(dict.Common?.Error || "Error", {
-                description: error.message || "An error occurred",
+            toast.error(dict.Common?.Error, {
+                description: error.message ,
             });
         } finally {
             setIsLoading(false);
@@ -53,7 +53,7 @@ export function InvoiceSettingsForm({ initialData }: { initialData: any }) {
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <FileText className="w-5 h-5 text-custom-blue" />
-                    <span>{dict.Settings?.Invoices?.Title || "Invoicing & Numbering"}</span>
+                    <span>{dict.Settings?.Invoices?.Title}</span>
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -61,21 +61,21 @@ export function InvoiceSettingsForm({ initialData }: { initialData: any }) {
                 <div className="grid gap-6 md:grid-cols-2">
                     {/* Invoice Prefix */}
                     <div className="space-y-2">
-                        <Label>{dict.Settings?.Invoices?.Prefix || "Invoice Prefix"}</Label>
+                        <Label>{dict.Settings?.Invoices?.Prefix}</Label>
                         <Input
                             className="bg-slate-50 font-mono text-center"
                             value={settings.invoicePrefix}
                             onChange={(e) => setSettings(s => ({ ...s, invoicePrefix: e.target.value }))}
-                            placeholder={dict.Settings?.Invoices?.Placeholders?.Prefix || "e.g. INV-"}
+                            placeholder={dict.Settings?.Invoices?.Placeholders?.Prefix}
                         />
                         <p className="text-[11px] text-muted-foreground">
-                            {dict.Settings?.Invoices?.Hints?.Prefix || "Appears before number"} <span className="font-mono bg-slate-100 px-1 rounded">{settings.invoicePrefix}1001</span>
+                            {dict.Settings?.Invoices?.Hints?.Prefix} <span className="font-mono bg-slate-100 px-1 rounded">{settings.invoicePrefix}1001</span>
                         </p>
                     </div>
 
                     {/* Next Invoice Number */}
                     <div className="space-y-2">
-                        <Label>{dict.Settings?.Invoices?.Counter || "Counter"}</Label>
+                        <Label>{dict.Settings?.Invoices?.Counter}</Label>
                         <Input
                             type="number"
                             className="bg-slate-50 font-mono text-center"
@@ -84,21 +84,21 @@ export function InvoiceSettingsForm({ initialData }: { initialData: any }) {
                             min={1}
                         />
                         <p className="text-[11px] text-muted-foreground">
-                            {dict.Settings?.Invoices?.Hints?.Counter || "Reset sequence carefully"}
+                            {dict.Settings?.Invoices?.Hints?.Counter}
                         </p>
                     </div>
 
                     {/* Footer Notes */}
                     <div className="space-y-2 md:col-span-2">
-                        <Label>{dict.Settings?.Invoices?.FooterNotes || "Footer Notes"}</Label>
+                        <Label>{dict.Settings?.Invoices?.FooterNotes}</Label>
                         <Textarea
                             className="bg-slate-50 min-h-[100px]"
                             value={settings.invoiceFooterNotes}
                             onChange={(e) => setSettings(s => ({ ...s, invoiceFooterNotes: e.target.value }))}
-                            placeholder={dict.Settings?.Invoices?.Placeholders?.FooterNotes || "Ex: Thank you text..."}
+                            placeholder={dict.Settings?.Invoices?.Placeholders?.FooterNotes}
                         />
                         <p className="text-[11px] text-muted-foreground">
-                            {dict.Settings?.Invoices?.Hints?.Footer || "Appears at bottom of invoice"}
+                            {dict.Settings?.Invoices?.Hints?.Footer}
                         </p>
                     </div>
                 </div>
@@ -106,7 +106,7 @@ export function InvoiceSettingsForm({ initialData }: { initialData: any }) {
                 <div className="pt-4 flex justify-end border-t">
                     <Button onClick={handleSave} disabled={isLoading} className="gap-2 min-w-[120px]">
                         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                        {dict.Settings?.Form?.Save || "Save Settings"}
+                        {dict.Settings?.Form?.Save}
                     </Button>
                 </div>
 

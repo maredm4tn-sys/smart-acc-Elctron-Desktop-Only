@@ -118,7 +118,20 @@
         "Show": "Show",
         "Hide": "Hide",
         "Print": "Print",
-        "Settle": "Settle & Pay"
+        "Settle": "Settle & Pay",
+        "Customer": "Customer",
+        "Credit": "Credit",
+        "Details": "Details",
+        "Description": "Description",
+        "ContactInfo": "Contact Info",
+        "Days": {
+            "1": "Day",
+            "7": "Week",
+            "14": "2 Weeks",
+            "30": "Month"
+        },
+        "English": "[EN] English",
+        "Arabic": "[EN] العربية"
     },
     "Sidebar": {
         "MainMenu": "Main Menu",
@@ -145,11 +158,15 @@
         "Representatives": "Representatives",
         "Invoice": "Invoice #",
         "Vouchers": "Vouchers",
-        "Logout": "Logout"
+        "Logout": "Logout",
+        "SmartAlerts": "Smart Alerts",
+        "Partners": "Partners"
     },
     "PartnersManagement": {
         "Title": "Partners & Capital",
         "Description": "Manage partner shares, capital contributions, and profit distribution.",
+        "ExportExcel": "Export (Excel)",
+        "ImportExcel": "Import (Excel)",
         "NewPartner": "Add New Partner",
         "Count": "Partners Count",
         "ActiveCount": "Active Partners",
@@ -221,6 +238,8 @@
     "EmployeesManagement": {
         "Title": "Employees & HR",
         "Description": "Manage employee data, advances, and payroll.",
+        "ExportExcel": "Export (Excel)",
+        "ImportExcel": "Import (Excel)",
         "NewEmployee": "Add New Employee",
         "DeleteConfirm": "Are you sure you want to delete this employee?",
         "DeleteSuccess": "Employee deleted successfully.",
@@ -251,6 +270,7 @@
             "Phone": "Phone Number",
             "Address": "Address",
             "Email": "Email",
+            "Position": "Position",
             "Salary": "Salary",
             "BasicSalary": "Basic Salary",
             "Status": "Status",
@@ -379,7 +399,10 @@
         "NoActiveAlerts": "No active alerts",
         "SystemOnline": "System Online",
         "SyncWarning": "Warning: Data synchronization issue. Numbers might be outdated.",
-        "AddProduct": "Add Product"
+        "AddProduct": "Add Product",
+        "Vouchers": "Vouchers",
+        "Logout": "Logout",
+        "TotalAssets": "Total Assets and Properties"
     },
     "RevenueChart": {
         "Title": "Revenue Trend",
@@ -505,7 +528,10 @@
             "Cancel": "Cancel",
             "DeleteConfirm": "Are you sure you want to delete this customer? This action cannot be undone.",
             "DeleteSuccess": "Customer deleted successfully",
-            "DeleteError": "Failed to delete customer"
+            "DeleteError": "Failed to delete customer",
+            "OpeningCapitalDeposit": "[EN] إيداع رأس مال افتتاحي",
+            "NoPartners": "[EN] لا يوجد شركاء مسجلين.",
+            "AddSuccess": "[EN] تم إضافة العميل بنجاح"
         },
         "EditDialog": {
             "Title": "Edit Customer Details",
@@ -542,11 +568,43 @@
                 "Payment": "Receipt Voucher",
                 "NoData": "No transactions registered for this customer yet."
             }
+        },
+        "Report": {
+            "Print": {
+                "Subtitle": "[EN] كشف حساب عميل مالي",
+                "ReportDate": "[EN] تاريخ التقرير:",
+                "SaleInvoice": "[EN] فاتورة بيع",
+                "ReceiptVoucher": "[EN] سند قبض",
+                "Table": {
+                    "Date": "[EN] التاريخ",
+                    "Type": "[EN] النوع",
+                    "Reference": "[EN] المرجع",
+                    "Description": "[EN] البيان",
+                    "Debit": "[EN] مدين",
+                    "Credit": "[EN] دائن",
+                    "Balance": "[EN] الرصيد"
+                },
+                "AccountantSignature": "[EN] توقيع المحاسب",
+                "ReviewSignature": "[EN] توقيع المراجعة",
+                "FacilityStamp": "[EN] ختم المؤسسة"
+            }
+        },
+        "Journal": {
+            "CapitalFor": "Capital -",
+            "CapitalOf": "Partner Capital -",
+            "OpeningCapital": "Opening Capital -",
+            "CapitalDeposit": "Capital Deposit -",
+            "WithdrawalDesc": "Partner Withdrawal -",
+            "WithdrawalsFor": "Withdrawals for Partner -",
+            "CashOut": "Cash Disbursement",
+            "ProfitDistribution": "Profit distribution for the period from {from} to {to}"
         }
     },
     "Suppliers": {
         "Title": "Suppliers",
         "Description": "Manage suppliers and companies list",
+        "ExportExcel": "Export (Excel)",
+        "ImportExcel": "Import (Excel)",
         "NewSupplier": "Add Supplier",
         "ListTitle": "Suppliers List",
         "Table": {
@@ -594,7 +652,8 @@
             },
             "DeleteConfirm": "Are you sure you want to delete this supplier? This action cannot be undone.",
             "DeleteSuccess": "Deleted successfully",
-            "DeleteError": "Delete failed"
+            "DeleteError": "Delete failed",
+            "InvalidPassword": "[EN] كلمة المرور غير صحيحة"
         },
         "EditDialog": {
             "Title": "Edit Supplier Data",
@@ -679,6 +738,13 @@
             "Today": "Today",
             "Week": "Week",
             "Month": "Month"
+        },
+        "ImportExcel": "[EN] استيراد (Excel)",
+        "ExpensesManagement": {
+            "Title": "[EN] إدارة المصروفات",
+            "Description": "[EN] تتبع النفقات وصرف الخزينة",
+            "NewExpense": "[EN] مصروف جديد",
+            "Report": "[EN] تقرير المصروفات"
         }
     },
     "ExpensesManagement": {
@@ -688,6 +754,23 @@
     "Inventory": {
         "Title": "Inventory & Products",
         "Description": "Manage items, quantities, prices, and track stock movement.",
+        "ExportExcel": "Export (Excel)",
+        "ImportExcel": "Import (Excel)",
+        "Warehouses": {
+            "Title": "Warehouses",
+            "MainWarehouse": "Main Warehouse",
+            "AddWarehouse": "Add Warehouse",
+            "EditWarehouse": "Edit Warehouse",
+            "Name": "Warehouse Name",
+            "Location": "Location",
+            "IsDefault": "Set as Default",
+            "Default": "Default",
+            "StockPerWarehouse": "Stock per Warehouse",
+            "Empty": "No warehouses found.",
+            "ConfirmDelete": "Are you sure you want to delete this warehouse?",
+            "InitDefault": "Initialize Default Warehouse",
+            "InitDefaultHint": "Click here to initialize main warehouse and link current stock"
+        },
         "AddProduct": "Add New Item",
         "Categories": "Departments / Categories",
         "Units": "Measuring Units",
@@ -906,6 +989,11 @@
             "List": "Existing Units",
             "NoUnits": "No units found",
             "DeleteConfirm": "Are you sure you want to delete this unit?"
+        },
+        "Attributes": {
+            "Color": "[EN] اللون",
+            "Size": "[EN] المقاس",
+            "Material": "[EN] الخامة"
         }
     },
     "Journal": {
@@ -1003,9 +1091,12 @@
                 "Paid": "Paid",
                 "RemainingDue": "Remaining Due",
                 "Remaining": "Remaining",
+                "Items": "Items",
+                "InitialPayment": "Down Payment",
                 "Interest": "Interest",
                 "PrintButton": "Print",
                 "Discount": "Discount",
+                "DiscountAmount": "Discount Amount",
                 "PrintLayout": "Print Layout",
                 "AutoPrint": "Auto Print",
                 "CashCustomer": "Cash Customer",
@@ -1015,7 +1106,9 @@
                     "Description": "Description",
                     "Qty": "Qty",
                     "Price": "Price",
-                    "Total": "Total"
+                    "Total": "Total",
+                    "UnitPrice": "[EN] سعر الوحدة",
+                    "Subtotal": "[EN] الإجمالي"
                 },
                 "Errors": {
                     "CustomerRequired": "Customer is required",
@@ -1027,14 +1120,16 @@
                     "PriceMin": "Price cannot be negative",
                     "OneItem": "Add at least one item",
                     "AmountExceeds": "Paid amount exceeds invoice total"
-                }
+                },
+                "CreditSaleTag": "[EN] بيع آجل",
+                "DueDate": "[EN] تاريخ الاستحقاق"
             },
             "Print": {
                 "Title": "Tax Invoice",
                 "SimpleTitle": "Sales Invoice",
                 "BillTo": "Bill To",
                 "TaxId": "Tax ID",
-                "InvoiceNo": "Invoice #",
+                "InvoiceNumber": "Invoice #",
                 "Date": "Date",
                 "DueDate": "Due Date",
                 "Item": "Item",
@@ -1045,7 +1140,8 @@
                 "Tax": "Tax",
                 "GrandTotal": "Grand Total",
                 "Footer": "Thank you for your business.",
-                "Token": "Queue Number"
+                "Token": "Queue Number",
+                "InstallmentInterest": "[EN] فائدة التقسيط"
             }
         },
         "Table": {
@@ -1055,29 +1151,38 @@
             "Status": "Status",
             "Total": "Total",
             "Actions": "Actions",
-            "NoInvoices": "No invoices.",
+            "NoInvoices": "No invoices found",
+            "CreateReturn": "Create Return",
             "Paid": "Paid",
             "Issued": "Issued",
             "Draft": "Draft",
             "Cancelled": "Cancelled",
             "Print": "Print",
             "Type": "Type",
-            "CreateReturn": "Create Return",
+            "Items": "Items",
+            "Remaining": "Remaining",
+            "PaidBreakdown": "Paid Breakdown",
+            "UnitPrice": "Unit Price",
+            "StatusLabels": {
+                "Returned": "Returned",
+                "PartiallyReturned": "Partially Returned",
+                "Paid": "Paid",
+                "Issued": "Issued"
+            },
             "Types": {
                 "Return": "Return",
                 "Sale": "Sale"
-            },
-            "StatusLabels": {
-                "Returned": "Returned",
-                "PartiallyReturned": "Partially Returned"
             },
             "SaleMode": "Sale Method",
             "Cash": "Cash",
             "Credit": "Credit",
             "Card": "Visa / Card",
             "Installment": "Installment",
+            "Item": "Item",
+            "Qty": "Quantity",
             "Subtotal": "Subtotal",
             "Tax": "Tax",
+            "Price": "Price",
             "Discount": "Discount"
         },
         "Returns": {
@@ -1095,7 +1200,8 @@
             "ReturnQty": "Return Qty",
             "Total": "Total",
             "TotalReturn": "Total Refund"
-        }
+        },
+        "Record": "[EN] سجل المبيعات"
     },
     "Confirm": {
         "Message": "Are you sure you want to proceed?"
@@ -1138,6 +1244,8 @@
             "Payments": "Payments",
             "ProfitAndLoss": "Profit & Loss",
             "DepartmentSales": "Department Revenue",
+            "TrialBalance": "Trial Balance",
+            "BalanceSheet": "Balance Sheet",
             "Employees": "Employee Records"
         },
         "NoData": "No data during this period",
@@ -1166,8 +1274,16 @@
                 "BuyPrice": "Buy Price",
                 "Action": "Action",
                 "NoLowStock": "Stock is good! No low stock (less than 5).",
-                "OrderSupply": "Order Supply"
-            }
+                "OrderSupply": "Order Supply",
+                "ActionRequired": "[EN] اتخاذ إجراء"
+            },
+            "PrintSettings": {
+                "AccountantSignature": "[EN] توقيع المحاسب",
+                "ReviewSignature": "[EN] توقيع المراجعة",
+                "Stamp": "[EN] ختم المؤسسة"
+            },
+            "NoLowStock": "[EN] المخزون جيد! لا توجد نواقص (أقل من 5).",
+            "OrderSupply": "[EN] طلب توريد"
         },
         "IncomeStatement": {
             "Title": "Income Statement (Profit & Loss)",
@@ -1223,6 +1339,25 @@
             "InvoicesCount": "Number of Credit Invoices",
             "TableTitle": "Debt Details",
             "NoData": "No current debts."
+        },
+        "SupplierDebitReport": {
+            "Title": "Supplier Payables Report",
+            "Desc": "Follow up on amounts due to suppliers and payment scheduling.",
+            "TotalRemaining": "Total Supplier Payables",
+            "InvoicesCount": "Number of Credit Purchase Invoices",
+            "TableTitle": "Supplier Payables Details",
+            "NoData": "No current supplier payables.",
+            "OpeningBalanceLabel": "Opening Balance / Previous",
+            "NoDataHint": "All supplier payments are fully settled."
+        },
+        "CustomerCreditReport": {
+            "Title": "Customer Credit Balances",
+            "Desc": "Customers with remaining prepayments or unadjusted returns.",
+            "TotalCredit": "Total Customer Credit Balances",
+            "CustomersCount": "Credit Customers Count",
+            "TableTitle": "Credit Balance Details",
+            "NoData": "No current customer credit balances.",
+            "NoDataHint": "All customer balances are within normal collection cycle."
         },
         "DepartmentSalesPage": {
             "Title": "Revenue by Department",
@@ -1284,11 +1419,90 @@
                 "Expense": "Analytical Expense Statement",
                 "General": "General Account Statement"
             },
-            "Footer": "This report was extracted on {date}",
+            "Footer": {
+                "AccountantSignature": "[EN] توقيع المحاسب",
+                "ReviewSignature": "[EN] توقيع المراجعة",
+                "Stamp": "[EN] ختم المؤسسة",
+                "DateGenerated": "[EN] تم إنشاء هذا التقرير بواسطة المحاسب الذكي في {date}"
+            },
             "Errors": {
                 "SelectAccount": "Please select an account first",
                 "FetchFailed": "Sorry, failed to fetch data from server"
+            },
+            "Headers": {
+                "PrintDate": "[EN] تاريخ الطباعة:",
+                "PeriodFrom": "[EN] تقرير حركة الحساب في الفترة من",
+                "PeriodTo": "[EN] إلى",
+                "Code": "[EN] الكود:"
+            },
+            "Summary": {
+                "OpeningBalance": "[EN] الرصيد الافتتاحي",
+                "TotalMovement": "[EN] إجمالي الحركة",
+                "ClosingBalance": "[EN] الرصيد الختامي"
             }
+        },
+        "FinancialCommand": {
+            "Title": "Financial Command Center",
+            "Description": "Strategic insights into liquidity, debts, and net financial position.",
+            "NetPosition": "Net Financial Position",
+            "TotalLiquidity": "Total Liquidity",
+            "CashLiquidity": "Cash Liquidity",
+            "InventoryValue": "Inventory Value",
+            "Receivables": "Customer Receivables",
+            "Payables": "Supplier Payables",
+            "LiquidityMeter": "Liquidity Meter",
+            "AgedCurrent": "Current (Not Overdue)",
+            "Aged1to30": "Overdue (1-30 Days)",
+            "Aged31Plus": "Overdue (31+ Days)",
+            "Assets": "Total Assets",
+            "Liabilities": "Total Liabilities",
+            "DebtTimeline": "Debt Timeline",
+            "StrategyAlerts": "Strategic Alerts",
+            "CoverageRate": "Coverage Rate",
+            "NoDebts": "No current debts",
+            "LiquidityCoversDebts": "Liquidity covers debts",
+            "DebtsExceedLiquidity": "Liquidity deficit vs debts",
+            "StrategicSummary": "Strategic Summary",
+            "NetPositionSummary": "Enterprise Net Position is {amount}",
+            "FormulaDesc": "(Total Assets - Total Liabilities)",
+            "ExcellentPosition": "Excellent financial position! Ready liquidity and inventory exceed all supplier debts, enabling expansion.",
+            "CriticalPosition": "Important Alert: Total supplier debts exceed available liquidity. Please balance collections/purchases.",
+            "RecommendationTitle": "Smart Recommendations",
+            "UrgentCollection": "Urgent Collection",
+            "UrgentCollectionDesc": "You have {amount} in customer debts overdue by 31+ days, threatening liquidity.",
+            "CashShortage": "Cash Provision",
+            "CashShortageDesc": "Available cash alone doesn't cover current supplier debts. You may need to liquidate stock or collect from customers.",
+            "InvestmentOpportunity": "Investment Opportunity",
+            "InvestmentOpportunityDesc": "Financial position is excellent. You can consider increasing inventory or business expansion.",
+            "SecuredZone": "Secured Strategic Zone",
+            "StrongPosition": "Strong & Stable Financial Position",
+            "DeficitPosition": "Alert: Financial Position Deficit"
+        },
+        "TrialBalance": {
+            "Title": "Trial Balance",
+            "Description": "A list of all account balances to ensure the double-entry bookkeeping is balanced.",
+            "Table": {
+                "AccountCode": "Account Code",
+                "AccountName": "Account Name",
+                "Debit": "Debit (Balance)",
+                "Credit": "Credit (Balance)",
+                "DebitMotion": "Debit (Motion)",
+                "CreditMotion": "Credit (Motion)",
+                "Total": "Totals"
+            },
+            "Balanced": "Balanced",
+            "Unbalanced": "Unbalanced! Difference: {diff}"
+        },
+        "BalanceSheet": {
+            "Title": "Formal Balance Sheet",
+            "Description": "A statement of the financial position of the business (Assets, Liabilities, and Equity).",
+            "Assets": "Assets",
+            "Liabilities": "Liabilities",
+            "Equity": "Equity",
+            "TotalAssets": "Total Assets",
+            "TotalLiabilitiesAndEquity": "Total Liabilities & Equity",
+            "EquationBalanced": "Balance Equation is Satisfied",
+            "EquationUnbalanced": "Warning: Balance Equation is Not Satisfied!"
         }
     },
     "Users": {
@@ -1333,7 +1547,41 @@
                 "UsernameExists": "Username already exists",
                 "Unauthorized": "You are not authorized for this action",
                 "CreateError": "Error creating user"
-            }
+            },
+            "EditTitle": "Edit User Profile",
+            "DeleteConfirm": "Are you sure you want to delete this user?",
+            "DeleteSuccess": "Deleted successfully",
+            "UpdateSuccess": "Updated successfully",
+            "Edit": "Edit",
+            "Delete": "Delete",
+            "LeaveEmptyPassword": "Leave empty to keep it",
+            "RolePlaceholder": "Custom role name...",
+            "SelectAll": "Select All",
+            "DeselectAll": "Deselect All",
+            "Permissions": "Permissions"
+        },
+        "PermissionsList": {
+            "pos": "Point of Sale (POS)",
+            "sales": "Sales & Invoices",
+            "returns": "Returns",
+            "customers": "Customer Management",
+            "suppliers": "Supplier Management",
+            "inventory": "Inventory & Products",
+            "accounting": "Accounting & Journal",
+            "expenses": "Expenses & Vouchers",
+            "reports": "Financial Reports",
+            "employees": "HR & Employees",
+            "settings": "System Settings",
+            "users": "User Management"
+        },
+        "RolesList": {
+            "admin": "System Admin",
+            "manager": "Branch Manager",
+            "accountant": "Accountant",
+            "cashier": "Cashier",
+            "salesperson": "Sales Representative",
+            "storekeeper": "Storekeeper",
+            "custom": "Other (Custom)"
         }
     },
     "SubscriberManagement": {
@@ -1420,92 +1668,6 @@
     },
     "Settings": {
         "Title": "Facility Settings",
-        "Description": "Customize company data, logo, and currency.",
-        "Form": {
-            "Logo": "Company Logo",
-            "Upload": "Click to upload",
-            "Change": "Change Logo",
-            "PreferredSize": "Square or small rectangle.\nMax: 1 MB.",
-            "CompanyDetails": "Facility Details",
-            "Name": "Company Name",
-            "NameRequired": "Company name is required",
-            "Phone": "Phone",
-            "Address": "Address",
-            "TaxId": "Tax ID",
-            "Currency": "Default Currency",
-            "CurrencyRequired": "Currency is required",
-            "SelectCurrency": "Select Currency",
-            "Save": "Save Changes",
-            "Saving": "Saving...",
-            "Success": "Settings saved successfully",
-            "Error": "Error updating settings",
-            "SaveAll": "Save All Settings",
-            "CurrencySymbol": "EGP",
-            "Placeholders": {
-                "Name": "Example: Modern Technology Co.",
-                "Phone": "Example: 01012345678",
-                "Address": "Example: Cairo, Nasr City...",
-                "TaxId": "15 Digits"
-            },
-            "Currencies": {
-                "EGP": "Egyptian Pound",
-                "SAR": "Saudi Riyal",
-                "USD": "US Dollar",
-                "EUR": "Euro"
-            }
-        },
-        "Tabs": {
-            "Facility": "Facility Settings",
-            "Interface": "Interface Settings",
-            "Taxes": "Taxes",
-            "Invoices": "Invoices",
-            "Backup": "Backup",
-            "Subscribers": "Users",
-            "Danger": "Danger Zone"
-        },
-        "InterfaceForm": {
-            "Title": "User Interface Settings",
-            "NumeralSystem": "Numeral System",
-            "NumeralLatn": "Latin Numerals (123)",
-            "NumeralArab": "Arabic Numerals (١٢٣)",
-            "ZoomLevel": "Screen Zoom Level",
-            "ZoomHelp": "You can also use Ctrl+ and Ctrl- to zoom in and out from your keyboard."
-        },
-        "Invoices": {
-            "Title": "Invoices & Numbering Settings",
-            "Prefix": "Invoice Number Prefix",
-            "Counter": "Next Invoice Number (Counter)",
-            "FooterNotes": "Invoice Footer Notes",
-            "Placeholders": {
-                "Prefix": "INV-",
-                "Counter": "1",
-                "FooterNotes": "Example: Thank you for your business..."
-            },
-            "Hints": {
-                "Prefix": "Appears before invoice number, example: INV-1001",
-                "Counter": "You can manually adjust this number to reset sequence.",
-                "Footer": "This text will appear at the bottom of every printed invoice."
-            }
-        },
-        "Taxes": {
-            "Title": "Tax Settings",
-            "Enable": "Enable Tax",
-            "EnableHint": "Automatically calculate tax in invoices",
-            "NameAr": "Tax Name (Arabic)",
-            "NameEn": "Tax Name (English)",
-            "Rate": "Tax Rate (%)",
-            "TaxId": "Facility Tax ID",
-            "CalculationMethod": "Default Calculation Method",
-            "Inclusive": "Tax Inclusive (Entered price includes tax)",
-            "Exclusive": "Tax Exclusive (Tax is added to price)",
-            "Placeholders": {
-                "NameAr": "Value Added Tax",
-                "NameEn": "VAT",
-                "Rate": "14",
-                "TaxId": "300-123-456"
-            },
-            "Hint": "This setting can be changed for each invoice or item individually."
-        },
         "Backup": {
             "Title": "Backup & Security",
             "Description": "Secure your data with local and cloud backups.",
@@ -1551,6 +1713,117 @@
                 "Restarting": "Restarting application..."
             }
         },
+        "Description": "Customize company data, logo, and currency.",
+        "InterfaceForm": {
+            "Title": "Interface Settings",
+            "NumeralSystem": "Numeral System",
+            "NumeralLatn": "Latin Numerals (123)",
+            "NumeralArab": "Arabic Numerals (١٢٣)",
+            "ZoomLevel": "Zoom Level",
+            "ZoomHelp": "You can also use Ctrl+ and Ctrl- to zoom in and out."
+        },
+        "Form": {
+            "Logo": "Company Logo",
+            "Upload": "Click to upload",
+            "Change": "Change Logo",
+            "PreferredSize": "Square or small rectangle.\nMax: 1 MB.",
+            "CompanyDetails": "Facility Details",
+            "Name": "Company Name",
+            "NameRequired": "Company name is required",
+            "Phone": "Phone",
+            "Address": "Address",
+            "TaxId": "Tax ID",
+            "Currency": "Default Currency",
+            "CurrencyRequired": "Currency is required",
+            "SelectCurrency": "Select Currency",
+            "Save": "Save Changes",
+            "Saving": "Saving...",
+            "SaveSuccess": "Settings saved successfully",
+            "Success": "Settings saved successfully",
+            "Error": "Error updating settings",
+            "SaveAll": "Save All Settings",
+            "CurrencySymbol": "EGP",
+            "Placeholders": {
+                "Name": "Example: Modern Technology Co.",
+                "Phone": "Example: 01012345678",
+                "Address": "Example: Cairo, Nasr City...",
+                "TaxId": "15 Digits"
+            },
+            "Currencies": {
+                "EGP": "Egyptian Pound",
+                "SAR": "Saudi Riyal",
+                "USD": "US Dollar",
+                "EUR": "Euro"
+            },
+            "SaveError": "[EN] فشل في حفظ الإعدادات"
+        },
+        "Tabs": {
+            "Facility": "Facility Settings",
+            "Interface": "Interface Settings",
+            "Taxes": "Taxes",
+            "Invoices": "Invoices",
+            "Backup": "Backup",
+            "Subscribers": "Users",
+            "Danger": "Danger Zone",
+            "Accounting": "Accounting",
+            "Print": "[EN] إعدادات الطباعة",
+            "Storage": "[EN] مكان التخزين"
+        },
+        "Invoices": {
+            "Title": "Invoices & Numbering Settings",
+            "Prefix": "Invoice Number Prefix",
+            "Counter": "Next Invoice Number (Counter)",
+            "FooterNotes": "Invoice Footer Notes",
+            "Placeholders": {
+                "Prefix": "INV-",
+                "Counter": "1",
+                "FooterNotes": "Example: Thank you for your business..."
+            },
+            "Hints": {
+                "Prefix": "Appears before invoice number, example: INV-1001",
+                "Counter": "You can manually adjust this number to reset sequence.",
+                "Footer": "This text will appear at the bottom of every printed invoice."
+            }
+        },
+        "Taxes": {
+            "Title": "Tax Settings",
+            "Enable": "Enable Tax",
+            "EnableHint": "Automatically calculate tax in invoices",
+            "NameAr": "Tax Name (Arabic)",
+            "NameEn": "Tax Name (English)",
+            "Rate": "Tax Rate (%)",
+            "TaxId": "Facility Tax ID",
+            "CalculationMethod": "Default Calculation Method",
+            "Inclusive": "Tax Inclusive (Entered price includes tax)",
+            "Exclusive": "Tax Exclusive (Tax is added to price)",
+            "Placeholders": {
+                "NameAr": "Value Added Tax",
+                "NameEn": "VAT",
+                "Rate": "14",
+                "TaxId": "300-123-456"
+            },
+            "Hint": "This setting can be changed for each invoice or item individually."
+        },
+        "Accounting": {
+            "Title": "Accounting & Fiscal Management",
+            "Description": "Manage fiscal years and period closing operations.",
+            "FiscalClosing": {
+                "Title": "Fiscal Year Closing",
+                "Description": "Closing the fiscal year is a critical operation that zeros out revenue and expense accounts and transfers the net profit/loss to equity.",
+                "ActionTitle": "Year-End Closing Procedure",
+                "Step1": "1. Verify all journal entries for the current year are posted.",
+                "Step2": "2. Review the Trial Balance and Balance Sheet.",
+                "Step3": "3. Press the button below to perform the closing.",
+                "Warning": "Caution: This operation will lock the current fiscal year and open the next one. This action is irreversible once confirmed.",
+                "CloseButton": "Perform Year-End Closing",
+                "Progress": "Closing fiscal year...",
+                "Success": "Fiscal year closed successfully! Next year is now open.",
+                "NoOpenYear": "Error: No open fiscal year found.",
+                "ConfirmTitle": "Are you absolutely sure?",
+                "ConfirmMessage": "This will zero all income/expense accounts and transfer the net result to Equity. A closing journal entry will be created automatically.",
+                "Error": "Failed to close fiscal year"
+            }
+        },
         "FactoryReset": {
             "Title": "Factory Reset & Data Wipe",
             "Description": "Final actions to reset the application.",
@@ -1591,7 +1864,7 @@
             "AmountPaid": "Amount Paid"
         },
         "Table": {
-            "InvoiceNo": "Invoice #",
+            "InvoiceNumber": "Invoice #",
             "Supplier": "Supplier",
             "Date": "Date",
             "Total": "Total",
@@ -1610,17 +1883,35 @@
             "Edit": "Edit",
             "Return": "Return",
             "QtyBought": "Purchase Qty",
-            "QtyReturn": "Returned Qty"
+            "QtyReturn": "Returned Qty",
+            "CreateReturn": "[EN] إنشاء مرتجع"
         },
-        "Return": {
+        "ReturnInvoice": {
             "Title": "Purchase Return",
             "Description": "Use this screen to return goods to supplier and update inventory.",
             "ErrorQtyLimit": "Returned quantity exceeds purchased quantity",
-            "ErrorEmptySelection": "Please select quantity for at least one item"
+            "ErrorEmptySelection": "Please select quantity for at least one item",
+            "JournalRef": "Purchase Return",
+            "JournalRefLine": "Stock Out (Return)"
         },
         "Messages": {
             "Success": "Purchase invoice saved successfully",
-            "UpdateSuccess": "Invoice updated successfully"
+            "UpdateSuccess": "Invoice updated successfully",
+            "DeleteSuccess": "Purchase invoice deleted successfully"
+        },
+        "QtyBought": "[EN] كمية الشراء",
+        "QtyReturn": "[EN] الكمية المرتجعة",
+        "Print": {
+            "Title": "[EN] فاتورة مشتريات",
+            "Supplier": "[EN] المورد:",
+            "PaymentMethod": "[EN] طريقة الدفع:",
+            "Item": "[EN] الصنف / البيان",
+            "Qty": "[EN] الكمية",
+            "Price": "[EN] السعر",
+            "Total": "[EN] الإجمالي",
+            "Subtotal": "[EN] المجموع الفرعي:",
+            "GrandTotal": "[EN] الإجمالي النهائي:",
+            "Footer": "[EN] شكراً لتعاملكم معنا"
         }
     },
     "AddCustomer": {
@@ -1671,7 +1962,10 @@
             "OpeningBalance": "Opening Balance",
             "AllowedDiscount": "Allowed Discount",
             "COGS": "Cost of Goods Sold",
-            "VatTax": "Value Added Tax (VAT)"
+            "VatTax": "Value Added Tax (VAT)",
+            "InterestIncome": "Interest Income",
+            "DeliveryRevenue": "Delivery Revenue",
+            "CashOverShort": "Cash Over/Short (Deficit/Surplus)"
         },
         "Journal": {
             "InvalidData": "Invalid entry data",
@@ -1687,7 +1981,10 @@
             "AccountsSummary": "Affected Accounts",
             "BalanceError": "Balance Error",
             "TreasuryDisbursement": "Disbursement from Treasury",
-            "TreasuryDeposit": "Deposit into Treasury"
+            "TreasuryDeposit": "Deposit into Treasury",
+            "InputVAT": "Input VAT (Purchases)",
+            "SalesCost": "[EN] تكلفة مبيعات",
+            "ShiftDiscrepancy": "Shift #{number} Discrepancy Settlement"
         },
         "Accounts": {
             "CodeUsed": "Account code already in use",
@@ -1788,7 +2085,10 @@
             "Wholesale": "Wholesale",
             "HalfWholesale": "Half-Wholesale",
             "Special": "Special"
-        }
+        },
+        "SearchProducts": "[EN] بحث عن الأصناف...",
+        "MainStore": "[EN] المخزن الرئيسي",
+        "RetailSale": "[EN] بيع قطاعي"
     },
     "Products": {
         "Table": {
@@ -1801,6 +2101,8 @@
     "Representatives": {
         "Title": "Representatives & Distributors",
         "Description": "Manage representatives, commissions, and track performance.",
+        "ExportExcel": "Export (Excel)",
+        "ImportExcel": "Import (Excel)",
         "AddDialog": {
             "AddTitle": "Add Representative",
             "EditTitle": "Edit Representative",
@@ -1823,7 +2125,8 @@
                 "Delivery": "Delivery Rep",
                 "Percentage": "Percentage (%)",
                 "Fixed": "Fixed Amount (per invoice)"
-            }
+            },
+            "Update": "[EN] تحديث"
         },
         "MenuLabel": "Representative",
         "SearchPlaceholder": "Select Representative",
@@ -1843,7 +2146,8 @@
             "Edit": "Edit",
             "Delete": "Delete",
             "ViewReport": "View Report",
-            "NoRepresentatives": "No registered representatives."
+            "NoRepresentatives": "No registered representatives.",
+            "Commission": "[EN] نسبة العمولة %"
         },
         "Dialog": {
             "AddTitle": "Add New Representative",
@@ -1886,17 +2190,63 @@
             "Period": "For Period",
             "PaymentNotes": "Payment Notes...",
             "ConfirmPay": "Confirm Payment"
+        },
+        "Report": {
+            "Title": "[EN] تقرير الأداء والمبيعات",
+            "Search": "[EN] بحث",
+            "Period": "[EN] النطاق الزمني",
+            "CommissionRateCard": "[EN] نسبة العمولة",
+            "NoSales": "[EN] لا توجد مبيعات",
+            "CommissionDue": "[EN] العمولة المستحقة",
+            "SalaryPlus": "[EN] (الراتب + العمولة)",
+            "Print": {
+                "Title": "[EN] تقرير أداء مندوب مبيعات",
+                "Subtitle": "[EN] كشف عمولات ومبيعات",
+                "From": "[EN] من:",
+                "To": "[EN] إلى:",
+                "PrintDate": "[EN] تاريخ الطباعة:",
+                "TotalSales": "[EN] إجمالي المبيعات",
+                "InvoicesCount": "[EN] فاتورة",
+                "Collected": "[EN] المحقق / المحصل",
+                "FixedSalary": "[EN] الراتب الثابت",
+                "DueCommission": "[EN] العمولة المستحقة",
+                "RatePercentage": "[EN] %",
+                "RateFixed": "[EN] ثابت",
+                "TotalDue": "[EN] إجمالي المستحق",
+                "RelatedInvoicesTitle": "[EN] فواتير المبيعات المرتبطة",
+                "NoData": "[EN] لا توجد فواتير مرتبطة خلال هذه الفترة",
+                "StatusPaid": "[EN] خالص",
+                "StatusPartial": "[EN] جزئي",
+                "StatusDeferred": "[EN] آجل",
+                "RepSignature": "[EN] توقيع المندوب",
+                "ReviewApproval": "[EN] المراجعة والاعتماد",
+                "FacilityStamp": "[EN] ختم المنشأة",
+                "Table": {
+                    "InvoiceNo": "[EN] رقم الفاتورة",
+                    "Date": "[EN] تاريخ",
+                    "Customer": "[EN] العميل",
+                    "Total": "[EN] الإجمالي",
+                    "Paid": "[EN] المدفوع",
+                    "Status": "[EN] الحالة"
+                }
+            }
+        },
+        "Types": {
+            "Sales": "[EN] مندوب مبيعات",
+            "Collection": "[EN] مندوب تحصيل",
+            "Delivery": "[EN] مندوب توصيل"
         }
     },
     "Invoices": {
         "Title": "Invoices",
         "Table": {
-            "InvoiceNo": "Invoice #",
-            "InvoiceNumber": "Invoice Number",
+            "InvoiceNumber": "Invoice #",
             "Customer": "Customer",
             "Date": "Date",
             "DueDate": "Due Date",
             "Total": "Total",
+            "PaidAmount": "Paid Amount",
+            "Paid": "Paid",
             "Balance": "Balance",
             "Status": "Status",
             "Actions": "Actions",
@@ -1909,16 +2259,22 @@
                 "Partial": "Partially Paid"
             },
             "Edit": "Edit",
-            "Return": "Return"
+            "Return": "Return",
+            "InvoiceNo": "[EN] رقم الفاتورة",
+            "CreateReturn": "[EN] إنشاء مرتجع"
         },
         "Messages": {
             "Success": "Invoice saved successfully",
-            "UpdateSuccess": "Invoice updated successfully"
-        }
+            "UpdateSuccess": "Invoice updated successfully",
+            "DeleteSuccess": "[EN] تم حذف الفاتورة بنجاح"
+        },
+        "UpdateSuccess": "[EN] تم تحديث الفاتورة بنجاح"
     },
     "Employees": {
         "Title": "Employee Management",
         "Description": "Manage your staff, their information, and contact details.",
+        "ExportExcel": "Export (Excel)",
+        "ImportExcel": "Import (Excel)",
         "NewEmployee": "Add New Employee",
         "Empty": "No employees found. Start by adding one!",
         "DeleteConfirm": "Are you sure you want to delete this employee? This action cannot be undone.",
@@ -1958,6 +2314,44 @@
                 "Address": "City, Street name...",
                 "Email": "example@company.com",
                 "Notes": "Any extra details..."
+            },
+            "Position": "[EN] المسمى الوظيفي"
+        },
+        "Partners": "[EN] الشركاء",
+        "Report": {
+            "Print": {
+                "Title": "[EN] تقرير مالي للموظف",
+                "From": "[EN] من:",
+                "To": "[EN] إلى:",
+                "PrintDate": "[EN] تاريخ الطباعة:",
+                "TotalBasic": "[EN] إجمالي الأساسي",
+                "TotalIncentives": "[EN] إجمالي الحوافز",
+                "TotalDeductions": "[EN] إجمالي الاستقطاعات",
+                "NetDisbursed": "[EN] صافي المنصرف",
+                "PayrollRecords": "[EN] سجلات الرواتب",
+                "AdvancesRecords": "[EN] سجلات السلف والقروض",
+                "NoData": "[EN] لا يوجد بيانات",
+                "Table": {
+                    "Date": "[EN] التاريخ",
+                    "Month": "[EN] الشهر",
+                    "Basic": "[EN] الأساسي",
+                    "Incentives": "[EN] حوافز",
+                    "Deductions": "[EN] استقطاعات",
+                    "AdvanceDeduction": "[EN] خصم سلف",
+                    "Net": "[EN] الصافي",
+                    "Type": "[EN] النوع",
+                    "Amount": "[EN] المبلغ",
+                    "DeductionMonth": "[EN] شهر الخصم",
+                    "Status": "[EN] الحالة",
+                    "Notes": "[EN] ملاحظات"
+                },
+                "AdvanceTypeDisburse": "[EN] صرف سلفة",
+                "AdvanceTypeRepay": "[EN] استرداد نقدي",
+                "StatusDeducted": "[EN] تم الخصم",
+                "StatusOpen": "[EN] رصيد مفتوح",
+                "EmpSignature": "[EN] توقيع الموظف",
+                "ReviewApproval": "[EN] المراجعة والاعتماد",
+                "FacilityStamp": "[EN] ختم المنشأة"
             }
         }
     },
@@ -2201,5 +2595,123 @@
         "NumeralArab": "Arabic Numerals (١٢٣)",
         "ZoomLevel": "Screen Zoom Level",
         "ZoomHelp": "You can also use Ctrl+ and Ctrl- to zoom in and out from your keyboard."
+    },
+    "SmartAlerts": {
+        "Title": "Smart Alerts Center",
+        "Description": "Precise monitoring of accounting status, inventory, and system health",
+        "BackHome": "Back to Home",
+        "AllSetTitle": "Everything is fine!",
+        "AllSetDesc": "No alerts currently. The system reports no mismatches or inventory issues.",
+        "TipsTitle": "Tips from Smart Accountant",
+        "Tip1": "Always ensure the trial balance matches. Alerts help you discover differences resulting from forgetting to record inventory entries or vouchers.",
+        "Tip2": "Stagnant items consume capital. Use the \"Stagnant\" report to create offers and clear old inventory.",
+        "ActionLabelDefault": "Take Action",
+        "Severity": {
+            "High": "Critical",
+            "Medium": "Warning",
+            "Low": "Note"
+        },
+        "Category": {
+            "Accounting": "Accounting",
+            "Inventory": "Inventory",
+            "Sales": "Sales",
+            "Finance": "Finance",
+            "System": "System"
+        },
+        "Alerts": {
+            "InvMismatch": {
+                "Title": "Inventory Balance Mismatch",
+                "Message": "Physical inventory value ({physicalValue} EGP) does not match the accounting balance ({accountingValue} EGP). Difference: {diff} EGP. There might be a missing journal entry."
+            },
+            "LowStock": {
+                "Title": "Items Low on Stock",
+                "Message": "There are ({count}) items below the order limit. Please review the inventory."
+            },
+            "OverdueSales": {
+                "Title": "Overdue Sales Invoices",
+                "Message": "There are ({count}) sales invoices that have exceeded the due date and are not fully paid."
+            },
+            "OverdueInstallments": {
+                "Title": "Overdue Installments",
+                "Message": "There are ({count}) due installments that have not been collected yet."
+            },
+            "DraftDocs": {
+                "Title": "Unposted Documents (Drafts)",
+                "Message": "There are ({count}) documents (invoices/vouchers) in \"draft\" status. They will not appear in financial reports until posted."
+            },
+            "CreditBreach": {
+                "Title": "Customer Credit Limit Breach",
+                "Message": "Customer: {name} exceeds their debt ({balance} EGP) the allowed credit limit ({limit} EGP)."
+            },
+            "StagnantStock": {
+                "Title": "Stagnant Items (Lost Opportunities)",
+                "Message": "There are ({count}) items with stock in the warehouse but no sales recorded for them in the last 30 days."
+            },
+            "OrphanVouchers": {
+                "Title": "Posted Vouchers Not Recorded in Accounting",
+                "Message": "There are ({count}) financial vouchers in \"posted\" status but no corresponding journal entries were created in the ledger."
+            },
+            "BackupCheck": {
+                "Title": "Backup Confirmation",
+                "Message": "Always remember to take a periodic backup of your data to ensure record safety."
+            },
+            "ExpenseSurge": {
+                "Title": "Unusual Expense Surge",
+                "Message": "Expenses for this month ({currentAmount} EGP) exceed the recent 3-month average ({avgAmount}) by {percentage}%. Please review."
+            },
+            "HighCashRisk": {
+                "Title": "High Cash Balance (Risk)",
+                "Message": "The main treasury balance ({balance} EGP) exceeds the safety threshold ({limit} EGP). Consider depositing to the bank."
+            },
+            "CustomerInactivity": {
+                "Title": "Top Customer Inactivity",
+                "Message": "Your top customer '{name}' hasn't made any purchases in the last {days} days."
+            },
+            "UninvoicedReceipts": {
+                "Title": "Significant Uninvoiced Receipts",
+                "Message": "A large payment of {amount} EGP was received from {name} recently, but no recent sales invoice exists."
+            }
+        }
+    },
+    "Partners": {
+        "Title": "Partners",
+        "Description": "Manage partners data and their shares in capital.",
+        "ExportExcel": "Export (Excel)",
+        "ImportExcel": "Import (Excel)",
+        "NewPartner": "Add New Partner",
+        "InitialCapital": "Initial Capital",
+        "Table": {
+            "Name": "Name",
+            "Role": "Role",
+            "Phone": "Phone",
+            "Capital": "Capital",
+            "Date": "Date",
+            "Actions": "Actions",
+            "ViewDetails": "View Details"
+        },
+        "Messages": {
+            "Success": "Operation completed successfully",
+            "Error": "An error occurred during operation"
+        },
+        "DetailsDialog": {
+            "SharePercentage": "Share Percentage",
+            "CurrentCapital": "Current Capital",
+            "Phone": "Phone Number",
+            "Email": "Email",
+            "NationalId": "National ID",
+            "JoinDate": "Join Date",
+            "Address": "Address",
+            "InitialCapital": "Initial Capital",
+            "Notes": "Notes",
+            "Close": "Close"
+        }
+    },
+    "Returns": {
+        "Title": "Sales Return",
+        "Description": "Select quantities to return. Inventory and accounts will update automatically.",
+        "Confirm": "Confirm Return",
+        "Messages": {
+            "SelectItems": "Please select at least one item to return"
+        }
     }
 }

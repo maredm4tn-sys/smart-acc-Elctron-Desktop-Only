@@ -56,7 +56,7 @@ interface EditCustomerDialogProps {
 
 export function EditCustomerDialog({ customer, open, onOpenChange, dict, representatives = [] }: EditCustomerDialogProps) {
     const customerSchema = z.object({
-        name: z.string().min(1, dict.Customers?.AddDialog?.Errors?.NameRequired || "Name required"),
+        name: z.string().min(1, dict.Customers?.AddDialog?.Errors?.NameRequired),
         companyName: z.string().optional(),
         phone: z.string().optional(),
         email: z.string().optional(),
@@ -65,8 +65,8 @@ export function EditCustomerDialog({ customer, open, onOpenChange, dict, represe
         nationalId: z.string().optional(),
         creditLimit: z.coerce.number().optional().default(0),
         paymentDay: z.coerce.number()
-            .min(1, dict.Customers?.AddDialog?.Errors?.InvalidPaymentDay || "Min 1")
-            .max(31, dict.Customers?.AddDialog?.Errors?.InvalidPaymentDay || "Max 31")
+            .min(1, dict.Customers?.AddDialog?.Errors?.InvalidPaymentDay)
+            .max(31, dict.Customers?.AddDialog?.Errors?.InvalidPaymentDay)
             .optional(),
         representativeId: z.coerce.number().optional().nullable(),
     });
@@ -110,10 +110,10 @@ export function EditCustomerDialog({ customer, open, onOpenChange, dict, represe
     const onSubmit = async (data: FormValues) => {
         const res = await updateCustomer(customer.id, data);
         if (res.success) {
-            toast.success(dict.Customers?.EditDialog?.Success || "Success");
+            toast.success(dict.Customers?.EditDialog?.Success);
             onOpenChange(false);
         } else {
-            toast.error(res.message || dict.Customers?.EditDialog?.Error || "Error");
+            toast.error(res.message || dict.Customers?.EditDialog?.Error);
         }
     };
 
@@ -121,9 +121,9 @@ export function EditCustomerDialog({ customer, open, onOpenChange, dict, represe
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[450px]">
                 <DialogHeader className="text-start">
-                    <DialogTitle className="text-2xl font-bold text-slate-800">{dict.Customers?.EditDialog?.Title || "Edit"}</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold text-slate-800">{dict.Customers?.EditDialog?.Title}</DialogTitle>
                     <DialogDescription className="text-slate-500">
-                        {dict.Customers?.EditDialog?.Description || "Edit details"}
+                        {dict.Customers?.EditDialog?.Description}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -132,17 +132,17 @@ export function EditCustomerDialog({ customer, open, onOpenChange, dict, represe
                         <TabsList className="grid grid-cols-2 w-full bg-slate-100/50 p-1">
                             <TabsTrigger value="basic" className="gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
                                 <User size={16} className="text-blue-600" />
-                                {dict.Customers?.AddDialog?.BasicInfo || "Basic Info"}
+                                {dict.Customers?.AddDialog?.BasicInfo}
                             </TabsTrigger>
                             <TabsTrigger value="advanced" className="gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
                                 <ShieldCheck size={16} className="text-blue-600" />
-                                {dict.Customers?.AddDialog?.AdditionalInfo || "Additional Info"}
+                                {dict.Customers?.AddDialog?.AdditionalInfo}
                             </TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="basic" className="space-y-4 pt-4 animate-in fade-in duration-300">
                             <div className="space-y-2 text-start">
-                                <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Name || "Name"}</Label>
+                                <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Name}</Label>
                                 <Input
                                     {...register("name")}
                                     className="bg-slate-50/50"
@@ -152,41 +152,41 @@ export function EditCustomerDialog({ customer, open, onOpenChange, dict, represe
                             </div>
 
                             <div className="space-y-2 text-start">
-                                <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Company || "Company"}</Label>
+                                <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Company}</Label>
                                 <Input
                                     {...register("companyName")}
                                     className="bg-slate-50/50"
-                                    placeholder={dict.Customers?.AddDialog?.Placeholders?.Company || "Company"}
+                                    placeholder={dict.Customers?.AddDialog?.Placeholders?.Company}
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2 text-start">
-                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Phone || "Phone"}</Label>
+                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Phone}</Label>
                                     <Input
                                         {...register("phone")}
                                         dir="ltr"
                                         className="text-center bg-slate-50/50"
-                                        placeholder={dict.Customers?.AddDialog?.Placeholders?.Phone || "012XXXXXXXX"}
+                                        placeholder={dict.Customers?.AddDialog?.Placeholders?.Phone}
                                     />
                                 </div>
                                 <div className="space-y-2 text-start">
-                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Email || "Email"}</Label>
+                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Email}</Label>
                                     <Input
                                         {...register("email")}
                                         dir="ltr"
                                         className="text-center bg-slate-50/50"
-                                        placeholder={dict.Customers?.AddDialog?.Placeholders?.Email || "email@example.com"}
+                                        placeholder={dict.Customers?.AddDialog?.Placeholders?.Email}
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2 text-start">
-                                <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Address || "Address"}</Label>
+                                <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.Address}</Label>
                                 <Input
                                     {...register("address")}
                                     className="bg-slate-50/50"
-                                    placeholder={dict.Customers?.AddDialog?.Placeholders?.Address || "Address"}
+                                    placeholder={dict.Customers?.AddDialog?.Placeholders?.Address}
                                 />
                             </div>
 
@@ -213,26 +213,26 @@ export function EditCustomerDialog({ customer, open, onOpenChange, dict, represe
                         <TabsContent value="advanced" className="space-y-4 pt-4 animate-in fade-in duration-300">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2 text-start">
-                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.TaxId || "Tax ID"}</Label>
+                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.TaxId}</Label>
                                     <Input
                                         {...register("taxId")}
                                         className="text-center font-mono bg-slate-50/50"
-                                        placeholder={dict.Customers?.AddDialog?.Placeholders?.TaxId || "000-000-000"}
+                                        placeholder={dict.Customers?.AddDialog?.Placeholders?.TaxId}
                                     />
                                 </div>
                                 <div className="space-y-2 text-start">
-                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.NationalId || "National ID"}</Label>
+                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.NationalId}</Label>
                                     <Input
                                         {...register("nationalId")}
                                         className="text-center font-mono bg-slate-50/50"
-                                        placeholder={dict.Customers?.AddDialog?.Placeholders?.NationalId || "2XXXXXXXXXXXXX"}
+                                        placeholder={dict.Customers?.AddDialog?.Placeholders?.NationalId}
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2 text-start">
-                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.CreditLimit || "Credit Limit"}</Label>
+                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.CreditLimit}</Label>
                                     <Input
                                         type="number"
                                         {...register("creditLimit")}
@@ -240,7 +240,7 @@ export function EditCustomerDialog({ customer, open, onOpenChange, dict, represe
                                     />
                                 </div>
                                 <div className="space-y-2 text-start">
-                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.PaymentDay || "Payment Day"}</Label>
+                                    <Label className="text-slate-700 font-semibold">{dict.Customers?.AddDialog?.PaymentDay}</Label>
                                     <Input
                                         type="number"
                                         min="1" max="31"

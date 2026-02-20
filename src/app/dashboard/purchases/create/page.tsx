@@ -32,7 +32,7 @@ export default async function CreatePurchasePage({ searchParams }: { searchParam
                 </div>
                 <Link href="/dashboard/purchases">
                     <Button variant="outline">
-                        {dict.Sales?.Invoice?.BackToList || "Back"}
+                        {dict.Sales?.Invoice?.BackToList}
                     </Button>
                 </Link>
             </div>

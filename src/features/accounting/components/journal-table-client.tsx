@@ -26,16 +26,16 @@ export function JournalTableClient({ initialEntries, dict, currency }: Props) {
     return (
         <>
             <div className="rt-table-container">
-                <table className="rt-table">
+                <table className="rt-table table-fixed">
                     <thead>
                         <tr>
-                            <th className="text-start w-[140px] px-4">{dict.Journal.Table.EntryNumber}</th>
-                            <th className="text-start w-[110px]">{dict.Journal.Table.Date}</th>
-                            <th className="text-center w-[100px]">{dict.Journal.Table.Type}</th>
-                            <th className="text-start">{dict.Journal.Table.Account}</th>
-                            <th className="text-end w-[130px]">{dict.Journal.Table.Debit}</th>
-                            <th className="text-end w-[130px]">{dict.Journal.Table.Credit}</th>
-                            <th className="text-end w-[100px] pr-4">{dict.Journal.Table.Status}</th>
+                            <th className="text-start w-[120px] whitespace-nowrap px-4 font-bold text-slate-900">{dict.Journal.Table.EntryNumber}</th>
+                            <th className="text-start w-[140px] whitespace-nowrap px-2 font-bold text-slate-900">{dict.Journal.Table.Date}</th>
+                            <th className="text-start w-[110px] whitespace-nowrap px-2 font-bold text-slate-900">{dict.Journal.Table.Type}</th>
+                            <th className="text-start px-4 font-bold text-slate-900 account-col-min">{dict.Journal.Table.Account}</th>
+                            <th className="text-start w-[160px] whitespace-nowrap px-4 font-bold text-slate-900">{dict.Journal.Table.Debit}</th>
+                            <th className="text-start w-[160px] whitespace-nowrap px-4 font-bold text-slate-900">{dict.Journal.Table.Credit}</th>
+                            <th className="text-start w-[120px] whitespace-nowrap px-4 font-bold text-slate-900">{dict.Journal.Table.Status}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,20 +47,20 @@ export function JournalTableClient({ initialEntries, dict, currency }: Props) {
                             </tr>
                         ) : (
                             initialEntries.map((entry: any) => (
-                                <tr key={entry.id} className="group hover:bg-slate-50 transition-all duration-200">
-                                    <td data-label={dict.Journal.Table.EntryNumber} className="text-start px-4">
+                                <tr key={entry.id} className="group hover:bg-slate-50 transition-all duration-200 border-b border-slate-100 last:border-none">
+                                    <td className="text-start px-4 py-3 align-middle whitespace-nowrap">
                                         <button
                                             onClick={() => handleEntryClick(entry)}
-                                            title={dict.Journal.ViewDetails || "View Details"}
+                                            title={dict.Journal.ViewDetails}
                                             className="font-mono font-black text-[11px] text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-100 transition-all active:scale-95"
                                         >
                                             <Num value={entry.entryNumber} />
                                         </button>
                                     </td>
-                                    <td data-label={dict.Journal.Table.Date} className="text-start text-xs font-bold text-slate-500 tabular-nums">
+                                    <td className="text-start px-2 py-3 align-middle text-xs font-bold text-slate-500 tabular-nums whitespace-nowrap">
                                         <Num value={new Date(entry.transactionDate).toLocaleDateString()} />
                                     </td>
-                                    <td data-label={dict.Journal.Table.Type} className="text-center">
+                                    <td className="text-start px-2 py-3 align-middle whitespace-nowrap">
                                         <Badge variant="outline" className={cn(
                                             "text-[10px] font-black border-none px-2.5",
                                             entry.type === 'Invoice' ? 'bg-indigo-50 text-indigo-700' :
@@ -72,27 +72,29 @@ export function JournalTableClient({ initialEntries, dict, currency }: Props) {
                                                     dict.Journal.Types.Manual}
                                         </Badge>
                                     </td>
-                                    <td data-label={dict.Journal.Table.Account} className="text-start">
-                                        <div className="font-bold text-sm text-slate-900 truncate max-w-[300px]" title={entry.accountsSummary}>
-                                            {entry.accountsSummary}
-                                        </div>
-                                        {entry.description && (
-                                            <div className="text-[10px] text-slate-400 font-medium truncate max-w-[250px] italic">
-                                                {entry.description}
+                                    <td className="text-start px-4 py-3 align-middle">
+                                        <div className="flex flex-col items-start justify-start w-full gap-0.5">
+                                            <div className="font-bold text-sm text-slate-900 w-full text-start leading-relaxed" title={entry.accountsSummary}>
+                                                {entry.accountsSummary}
                                             </div>
-                                        )}
+                                            {entry.description && (
+                                                <div className="text-[10px] text-slate-400 font-medium w-full text-start italic">
+                                                    {entry.description}
+                                                </div>
+                                            )}
+                                        </div>
                                     </td>
-                                    <td data-label={dict.Journal.Table.Debit} className="text-end font-bold tabular-nums text-emerald-600 text-sm">
+                                    <td className="text-start px-4 py-3 align-middle font-mono font-bold text-emerald-600 text-sm whitespace-nowrap">
                                         {formatCurrency(entry.debitTotal, currency)}
                                     </td>
-                                    <td data-label={dict.Journal.Table.Credit} className="text-end font-bold tabular-nums text-rose-600 text-sm">
+                                    <td className="text-start px-4 py-3 align-middle font-mono font-bold text-rose-600 text-sm whitespace-nowrap">
                                         {formatCurrency(entry.creditTotal, currency)}
                                     </td>
-                                    <td data-label={dict.Journal.Table.Status} className="text-end pr-4">
+                                    <td className="text-start px-4 py-3 align-middle whitespace-nowrap">
                                         <Badge
                                             variant={entry.status === 'posted' ? 'default' : 'secondary'}
                                             className={cn(
-                                                "text-[10px] font-black shadow-none border-none",
+                                                "text-[10px] font-black shadow-none border-none py-1 px-3",
                                                 entry.status === 'posted' ? 'bg-emerald-600 hover:bg-emerald-700' : ''
                                             )}
                                         >

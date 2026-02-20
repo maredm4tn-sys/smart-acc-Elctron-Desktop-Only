@@ -22,7 +22,7 @@ export function POSGrid() {
     const [summary, setSummary] = useState<{ totalSales: number; invoiceCount: number; cash: number; card: number; credit: number } | null>(null);
 
     const setCustomer = (id: string) => {
-        const cust = customers.find(c => String(c.id) === id) || { id: 0, name: dict?.POS?.CashCustomer || "Cash Customer" };
+        const cust = customers.find(c => String(c.id) === id) || { id: 0, name: dict?.POS?.CashCustomer };
         const updates: any = {
             customerId: Number(id),
             customerName: cust?.name || ""
@@ -58,7 +58,7 @@ export function POSGrid() {
             <div className="p-4 border-b flex justify-between items-center bg-white shrink-0 z-10 shadow-sm">
                 <div className="flex items-center gap-2 text-slate-800 font-black text-xl">
                     <ShoppingCart size={24} className="text-blue-600" />
-                    <span>{dict?.Sidebar?.POS || "POS"}</span>
+                    <span>{dict?.Sidebar?.POS}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -66,7 +66,7 @@ export function POSGrid() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-slate-400 hover:text-blue-600 rounded-full"
-                        title={dict?.POS?.FullScreen || "Full Screen"}
+                        title={dict?.POS?.FullScreen}
                         onClick={() => {
                             if (!document.fullscreenElement) {
                                 document.documentElement.requestFullscreen();
@@ -109,7 +109,7 @@ export function POSGrid() {
                                             </span>
                                         </div>
                                         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col items-center">
-                                            <span className="text-xs text-slate-400 font-bold mb-1">{dict?.Dashboard?.InvoicesCount || "Invoices Count"}</span>
+                                            <span className="text-xs text-slate-400 font-bold mb-1">{dict?.Dashboard?.InvoicesCount}</span>
                                             <span className="text-2xl font-black text-slate-700">
                                                 <Num value={summary.invoiceCount} />
                                             </span>
@@ -125,7 +125,7 @@ export function POSGrid() {
                                                 <Num value={summary.cash} precision={2} showGrouping={true} />
                                             </span>
                                             <div className="flex items-center gap-3">
-                                                <span className="font-extrabold text-slate-600">{dict?.POS?.Cash || "Cash"}</span>
+                                                <span className="font-extrabold text-slate-600">{dict?.POS?.Cash}</span>
                                                 <div className="p-2 bg-green-100 rounded-lg text-green-600">
                                                     <Trash2 size={16} className="rotate-45" />
                                                 </div>
@@ -137,7 +137,7 @@ export function POSGrid() {
                                                 <Num value={summary.card} precision={2} showGrouping={true} />
                                             </span>
                                             <div className="flex items-center gap-3">
-                                                <span className="font-extrabold text-slate-600">{dict?.POS?.Card || "Visa / Card"}</span>
+                                                <span className="font-extrabold text-slate-600">{dict?.POS?.Card}</span>
                                                 <div className="p-2 bg-orange-100 rounded-lg text-orange-600">
                                                     <ShoppingCart size={16} />
                                                 </div>
@@ -149,7 +149,7 @@ export function POSGrid() {
                                                 <Num value={summary.credit} precision={2} showGrouping={true} />
                                             </span>
                                             <div className="flex items-center gap-3">
-                                                <span className="font-extrabold text-slate-600">{dict?.POS?.Credit || "Credit / Transfer"}</span>
+                                                <span className="font-extrabold text-slate-600">{dict?.POS?.Credit}</span>
                                                 <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
                                                     <Plus size={16} />
                                                 </div>
@@ -158,7 +158,7 @@ export function POSGrid() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="py-10 text-center text-slate-400 font-bold">{dict?.POS?.Loading || "Loading..."}</div>
+                                <div className="py-10 text-center text-slate-400 font-bold">{dict?.POS?.Loading}</div>
                             )}
                         </DialogContent>
                     </Dialog>
@@ -178,7 +178,7 @@ export function POSGrid() {
                 <div className="px-3 py-2 bg-slate-50 border-b grid grid-cols-2 gap-2 sticky top-0 z-10 shadow-sm">
                     <div className="space-y-0.5">
                         <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block text-start">
-                            {dict?.POS?.Customer?.Label || "العميل"}
+                            {dict?.POS?.Customer?.Label}
                         </label>
                         <CustomerCombobox
                             customers={customers.map(c => ({ id: c.id, name: c.name, phone: c.phone || "" }))}
@@ -189,17 +189,17 @@ export function POSGrid() {
 
                     <div className="space-y-0.5">
                         <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block text-start">
-                            {dict?.POS?.PriceLevel || "فئة السعر"}
+                            {dict?.POS?.PriceLevel}
                         </label>
                         <Select value={header.priceType} onValueChange={(val: any) => setHeader({ priceType: val })}>
                             <SelectTrigger className="h-11 bg-white border-slate-200 shadow-sm text-[11px] font-bold px-2 rounded-xl">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="retail">{dict?.POS?.Types?.Retail || "Retail"}</SelectItem>
-                                <SelectItem value="wholesale">{dict?.POS?.Types?.Wholesale || "Wholesale"}</SelectItem>
-                                <SelectItem value="half_wholesale">{dict?.POS?.Types?.HalfWholesale || "Half-Wholesale"}</SelectItem>
-                                <SelectItem value="special">{dict?.POS?.Types?.Special || "Special"}</SelectItem>
+                                <SelectItem value="retail">{dict?.POS?.Types?.Retail}</SelectItem>
+                                <SelectItem value="wholesale">{dict?.POS?.Types?.Wholesale}</SelectItem>
+                                <SelectItem value="half_wholesale">{dict?.POS?.Types?.HalfWholesale}</SelectItem>
+                                <SelectItem value="special">{dict?.POS?.Types?.Special}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -207,7 +207,7 @@ export function POSGrid() {
 
                 <div className="flex justify-between items-center px-4 py-1">
                     <button onClick={clearCart} className="text-[11px] text-red-500 font-bold flex items-center gap-1 hover:underline">
-                        <Trash2 size={12} /> {dict?.Accounts?.Tree?.Delete || "Clear Cart"}
+                        <Trash2 size={12} /> {dict?.Accounts?.Tree?.Delete}
                     </button>
                     <Badge variant="secondary" className="bg-slate-100 text-slate-600 text-[9px] font-bold">
                         <Num value={items.length} /> {(dict as any).Dashboard?.Item || "Item"}
@@ -239,7 +239,7 @@ export function POSGrid() {
                                 <div className="flex items-center bg-slate-50 rounded-full p-0.5 gap-1.5 border border-slate-100">
                                     <button
                                         type="button"
-                                        title={dict.Common.Increase || "Increase"}
+                                        title={dict.Common.Increase}
                                         className="w-7 h-7 flex items-center justify-center bg-white hover:bg-blue-600 rounded-full shadow-sm text-blue-600 hover:text-white transition-all transform active:scale-90 border border-slate-100"
                                         onClick={() => updateItem(item.id, { qty: item.qty + 1 })}
                                     >
@@ -250,7 +250,7 @@ export function POSGrid() {
                                     </span>
                                     <button
                                         type="button"
-                                        title={dict.Common.Decrease || "Decrease"}
+                                        title={dict.Common.Decrease}
                                         className="w-7 h-7 flex items-center justify-center bg-white hover:bg-red-500 rounded-full shadow-sm text-slate-600 hover:text-white transition-all transform active:scale-90 border border-slate-100"
                                         onClick={() => updateItem(item.id, { qty: Math.max(1, item.qty - 1) })}
                                     >
@@ -261,7 +261,7 @@ export function POSGrid() {
                                 {/* Quick Delete */}
                                 <button
                                     type="button"
-                                    title={dict.Common.Delete || "Delete"}
+                                    title={dict.Common.Delete}
                                     className="w-7 h-7 flex items-center justify-center text-slate-200 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                                     onClick={() => removeFromCart(item.id)}
                                 >
@@ -274,7 +274,7 @@ export function POSGrid() {
                     {items.length === 0 && (
                         <div className="h-32 flex flex-col items-center justify-center text-slate-300 gap-2 grayscale">
                             <ShoppingCart size={32} />
-                            <span className="text-xs font-bold">{dict?.POS?.EmptyCart || "Cart is empty"}</span>
+                            <span className="text-xs font-bold">{dict?.POS?.EmptyCart}</span>
                         </div>
                     )}
                 </div>

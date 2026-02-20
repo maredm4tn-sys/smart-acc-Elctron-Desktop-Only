@@ -54,7 +54,7 @@ export function EmployeeReports({ employees, dict, currency = "EGP" }: { employe
                             <Label>{dict.Employees.Table.Name}</Label>
                             <Select onValueChange={setSelectedEmployee} value={selectedEmployee}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={dict.Payroll?.SelectEmployee || "اختر الموظف"} />
+                                    <SelectValue placeholder={dict.Payroll?.SelectEmployee} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {employees.map(emp => (
@@ -64,15 +64,15 @@ export function EmployeeReports({ employees, dict, currency = "EGP" }: { employe
                             </Select>
                         </div>
                         <div className="space-y-2 text-start">
-                            <Label>{dict.Reports?.IncomeStatement?.FromDate || "من تاريخ"}</Label>
+                            <Label>{dict.Reports?.IncomeStatement?.FromDate}</Label>
                             <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                         </div>
                         <div className="space-y-2 text-start">
-                            <Label>{dict.Reports?.IncomeStatement?.ToDate || "إلى تاريخ"}</Label>
+                            <Label>{dict.Reports?.IncomeStatement?.ToDate}</Label>
                             <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                         </div>
                         <div className="space-y-2 text-start">
-                            <Label>{dict.Reports?.Type || "نوع التقرير"}</Label>
+                            <Label>{dict.Reports?.Type}</Label>
                             <Select value={reportType} onValueChange={setReportType}>
                                 <SelectTrigger>
                                     <SelectValue />
@@ -86,7 +86,7 @@ export function EmployeeReports({ employees, dict, currency = "EGP" }: { employe
                         </div>
                         <Button className="gap-2 h-10" onClick={handleSearch} disabled={loading || !selectedEmployee}>
                             <Search size={18} />
-                            {dict.Reports?.IncomeStatement?.ShowReport || "عرض التقرير"}
+                            {dict.Reports?.IncomeStatement?.ShowReport}
                         </Button>
                     </div>
                 </CardContent>
@@ -102,7 +102,7 @@ export function EmployeeReports({ employees, dict, currency = "EGP" }: { employe
                             onClick={() => handlePrint()}
                         >
                             <Printer className="h-4 w-4" />
-                            {dict.Suppliers?.Statement?.Print || "طباعة التقرير"}
+                            {dict.Suppliers?.Statement?.Print}
                         </Button>
                     </div>
 
@@ -216,7 +216,7 @@ export function EmployeeReports({ employees, dict, currency = "EGP" }: { employe
                                                         <TableCell className="text-start font-mono text-xs tabular-nums">{a.date}</TableCell>
                                                         <TableCell className="text-start">
                                                             <span className={`px-2 py-0.5 rounded-full text-[10px] ${a.type === 'advance' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
-                                                                {a.type === 'advance' ? (dict.Advances?.Types?.Advance || 'Advance') : (dict.Advances?.Types?.Repayment || 'Repayment')}
+                                                                {a.type === 'advance' ? (dict.Advances?.Types?.Advance) : (dict.Advances?.Types?.Repayment)}
                                                             </span>
                                                         </TableCell>
                                                         <TableCell className={`text-start font-bold font-mono tabular-nums ${a.type === 'advance' ? 'text-orange-700' : 'text-green-700'}`}>
@@ -224,7 +224,7 @@ export function EmployeeReports({ employees, dict, currency = "EGP" }: { employe
                                                         </TableCell>
                                                         <TableCell className="text-start">
                                                             <span className={`text-[10px] ${a.status === 'deducted' ? 'text-gray-400' : 'text-blue-600 font-bold'}`}>
-                                                                {a.status === 'deducted' ? (dict.Advances?.Status?.Deducted || 'Deducted') : (dict.Advances?.Status?.Pending || 'Pending')}
+                                                                {a.status === 'deducted' ? (dict.Advances?.Status?.Deducted) : (dict.Advances?.Status?.Pending)}
                                                             </span>
                                                         </TableCell>
                                                     </TableRow>
@@ -239,15 +239,15 @@ export function EmployeeReports({ employees, dict, currency = "EGP" }: { employe
                         {/* Print Footer */}
                         <div className="hidden print:flex justify-between items-end mt-20 pt-10 border-t">
                             <div className="text-center">
-                                <p className="font-bold underline mb-10">{dict.PrintSettings?.AccountantSignature || "توقيع المحاسب"}</p>
+                                <p className="font-bold underline mb-10">{dict.PrintSettings?.AccountantSignature}</p>
                                 <p className="text-slate-300">..............................</p>
                             </div>
                             <div className="text-center">
-                                <p className="font-bold underline mb-10">{dict.PrintSettings?.ReviewSignature || "توقيع المراجعة"}</p>
+                                <p className="font-bold underline mb-10">{dict.PrintSettings?.ReviewSignature}</p>
                                 <p className="text-slate-300">..............................</p>
                             </div>
                             <div className="text-center">
-                                <p className="font-bold underline mb-10">{dict.PrintSettings?.Stamp || "ختم المؤسسة"}</p>
+                                <p className="font-bold underline mb-10">{dict.PrintSettings?.Stamp}</p>
                                 <div className="h-20 w-20 border-4 border-slate-100 rounded-full mx-auto opacity-20"></div>
                             </div>
                         </div>

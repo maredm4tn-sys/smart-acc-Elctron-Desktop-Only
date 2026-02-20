@@ -25,6 +25,7 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { useState } from "react";
 import { createProduct, getCategories } from "../actions";
+import { getWarehouses } from "../warehouse-actions";
 import { PlusCircle, Package, RefreshCw } from "lucide-react";
 import { CategoryManagerDialog } from "./category-manager-dialog";
 import { AddUnitDialog } from "./add-unit-dialog";
@@ -36,6 +37,7 @@ export function AddProductDialog({ triggerLabel }: { triggerLabel?: string }) {
     const [open, setOpen] = useState(false);
     const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
     const [units, setUnits] = useState<{ id: number; name: string }[]>([]); // Units State
+    const [warehouses, setWarehouses] = useState<{ id: number; name: string; isDefault: boolean }[]>([]);
     const { dict } = useTranslation() as any;
 
     const fetchCategories = async () => {
@@ -49,10 +51,16 @@ export function AddProductDialog({ triggerLabel }: { triggerLabel?: string }) {
         setUnits(u);
     };
 
+    const fetchWarehouses = async () => {
+        const whs = await getWarehouses();
+        setWarehouses(whs);
+    };
+
     useEffect(() => {
         if (open) {
             fetchCategories();
             fetchUnits();
+            fetchWarehouses();
         }
     }, [open]);
 
@@ -72,6 +80,7 @@ export function AddProductDialog({ triggerLabel }: { triggerLabel?: string }) {
         requiresToken: z.boolean().default(false),
         categoryId: z.number().optional(),
         unitId: z.number().optional(),
+        warehouseId: z.number().optional(),
     });
 
     type ProductFormValues = z.infer<typeof productSchema>;
@@ -83,9 +92,12 @@ export function AddProductDialog({ triggerLabel }: { triggerLabel?: string }) {
         setError,
         reset,
         formState: { errors, isSubmitting },
-    } = useForm({
+    } = useForm<ProductFormValues>({
         resolver: zodResolver(productSchema),
         defaultValues: {
+            name: "",
+            sku: "",
+            barcode: "",
             type: "goods",
             sellPrice: 0,
             priceWholesale: 0,
@@ -95,7 +107,8 @@ export function AddProductDialog({ triggerLabel }: { triggerLabel?: string }) {
             stockQuantity: 0,
             minStock: 0,
             requiresToken: false,
-        },
+            location: "",
+        } as any,
     });
 
     const onSubmit = async (data: ProductFormValues) => {
@@ -278,6 +291,21 @@ export function AddProductDialog({ triggerLabel }: { triggerLabel?: string }) {
                         <div className="space-y-2">
                             <Label htmlFor="location" className="text-right w-full block">{dict.Dialogs.AddProduct.Location}</Label>
                             <Input id="location" placeholder={dict.Inventory.ProductForm.ShelfPlaceholder} {...register("location")} className="text-right" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-right w-full block">{dict.Inventory?.Warehouses?.Title}</Label>
+                            <Select onValueChange={(val) => setValue("warehouseId", Number(val))}>
+                                <SelectTrigger className="bg-white text-right">
+                                    <SelectValue placeholder={dict.Inventory?.Warehouses?.SelectWarehouse} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {warehouses?.length > 0 && warehouses.map((w) => (
+                                        <SelectItem key={w.id} value={w.id.toString()} className="text-right">
+                                            {w.name} {w.isDefault ? `(${dict.Inventory?.Warehouses?.Default})` : ""}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 

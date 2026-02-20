@@ -108,7 +108,7 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
                     <div className="space-y-6 p-4 md:p-0">
                         {/* Print Header (Visible only when printing) */}
                         <div className="hidden print:block text-center mb-8 border-b-2 border-blue-600 pb-4">
-                            <h1 className="text-3xl font-black text-blue-800 mb-2">{dict.Representatives?.Report?.Title || "Performance Report"}</h1>
+                            <h1 className="text-3xl font-black text-blue-800 mb-2">{dict.Representatives?.Report?.Title}</h1>
                             <h2 className="text-xl font-bold">{reportData.representative.name}</h2>
                             <p className="text-sm text-gray-500 mt-2">
                                 From: {date?.from ? format(date.from, "yyyy-MM-dd") : '---'} To: {date?.to ? format(date.to, "yyyy-MM-dd") : '---'}
@@ -123,14 +123,14 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
                                         {formatCurrency(Number(reportData.summary.totalSales), currency)}
                                     </div>
                                     <div className="text-xs text-muted-foreground mt-1">
-                                        {reportData.summary.invoicesCount} {dict.Invoices?.Table?.InvoiceNo || "Invoice"}
+                                        {reportData.summary.invoicesCount} {dict.Invoices?.Table?.InvoiceNumber}
                                     </div>
                                 </CardContent>
                             </Card>
 
                             <Card className="bg-green-50 border-green-100">
                                 <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                                    <span className="text-sm text-green-600 font-medium mb-1">{dict.Invoices?.Table?.PaidAmount || "Collected"}</span>
+                                    <span className="text-sm text-green-600 font-medium mb-1">{dict.Invoices?.Table?.PaidAmount}</span>
                                     <div className="text-xl font-bold text-green-700">
                                         {formatCurrency(Number(reportData.summary.totalCollected), currency)}
                                     </div>
@@ -139,7 +139,7 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
 
                             <Card className="bg-amber-50 border-amber-100">
                                 <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                                    <span className="text-sm text-amber-600 font-medium mb-1">{dict.Representatives?.Report?.CommissionRateCard || "Commission Rate"}</span>
+                                    <span className="text-sm text-amber-600 font-medium mb-1">{dict.Representatives?.Report?.CommissionRateCard}</span>
                                     <div className="text-xl font-bold text-amber-700">
                                         <Num value={reportData.summary.commissionRate} />
                                         <span className="text-xs font-normal ml-1">
@@ -154,7 +154,7 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
 
                             <Card className="bg-indigo-50 border-indigo-100">
                                 <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                                    <span className="text-sm text-indigo-600 font-medium mb-1">{dict.Representatives?.AddDialog?.FixedSalary || "Salary"}</span>
+                                    <span className="text-sm text-indigo-600 font-medium mb-1">{dict.Representatives?.AddDialog?.FixedSalary}</span>
                                     <div className="text-xl font-bold text-indigo-700">
                                         {formatCurrency(Number(reportData.summary.salary), currency)}
                                     </div>
@@ -166,12 +166,12 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
                                     <Wallet size={64} />
                                 </div>
                                 <CardContent className="p-6 flex flex-col items-center justify-center text-center relative z-10">
-                                    <span className="text-sm text-purple-600 font-bold mb-1">{dict.Representatives?.Report?.CommissionDue || "Commission (Due)"}</span>
+                                    <span className="text-sm text-purple-600 font-bold mb-1">{dict.Representatives?.Report?.CommissionDue}</span>
                                     <div className="text-2xl font-extrabold text-purple-800 mb-2">
                                         {formatCurrency(Number(reportData.summary.totalDue), currency)}
                                     </div>
                                     <p className="text-[10px] text-purple-500 mb-2">
-                                        {dict.Representatives?.Report?.SalaryPlus || "(Salary + Commission)"}
+                                        {dict.Representatives?.Report?.SalaryPlus}
                                     </p>
                                     <Button
                                         size="sm"
@@ -180,7 +180,7 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
                                         disabled={reportData.summary.totalDue <= 0}
                                     >
                                         <Wallet className="mr-2 h-4 w-4" />
-                                        {dict.Common?.Settle || "Settle & Pay"}
+                                        {dict.Common?.Settle}
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -203,7 +203,7 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-base flex items-center gap-2">
                                     <Receipt className="h-4 w-4 text-muted-foreground" />
-                                    {dict.Dashboard?.SalesInvoices || "Sales Invoices"}
+                                    {dict.Dashboard?.SalesInvoices}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -211,12 +211,12 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
                                     <Table>
                                         <TableHeader className="bg-muted/50">
                                             <TableRow>
-                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.InvoiceNo || "Ref"}</TableHead>
-                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.Date || "Date"}</TableHead>
-                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.Customer || "Customer"}</TableHead>
-                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.Total || "Total"}</TableHead>
-                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.PaidAmount || "Paid"}</TableHead>
-                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.Status || "Status"}</TableHead>
+                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.InvoiceNumber}</TableHead>
+                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.Date}</TableHead>
+                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.Customer}</TableHead>
+                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.Total}</TableHead>
+                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.PaidAmount}</TableHead>
+                                                <TableHead className="text-right font-bold text-primary">{dict.Invoices?.Table?.Status}</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody className="text-right">
@@ -248,7 +248,7 @@ export function RepresentativeReport({ representativeId }: RepresentativeReportP
                                                         </TableCell>
                                                         <TableCell>
                                                             <Badge variant={inv.paymentStatus === 'paid' ? 'default' : inv.paymentStatus === 'partial' ? 'secondary' : 'destructive'} className="text-[10px]">
-                                                                {inv.paymentStatus === 'paid' ? (dict.Invoices?.Table?.Paid || 'محصل') : inv.paymentStatus}
+                                                                {inv.paymentStatus === 'paid' ? (dict.Invoices?.Table?.Paid) : inv.paymentStatus}
                                                             </Badge>
                                                         </TableCell>
                                                     </TableRow>

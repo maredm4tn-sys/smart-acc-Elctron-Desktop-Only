@@ -42,6 +42,8 @@ export const representatives = schemaSqlite.representatives;
 export const units = schemaSqlite.units;
 export const partners = schemaSqlite.partners;
 export const partnerTransactions = schemaSqlite.partnerTransactions;
+export const warehouses = schemaSqlite.warehouses;
+export const stockLevels = schemaSqlite.stockLevels;
 
 // Relations
 export const usersRelations = schemaSqlite.usersRelations;
@@ -70,3 +72,5 @@ export const shifts = schemaSqlite.shifts;
 export const shiftsRelations = schemaSqlite.shiftsRelations;
 export const partnersRelations = schemaSqlite.partnersRelations;
 export const partnerTransactionsRelations = schemaSqlite.partnerTransactionsRelations;
+export const warehousesRelations = schemaSqlite.warehousesRelations;
+export const stockLevelsRelations = schemaSqlite.stockLevelsRelations;

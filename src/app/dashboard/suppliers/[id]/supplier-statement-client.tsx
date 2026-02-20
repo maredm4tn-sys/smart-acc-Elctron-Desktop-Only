@@ -40,7 +40,7 @@ export default function SupplierStatementClient({ data, dict, currency }: any) {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">{dict.Suppliers?.Statement?.Title || "كشف حساب مورد"}</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">{dict.Suppliers?.Statement?.Title}</h1>
                         <p className="text-muted-foreground">{supplier?.name}</p>
                     </div>
                 </div>
@@ -51,7 +51,7 @@ export default function SupplierStatementClient({ data, dict, currency }: any) {
                     onClick={() => handlePrint()}
                 >
                     <Printer className="h-4 w-4" />
-                    {dict.Suppliers?.Statement?.Print || "طباعة كشف الحساب"}
+                    {dict.Suppliers?.Statement?.Print}
                 </Button>
             </div>
 
@@ -190,15 +190,15 @@ export default function SupplierStatementClient({ data, dict, currency }: any) {
                 {/* Print Footer */}
                 <div className="hidden print:flex justify-between items-end mt-20 pt-10 border-t">
                     <div className="text-center">
-                        <p className="font-bold underline mb-10">{dict.PrintSettings?.AccountantSignature || "توقيع المحاسب"}</p>
+                        <p className="font-bold underline mb-10">{dict.PrintSettings?.AccountantSignature}</p>
                         <p className="text-slate-300">..............................</p>
                     </div>
                     <div className="text-center">
-                        <p className="font-bold underline mb-10">{dict.PrintSettings?.ReviewerSignature || "توقيع المراجعة"}</p>
+                        <p className="font-bold underline mb-10">{dict.PrintSettings?.ReviewerSignature}</p>
                         <p className="text-slate-300">..............................</p>
                     </div>
                     <div className="text-center">
-                        <p className="font-bold underline mb-10">{dict.PrintSettings?.Stamp || "ختم المؤسسة"}</p>
+                        <p className="font-bold underline mb-10">{dict.PrintSettings?.Stamp}</p>
                         <div className="h-20 w-20 border-4 border-slate-100 rounded-full mx-auto opacity-20"></div>
                     </div>
                 </div>

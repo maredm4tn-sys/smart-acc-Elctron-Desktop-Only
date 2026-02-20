@@ -97,23 +97,23 @@ export default async function InvoicePrintPage(props: {
                 {autoPrintScript}
 
                 <div className="text-center mb-2">
-                    <h1 className="text-xl leading-tight font-black">{settings?.name || "المحاسب الذكي"}</h1>
+                    <h1 className="text-xl leading-tight font-black">{settings?.name}</h1>
                     <div className="border-t-2 border-black my-1" />
-                    <p className="text-sm">فاتورة مبيعات</p>
+                    <p className="text-sm">{dict.Sales.Invoice.Print.Title}</p>
                 </div>
 
                 <div className="text-[12px] space-y-1 my-3">
-                    <div className="flex justify-between"><span>التاريخ:</span><span>{dateStr}</span></div>
-                    <div className="flex justify-between"><span>الوقت:</span><span>{timeStr}</span></div>
-                    <div className="flex justify-between"><span>رقم الفاتورة:</span><span>#{invoice.invoiceNumber}</span></div>
-                    <div className="flex justify-between"><span>العميل:</span><span>{invoice.customerName || "عميل نقدي"}</span></div>
+                    <div className="flex justify-between"><span>{dict.Sales.Invoice.Print.Date}:</span><span>{dateStr}</span></div>
+                    <div className="flex justify-between"><span>{dict.Sales.Invoice.Print.Time || "Time"}:</span><span>{timeStr}</span></div>
+                    <div className="flex justify-between"><span>{dict.Sales.Invoice.Print.InvoiceNumber}:</span><span>#{invoice.invoiceNumber}</span></div>
+                    <div className="flex justify-between"><span>{dict.Sales.Invoice.Print.BillTo}:</span><span>{invoice.customerName}</span></div>
                 </div>
 
                 <div className="border-t-2 border-dashed border-black my-2" />
                 <div className="flex text-[11px] pb-1 font-black">
-                    <span className="w-10">الكمية</span>
-                    <span className="flex-1 px-1">الصنف</span>
-                    <span className="w-20 text-left">الإجمالي</span>
+                    <span className="w-10">{dict.Sales.Invoice.Print.Qty}</span>
+                    <span className="flex-1 px-1">{dict.Sales.Invoice.Print.Item}</span>
+                    <span className="w-20 text-left">{dict.Sales.Invoice.Print.Total}</span>
                 </div>
                 <div className="border-t border-black mb-1" />
 
@@ -129,20 +129,20 @@ export default async function InvoicePrintPage(props: {
 
                 <div className="border-t-2 border-dashed border-black my-2" />
                 <div className="text-[12px] space-y-1">
-                    <div className="flex justify-between"><span>المجموع:</span><span>{Number(invoice.subtotal).toFixed(2)}</span></div>
-                    {Number(invoice.taxTotal) > 0 && <div className="flex justify-between"><span>الضريبة (14%):</span><span>{Number(invoice.taxTotal).toFixed(2)}</span></div>}
-                    {Number(invoice.discountAmount) > 0 && <div className="flex justify-between"><span>الخصم:</span><span>-{Number(invoice.discountAmount).toFixed(2)}</span></div>}
+                    <div className="flex justify-between"><span>{dict.Sales.Invoice.Print.Subtotal}:</span><span>{Number(invoice.subtotal).toFixed(2)}</span></div>
+                    {Number(invoice.taxTotal) > 0 && <div className="flex justify-between"><span>{dict.Sales.Invoice.Print.Tax}:</span><span>{Number(invoice.taxTotal).toFixed(2)}</span></div>}
+                    {Number(invoice.discountAmount) > 0 && <div className="flex justify-between"><span>{dict.Sales.Invoice.Print.Discount}:</span><span>-{Number(invoice.discountAmount).toFixed(2)}</span></div>}
                 </div>
                 <div className="border-t-2 border-black my-2" />
 
                 <div className="flex justify-between items-center text-xl py-1 font-black">
-                    <span>الإجمالي:</span>
+                    <span>{dict.Sales.Invoice.Print.GrandTotal}:</span>
                     <span>{Number(invoice.totalAmount).toFixed(2)} {settings?.currency || "EGP"}</span>
                 </div>
 
                 <div className="text-center text-[10px] mt-8 opacity-70">
-                    <p>شكراً لتعاملكم معنا</p>
-                    <p>*** المحاسب الذكي ***</p>
+                    <p>{dict.Sales.Invoice.Print.Footer}</p>
+                    <p>*** {settings?.name || dict.Logo} ***</p>
                 </div>
 
                 <div className="no-print mt-8 flex justify-center">
@@ -179,7 +179,7 @@ export default async function InvoicePrintPage(props: {
                             </h2>
                         </div>
                         <div className="space-y-1 text-sm font-bold text-gray-700">
-                            <p>{dict.Sales.Invoice.Print.InvoiceNo}: <span className="text-blue-900">#{invoice.invoiceNumber}</span></p>
+                            <p>{dict.Sales.Invoice.Print.InvoiceNumber}: <span className="text-blue-900">#{invoice.invoiceNumber}</span></p>
                             <p>{dict.Sales.Invoice.Print.Date}: {dateStr}</p>
                         </div>
                     </div>
@@ -206,7 +206,7 @@ export default async function InvoicePrintPage(props: {
                     <table className="w-full border-collapse overflow-hidden rounded-xl shadow-sm">
                         <thead className="bg-blue-900 text-white">
                             <tr>
-                                <th className={cn("p-4", locale === 'ar' ? "text-right" : "text-left")}>{dict.Sales.Invoice.Print.Item} / {dict.Sales.Invoice.Form.Table.Description}</th>
+                                <th className={cn("p-4", locale === 'ar' ? "text-right" : "text-left")}>{dict.Sales.Invoice.Print.Item}</th>
                                 <th className="p-4 text-center w-24">{dict.Sales.Invoice.Print.Qty}</th>
                                 <th className="p-4 text-center w-32">{dict.Sales.Invoice.Print.Price}</th>
                                 <th className={cn("p-4 w-32", locale === 'ar' ? "text-left" : "text-right")}>{dict.Sales.Invoice.Print.Total}</th>
@@ -240,7 +240,7 @@ export default async function InvoicePrintPage(props: {
                         )}
                         {Number(invoice.discountAmount) > 0 && (
                             <div className="flex justify-between px-2 text-green-600 font-bold">
-                                <span>{dict.Sales.Invoice.Form.Discount}:</span>
+                                <span>{dict.Sales.Invoice.Print.Discount}:</span>
                                 <span className="font-mono">-{Number(invoice.discountAmount).toFixed(2)}</span>
                             </div>
                         )}

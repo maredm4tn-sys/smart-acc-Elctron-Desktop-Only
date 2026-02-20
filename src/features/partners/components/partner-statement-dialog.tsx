@@ -21,7 +21,7 @@ export function PartnerStatementDialog({ partner, dict }: { partner: any; dict: 
 
     const handlePrint = useReactToPrint({
         content: () => printRef.current,
-        documentTitle: `${dict.PartnersManagement?.Statement?.Title || 'Partner Statement'} - ${partner.name}`,
+        documentTitle: `${dict.PartnersManagement?.Statement?.Title} - ${partner.name}`,
     });
 
     useEffect(() => {
@@ -94,7 +94,7 @@ export function PartnerStatementDialog({ partner, dict }: { partner: any; dict: 
                             <div>
                                 <h1 className="text-3xl font-black text-slate-900">{dict.PartnersManagement?.Statement?.Title}</h1>
                                 <p className="text-xl font-bold text-blue-700">{partner.name}</p>
-                                <p className="text-slate-400 text-xs mt-1">تاريخ التقرير: {new Date().toLocaleDateString('ar-EG')}</p>
+                                <p className="text-slate-400 text-xs mt-1">{dict.Common?.Date}: {new Date().toLocaleDateString('en-GB')}</p>
                             </div>
                             <div className="text-left" dir="ltr">
                                 <h2 className="text-2xl font-black tracking-tighter">Smart Accountant</h2>
@@ -110,7 +110,7 @@ export function PartnerStatementDialog({ partner, dict }: { partner: any; dict: 
                                     <TableHead className="text-start font-black text-slate-400 uppercase text-[10px]">{dict.PartnersManagement?.Transaction?.Date}</TableHead>
                                     <TableHead className="text-center font-black text-slate-400 uppercase text-[10px]">{dict.PartnersManagement?.Transaction?.Type}</TableHead>
                                     <TableHead className="text-start font-black text-slate-400 uppercase text-[10px]">{dict.PartnersManagement?.Transaction?.DescriptionLabel}</TableHead>
-                                    <TableHead className="text-end font-black text-slate-400 uppercase text-[10px]">{dict.PartnersManagement?.Transaction?.Amount}</TableHead>
+                                    <TableHead className="text-end font-black text-slate-400 uppercase text-[10px]">{dict.PartnersManagement?.Transaction?.TransAmount}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -126,7 +126,7 @@ export function PartnerStatementDialog({ partner, dict }: { partner: any; dict: 
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-start text-slate-600 font-bold text-xs">
-                                                {tx.description === "Opening Capital Deposit" ? dict.PartnersManagement?.Transaction?.OpeningCapitalDeposit || "إيداع رأس مال افتتاحي" : (tx.description || "-")}
+                                                {tx.description === "Opening Capital Deposit" ? dict.PartnersManagement?.Transaction?.Types?.OpeningDeposit : (tx.description || "-")}
                                             </TableCell>
                                             <TableCell className={`text-end font-black tabular-nums ${info.color}`}>
                                                 {tx.type.includes('withdrawal') ? '-' : '+'}

@@ -112,7 +112,7 @@ export function DangerZone() {
                             </div>
 
                             <DialogFooter className="flex gap-2 sm:justify-start">
-                                <Button variant="outline" onClick={() => setIsOpen(false)}>{dict.Common.Cancel || "Cancel"}</Button>
+                                <Button variant="outline" onClick={() => setIsOpen(false)}>{dict.Common.Cancel}</Button>
                                 <Button
                                     variant="destructive"
                                     onClick={handleFactoryReset}

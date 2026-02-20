@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Users, CloudOff, Search } from "lucide-react";
+import { ArrowRightLeft, AlertTriangle, Users, CloudOff, Search } from "lucide-react";
 import { AddCustomerDialog } from "@/features/customers/components/add-customer-dialog";
 import { CustomerImport } from "@/features/customers/components/customer-import";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CustomerActions } from "@/features/customers/components/customer-actions";
 import { mirrorData, getLocalData, STORES } from "@/lib/offline-db";
 import { Num } from "@/components/ui/num";
+import { exportToExcel } from "@/lib/export-excel";
 
 export function CustomersClient({ initialCustomers = [], dict, session, representatives = [] }: { initialCustomers?: any[], dict: any, session: any, representatives?: any[] }) {
     const [customers, setCustomers] = useState(initialCustomers);
@@ -86,7 +87,16 @@ export function CustomersClient({ initialCustomers = [], dict, session, represen
                     <h1 className="text-3xl font-bold tracking-tight text-slate-800">{dict.Customers.Title}</h1>
                     <p className="text-slate-500 mt-1">{dict.Customers.Description}</p>
                 </div>
-                <div className="flex items-center gap-3 self-end">
+                <div className="flex flex-wrap items-center gap-2 self-end">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => exportToExcel(customers, 'Customers', 'CustomersList')}
+                        className="bg-white hover:bg-slate-50 border-slate-200 text-slate-700 font-bold gap-2 shadow-sm rounded-xl h-10 px-4"
+                    >
+                        <ArrowRightLeft className="h-4 w-4 text-blue-600" />
+                        <span className="hidden sm:inline">{dict.Customers.ExportExcel}</span>
+                    </Button>
                     <CustomerImport />
                     <AddCustomerDialog representatives={representatives} />
                 </div>
@@ -109,7 +119,7 @@ export function CustomersClient({ initialCustomers = [], dict, session, represen
                             </span>
                             <input
                                 type="text"
-                                placeholder={(dict.Common?.Search || "Search") + "..."}
+                                placeholder={(dict.Common?.Search) + "..."}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full h-9 rounded-md border border-slate-200 bg-white pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
@@ -153,7 +163,7 @@ export function CustomersClient({ initialCustomers = [], dict, session, represen
                                 <TableHead className="text-start font-bold text-slate-700 hidden xl:table-cell">{dict.Customers.Table.Company}</TableHead>
                                 <TableHead className="text-start font-bold text-slate-700 hidden md:table-cell">{dict.Customers.Table.Phone}</TableHead>
                                 <TableHead className="text-start font-bold text-slate-700">{dict.Customers.Table.TotalDebt}</TableHead>
-                                <TableHead className="text-center font-bold text-slate-700 w-[120px]">{dict.Customers.Table.Actions}</TableHead>
+                                <TableHead className="text-start font-bold text-slate-700 w-[120px]">{dict.Customers.Table.Actions}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -176,7 +186,7 @@ export function CustomersClient({ initialCustomers = [], dict, session, represen
                                             {c?.companyName || "-"}
                                         </TableCell>
                                         <TableCell className="text-start font-mono text-slate-600 text-xs hidden md:table-cell">
-                                            <Num value={c?.phone || "-"} />
+                                            {c?.phone || "-"}
                                         </TableCell>
                                         <TableCell className="text-start">
                                             <div className="flex flex-col items-start gap-1">
@@ -194,8 +204,8 @@ export function CustomersClient({ initialCustomers = [], dict, session, represen
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-center px-4">
-                                            <div className="flex justify-center">
+                                        <TableCell className="text-start px-4">
+                                            <div className="flex justify-start">
                                                 <CustomerActions
                                                     customer={c}
                                                     currentRole={session?.role}

@@ -31,7 +31,7 @@ export function BulkUploadDialog() {
                 const result = await (window as any).electron.importExcel();
 
                 if (!result.success) {
-                    if (result.message !== 'Canceled') toast.error(result.error || dict.Common?.Error || "Failed to read file");
+                    if (result.message !== 'Canceled') toast.error(result.error || dict.Common?.Error);
                     setIsLoading(false);
                     return;
                 }
@@ -48,7 +48,7 @@ export function BulkUploadDialog() {
 
     const processData = async (jsonData: any[]) => {
         if (!jsonData || jsonData.length === 0) {
-            toast.error(dict?.Inventory?.ImportDialog?.EmptyError || "File is empty or invalid");
+            toast.error(dict?.Inventory?.ImportDialog?.EmptyError);
             setIsLoading(false);
             return;
         }
@@ -57,7 +57,7 @@ export function BulkUploadDialog() {
         const result = await bulkImportProducts(jsonData);
 
         if (result.success) {
-            toast.success(result.message || "Import completed successfully");
+            toast.success(result.message );
             setOpen(false);
             setTimeout(() => window.location.reload(), 1500);
         } else {
@@ -81,7 +81,7 @@ export function BulkUploadDialog() {
             processData(jsonData);
         } catch (error: any) {
             console.error("Critical Import Error:", error);
-            toast.error(dict.Inventory?.Import?.ProcessError || "An error occurred while processing the file");
+            toast.error(dict.Inventory?.Import?.ProcessError);
             setIsLoading(false);
         } finally {
             if (e.target) e.target.value = '';
@@ -93,14 +93,14 @@ export function BulkUploadDialog() {
             <DialogTrigger asChild>
                 <Button variant="outline" className="gap-2">
                     <FileSpreadsheet size={16} />
-                    <span>{dict?.Inventory?.BulkUpload || "Bulk Upload (Excel)"}</span>
+                    <span>{dict?.Inventory?.BulkUpload}</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{dict?.Inventory?.ImportDialog?.Title || "Import Inventory"}</DialogTitle>
+                    <DialogTitle>{dict?.Inventory?.ImportDialog?.Title}</DialogTitle>
                     <DialogDescription>
-                        {dict?.Inventory?.ImportDialog?.Description || "Import data from Excel files using standard column names."}
+                        {dict?.Inventory?.ImportDialog?.Description}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -110,10 +110,10 @@ export function BulkUploadDialog() {
                             {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    {dict?.Inventory?.ImportDialog?.Processing || "Importing..."}
+                                    {dict?.Inventory?.ImportDialog?.Processing}
                                 </>
                             ) : (
-                                dict?.Inventory?.ImportDialog?.FileLabel || "Select Excel File"
+                                dict?.Inventory?.ImportDialog?.FileLabel
                             )}
                         </Button>
 

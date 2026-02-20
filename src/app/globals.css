@@ -88,10 +88,15 @@
     table-layout: auto;
   }
 
-  @media (min-width: 768px) {
-    .rt-table {
-      min-width: 100%;
-    }
+  .rt-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+    table-layout: auto;
+  }
+
+  .account-col-min {
+    min-width: 220px;
   }
 
   .rt-table th {
@@ -102,14 +107,14 @@
     font-size: 0.875rem;
     border-bottom-width: 1px;
     white-space: nowrap;
-    text-align: center;
+    text-align: start;
   }
 
   .rt-table td {
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
     border-bottom-width: 1px;
-    text-align: center;
+    text-align: start;
   }
 
   /* Mobile Layout Helpers */

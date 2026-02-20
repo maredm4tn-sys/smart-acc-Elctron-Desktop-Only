@@ -139,7 +139,7 @@ function ensureTablesExist(sqlite: any) {
             schema.invoiceItems, schema.purchaseInvoices, schema.purchaseInvoiceItems,
             schema.vouchers, schema.auditLogs, schema.employees, schema.advances,
             schema.payrolls, schema.attendance, schema.licensing, schema.shifts,
-            schema.partners, schema.partnerTransactions
+            schema.partners, schema.partnerTransactions, schema.warehouses, schema.stockLevels
         ];
 
         for (const table of tables) {

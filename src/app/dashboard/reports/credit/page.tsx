@@ -9,6 +9,7 @@ import { useTranslation } from "@/components/providers/i18n-provider";
 import { useSettings } from "@/components/providers/settings-provider";
 import { getCreditReport } from "@/features/reports/actions";
 import { toast } from "sonner";
+import { ReportsBackButton } from "@/components/dashboard/reports-back-button";
 
 export default function CreditReportPage() {
     const { dict } = useTranslation() as any;
@@ -27,7 +28,7 @@ export default function CreditReportPage() {
             }
         } catch (e: any) {
             console.error(e);
-            toast.error(dict.Common?.Error || "Failed to load report");
+            toast.error(dict.Common?.Error);
         } finally {
             setLoading(false);
         }
@@ -40,15 +41,16 @@ export default function CreditReportPage() {
     const totalRemaining = data.reduce((acc, item) => acc + (Number(item.remaining) || 0), 0);
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500" dir="rtl">
+        <div className="space-y-6 animate-in fade-in duration-500 p-6" dir="rtl">
+            <ReportsBackButton />
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="text-right">
                     <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
                         <Calendar className="w-8 h-8 text-emerald-600" />
-                        {dict.Reports?.CreditReport?.Title || "تقرير المديونيات الآجلة"}
+                        {dict.Reports?.CreditReport?.Title}
                     </h1>
                     <p className="text-slate-500 mt-1 font-bold">
-                        {dict.Reports?.CreditReport?.Desc || "متابعة الفواتير التي لم تُسدد بالكامل وتاريخ استحقاقها."}
+                        {dict.Reports?.CreditReport?.Desc}
                     </p>
                 </div>
             </div>
@@ -59,7 +61,7 @@ export default function CreditReportPage() {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-emerald-800 text-lg flex items-center gap-2 font-black">
                             <Loader2 className={loading ? "w-5 h-5 animate-spin" : "w-5 h-5"} />
-                            {dict.Reports?.CreditReport?.TotalRemaining || "إجمالي المديونيات المستحقة"}
+                            {dict.Reports?.CreditReport?.TotalRemaining}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -73,12 +75,12 @@ export default function CreditReportPage() {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-slate-700 text-lg flex items-center gap-2 font-black">
                             <User className="w-5 h-5" />
-                            {dict.Reports?.CreditReport?.InvoicesCount || "عدد الفواتير الآجلة"}
+                            {dict.Reports?.CreditReport?.InvoicesCount}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-4xl font-black text-slate-900">
-                            {data.length} <span className="text-lg font-bold text-gray-500">{dict.Common?.Invoice || "فاتورة"}</span>
+                            {data.length} <span className="text-lg font-bold text-gray-500">{dict.Common?.Invoice}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -88,7 +90,7 @@ export default function CreditReportPage() {
             <Card className="border shadow-lg overflow-hidden rounded-2xl">
                 <CardHeader className="bg-slate-50 border-b">
                     <CardTitle className="font-black text-slate-800">
-                        {dict.Reports?.CreditReport?.TableTitle || "تفاصيل المديونيات"}
+                        {dict.Reports?.CreditReport?.TableTitle}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -100,7 +102,7 @@ export default function CreditReportPage() {
                         <div className="py-20 flex flex-col items-center justify-center text-slate-400">
                             <AlertTriangle className="w-16 h-16 mb-4 opacity-20" />
                             <h3 className="text-lg font-black text-slate-600">
-                                {dict.Reports?.CreditReport?.NoData || "لا توجد مديونيات حالية."}
+                                {dict.Reports?.CreditReport?.NoData}
                             </h3>
                             <p className="font-bold">تم تحصيل كافة الفواتير بنجاح.</p>
                         </div>
@@ -109,12 +111,12 @@ export default function CreditReportPage() {
                             <Table>
                                 <TableHeader className="bg-slate-50">
                                     <TableRow>
-                                        <TableHead className="text-start font-black">{dict.Invoices?.Table?.InvoiceNo || "رقم الفاتورة"}</TableHead>
-                                        <TableHead className="text-start font-black">{dict.Invoices?.Table?.Customer || "العميل"}</TableHead>
-                                        <TableHead className="text-center font-black">{dict.Invoices?.Table?.Date || "التاريخ"}</TableHead>
-                                        <TableHead className="text-center font-black">{dict.Invoices?.Table?.DueDate || "تاريخ الاستحقاق"}</TableHead>
-                                        <TableHead className="text-end font-black">{dict.Invoices?.Table?.Total || "الإجمالي"}</TableHead>
-                                        <TableHead className="text-end font-black">{dict.Invoices?.Table?.Balance || "المتبقي"}</TableHead>
+                                        <TableHead className="text-start font-black">{dict.Invoices?.Table?.InvoiceNo}</TableHead>
+                                        <TableHead className="text-start font-black">{dict.Invoices?.Table?.Customer}</TableHead>
+                                        <TableHead className="text-center font-black">{dict.Invoices?.Table?.Date}</TableHead>
+                                        <TableHead className="text-center font-black">{dict.Invoices?.Table?.DueDate}</TableHead>
+                                        <TableHead className="text-end font-black">{dict.Invoices?.Table?.Total}</TableHead>
+                                        <TableHead className="text-end font-black">{dict.Invoices?.Table?.Balance}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>

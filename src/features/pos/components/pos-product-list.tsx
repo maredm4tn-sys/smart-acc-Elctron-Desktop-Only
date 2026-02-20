@@ -41,7 +41,7 @@ export function POSProductList() {
             <div className="bg-white p-3 rounded-lg shadow-sm border flex items-center gap-2">
                 <Search className="text-gray-400 h-5 w-5" />
                 <Input
-                    placeholder={dict?.POS?.SearchProducts || "Search for product (name or barcode)..."}
+                    placeholder={dict?.POS?.SearchProducts}
                     className="border-none shadow-none focus-visible:ring-0 text-lg"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -53,7 +53,7 @@ export function POSProductList() {
                 {filteredProducts.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
                         <Package size={48} className="opacity-20" />
-                        <p>{dict?.Common?.NoData || "No matching items found"}</p>
+                        <p>{dict?.Common?.NoData}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -66,7 +66,7 @@ export function POSProductList() {
                                 {/* Top: Stock */}
                                 <div className="flex justify-end h-5 mb-1">
                                     <span className="text-[10px] text-gray-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
-                                        {dict?.Inventory?.Table?.Stock || "Stock"}: <Num value={product.stockQuantity} />
+                                        {dict?.Inventory?.Table?.Stock}: <Num value={product.stockQuantity} />
                                     </span>
                                 </div>
 

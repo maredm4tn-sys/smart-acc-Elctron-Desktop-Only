@@ -96,7 +96,7 @@ export default async function PurchasePrintPage(props: {
                     <div className={cn(locale === 'ar' ? "text-right" : "text-left")}>
                         <div className="bg-emerald-900 text-white px-6 py-2 rounded-lg mb-2 inline-block">
                             <h2 className="text-xl font-bold uppercase tracking-widest">
-                                فاتورة مشتريات
+                                {dict.Purchases?.Print?.Title}
                             </h2>
                         </div>
                         <div className="space-y-1 text-sm font-bold text-gray-700">
@@ -108,11 +108,11 @@ export default async function PurchasePrintPage(props: {
 
                 <div className="grid grid-cols-2 gap-8 mb-10">
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                        <h3 className="text-xs font-black text-slate-400 uppercase mb-2">المورد:</h3>
+                        <h3 className="text-xs font-black text-slate-400 uppercase mb-2">{dict.Purchases?.Print?.Supplier}</h3>
                         <p className="text-lg font-black text-slate-900">{invoice.supplierName}</p>
                     </div>
                     <div className={cn("bg-slate-50 p-4 rounded-xl border border-slate-100", locale === 'ar' ? "text-right" : "text-left")}>
-                        <h3 className="text-xs font-black text-slate-400 uppercase mb-2">طريقة الدفع:</h3>
+                        <h3 className="text-xs font-black text-slate-400 uppercase mb-2">{dict.Purchases?.Print?.PaymentMethod}</h3>
                         <p className="text-lg font-black text-emerald-700 uppercase">
                             {invoice.paymentMethod === 'cash' ? dict.POS.Cash : dict.POS.Credit}
                         </p>
@@ -123,10 +123,10 @@ export default async function PurchasePrintPage(props: {
                     <table className="w-full border-collapse overflow-hidden rounded-xl shadow-sm">
                         <thead className="bg-emerald-900 text-white">
                             <tr>
-                                <th className={cn("p-4", locale === 'ar' ? "text-right" : "text-left")}>الصنف / البيان</th>
-                                <th className="p-4 text-center w-24">الكمية</th>
-                                <th className="p-4 text-center w-32">السعر</th>
-                                <th className={cn("p-4 w-32", locale === 'ar' ? "text-left" : "text-right")}>الإجمالي</th>
+                                <th className={cn("p-4", locale === 'ar' ? "text-right" : "text-left")}>{dict.Purchases?.Print?.Item}</th>
+                                <th className="p-4 text-center w-24">{dict.Purchases?.Print?.Qty}</th>
+                                <th className="p-4 text-center w-32">{dict.Purchases?.Print?.Price}</th>
+                                <th className={cn("p-4 w-32", locale === 'ar' ? "text-left" : "text-right")}>{dict.Purchases?.Print?.Total}</th>
                             </tr>
                         </thead>
                         <tbody className="text-gray-700 font-medium">
@@ -145,18 +145,18 @@ export default async function PurchasePrintPage(props: {
                 <div className="mt-8 flex justify-end">
                     <div className="w-72 space-y-3">
                         <div className="flex justify-between px-2 text-slate-500 font-bold">
-                            <span>المجموع الفرعي:</span>
+                            <span>{dict.Purchases?.Print?.Subtotal}</span>
                             <span className="font-mono">{Number(invoice.subtotal).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between bg-emerald-900 text-white p-4 rounded-xl shadow-lg">
-                            <span className="text-xl font-black uppercase">الإجمالي النهائي:</span>
+                            <span className="text-xl font-black uppercase">{dict.Purchases?.Print?.GrandTotal}</span>
                             <span className="text-2xl font-black font-mono">{Number(invoice.totalAmount).toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="mt-16 border-t pt-6 text-center text-slate-400 text-sm font-bold">
-                    <p>شكراً لشرائكم منا</p>
+                    <p>{dict.Purchases?.Print?.Footer}</p>
                 </div>
             </div>
 

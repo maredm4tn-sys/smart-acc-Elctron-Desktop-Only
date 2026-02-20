@@ -26,11 +26,11 @@ export function RepresentativeActions({ representative, dict }: Props) {
     const [editOpen, setEditOpen] = useState(false);
 
     const handleDelete = () => {
-        if (confirm(dict.Common?.DeleteConfirm || "Are you sure?")) {
+        if (confirm(dict.Common?.DeleteConfirm)) {
             startTransition(async () => {
                 const res = await deleteRepresentative(representative.id);
-                if (res.success) toast.success(dict.Common?.DeleteSuccess || "Deleted successfully");
-                else toast.error(res.message || dict.Common?.DeleteError || "Error deleting");
+                if (res.success) toast.success(dict.Common?.DeleteSuccess);
+                else toast.error(res.message || dict.Common?.DeleteError);
             });
         }
     };
@@ -41,7 +41,7 @@ export function RepresentativeActions({ representative, dict }: Props) {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-slate-500 hover:text-primary hover:bg-slate-100"
-                title={dict.Representatives?.Table?.Edit || "تعديل"}
+                title={dict.Representatives?.Table?.Edit}
                 onClick={() => setEditOpen(true)}
             >
                 <Pencil size={18} />
@@ -55,8 +55,8 @@ export function RepresentativeActions({ representative, dict }: Props) {
             >
                 <Link
                     href={`/dashboard/representatives/${representative.id}`}
-                    title={dict.Representatives?.Table?.ViewReport || "عرض التقارير"}
-                    aria-label={dict.Representatives?.Table?.ViewReport || "عرض التقارير"}
+                    title={dict.Representatives?.Table?.ViewReport}
+                    aria-label={dict.Representatives?.Table?.ViewReport}
                 >
                     <FileBarChart size={18} />
                 </Link>
@@ -66,7 +66,7 @@ export function RepresentativeActions({ representative, dict }: Props) {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-                title={dict.Representatives?.Table?.Delete || "حذف"}
+                title={dict.Representatives?.Table?.Delete}
                 onClick={handleDelete}
             >
                 <Trash size={18} />

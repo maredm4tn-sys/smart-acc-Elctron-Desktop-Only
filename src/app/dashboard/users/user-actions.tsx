@@ -55,13 +55,13 @@ export function UserActions({ user }: UserActionsProps) {
     };
 
     const handleDelete = async () => {
-        if (!confirm("هل أنت متأكد من حذف هذا المستخدم؟")) return;
+        if (!confirm(dict.Users.Dialog.DeleteConfirm)) return;
 
         const res = await deleteUser(user.id);
         if (res.error) {
             toast.error(res.error);
         } else {
-            toast.success("تم الحذف بنجاح");
+            toast.success(dict.Users.Dialog.DeleteSuccess);
         }
     };
 
@@ -88,7 +88,7 @@ export function UserActions({ user }: UserActionsProps) {
             toast.error(res.error);
         } else {
             setEditOpen(false);
-            toast.success("تم التعديل بنجاح");
+            toast.success(dict.Users.Dialog.UpdateSuccess);
         }
     };
 
@@ -102,10 +102,10 @@ export function UserActions({ user }: UserActionsProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => setEditOpen(true)}>
-                        <Pencil className="mr-2 h-4 w-4" /> تعديل
+                        <Pencil className="mr-2 h-4 w-4" /> {dict.Users.Dialog.Edit}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600">
-                        <Trash2 className="mr-2 h-4 w-4" /> حذف
+                        <Trash2 className="mr-2 h-4 w-4" /> {dict.Users.Dialog.Delete}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -115,10 +115,10 @@ export function UserActions({ user }: UserActionsProps) {
                 <DialogContent className="sm:max-w-[700px] max-h-[95vh] overflow-y-auto rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-black text-slate-900 border-b pb-4 flex items-center justify-between">
-                            <span>{dict.Users.Dialog.EditTitle || "تعديل بيانات المستخدم"}</span>
+                            <span>{dict.Users.Dialog.EditTitle}</span>
                             <div className="flex items-center gap-2">
                                 <Button type="button" variant="outline" size="sm" onClick={toggleAll} className="h-7 text-[10px] font-black uppercase tracking-tighter">
-                                    {permissions.length === ALL_PERMISSIONS.length ? "الغاء تحديد الكل" : "تحديد الكل"}
+                                    {permissions.length === ALL_PERMISSIONS.length ? dict.Users.Dialog.DeselectAll : dict.Users.Dialog.SelectAll}
                                 </Button>
                             </div>
                         </DialogTitle>
@@ -137,7 +137,7 @@ export function UserActions({ user }: UserActionsProps) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="font-bold text-slate-700">{dict.Users.Dialog.Password} (اتركه فارغاً للإبقاء عليه)</Label>
+                                <Label className="font-bold text-slate-700">{dict.Users.Dialog.Password} ({dict.Users.Dialog.LeaveEmptyPassword})</Label>
                                 <Input name="password" type="password" className="font-mono dir-ltr text-left rounded-lg border-slate-200" placeholder="*******" />
                             </div>
                             <div className="space-y-2">
@@ -150,12 +150,14 @@ export function UserActions({ user }: UserActionsProps) {
                                         className="flex-1 h-10 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 transition-all"
                                     >
                                         {DEFAULT_ROLES.map(role => (
-                                            <option key={role.id} value={role.id}>{lang === 'ar' ? role.label : role.labelEn}</option>
+                                            <option key={role.id} value={role.id}>
+                                                {dict.Users.RolesList?.[role.id] || role.id}
+                                            </option>
                                         ))}
                                     </select>
                                     {selectedRole === 'custom' && (
                                         <Input
-                                            placeholder="المسمى الوظيفي..."
+                                            placeholder={dict.Users.Dialog.RolePlaceholder}
                                             value={customRoleName}
                                             onChange={(e) => setCustomRoleName(e.target.value)}
                                             required
@@ -182,7 +184,7 @@ export function UserActions({ user }: UserActionsProps) {
                             <div className="flex items-center justify-between mb-4">
                                 <Label className="font-black text-slate-900 block text-base flex items-center gap-3">
                                     <Shield size={20} className="text-blue-600" />
-                                    {dict.Users.Dialog.Permissions || "لوحة التحكم بالصلاحيات"}
+                                    {dict.Users.Dialog.Permissions}
                                 </Label>
                                 <span className="text-[10px] font-bold text-slate-400 bg-slate-200 px-2 py-0.5 rounded-full">
                                     {permissions.length} / {ALL_PERMISSIONS.length}
@@ -203,7 +205,7 @@ export function UserActions({ user }: UserActionsProps) {
                                             {permissions.includes(permission.id) && <CheckCircle2 size={14} className="text-white" />}
                                         </div>
                                         <span className={`text-xs font-bold transition-colors ${permissions.includes(permission.id) ? 'text-blue-700' : 'text-slate-500 group-hover:text-slate-700'}`}>
-                                            {lang === 'ar' ? permission.label : permission.labelEn}
+                                            {dict.Users.PermissionsList?.[permission.id] || permission.id}
                                         </span>
                                     </div>
                                 ))}
@@ -227,28 +229,28 @@ export function UserActions({ user }: UserActionsProps) {
 
 // Re-using constants from AddUserDialog (In a real app, these would be exported from a shared file)
 const ALL_PERMISSIONS = [
-    { id: 'pos', label: 'نقطة البيع (POS)', labelEn: 'Point of Sale' },
-    { id: 'sales', label: 'المبيعات والفواتير', labelEn: 'Sales & Invoices' },
-    { id: 'returns', label: 'المرتجعات', labelEn: 'Returns' },
-    { id: 'customers', label: 'إدارة العملاء', labelEn: 'Customer Management' },
-    { id: 'suppliers', label: 'إدارة الموردين', labelEn: 'Supplier Management' },
-    { id: 'inventory', label: 'المخزون والمنتجات', labelEn: 'Inventory & Products' },
-    { id: 'accounting', label: 'الحسابات والقيود', labelEn: 'Accounting & Journal' },
-    { id: 'expenses', label: 'المصروفات والسندات', labelEn: 'Expenses & Vouchers' },
-    { id: 'reports', label: 'التقارير المالية', labelEn: 'Financial Reports' },
-    { id: 'employees', label: 'شؤون الموظفين', labelEn: 'HR & Employees' },
-    { id: 'settings', label: 'إعدادات النظام', labelEn: 'System Settings' },
-    { id: 'users', label: 'إدارة المستخدمين', labelEn: 'User Management' },
+    { id: 'pos' },
+    { id: 'sales' },
+    { id: 'returns' },
+    { id: 'customers' },
+    { id: 'suppliers' },
+    { id: 'inventory' },
+    { id: 'accounting' },
+    { id: 'expenses' },
+    { id: 'reports' },
+    { id: 'employees' },
+    { id: 'settings' },
+    { id: 'users' }
 ];
 
 const DEFAULT_ROLES = [
-    { id: 'admin', label: 'مدير نظام', labelEn: 'System Admin' },
-    { id: 'manager', label: 'مدير فرع', labelEn: 'Branch Manager' },
-    { id: 'accountant', label: 'محاسب', labelEn: 'Accountant' },
-    { id: 'cashier', label: 'كاشير', labelEn: 'Cashier' },
-    { id: 'salesperson', label: 'مندوب مبيعات', labelEn: 'Sales Representative' },
-    { id: 'storekeeper', label: 'أمين مخزن', labelEn: 'Storekeeper' },
-    { id: 'custom', label: 'أخرى (مسمى مخصص)', labelEn: 'Other (Custom)' }
+    { id: 'admin' },
+    { id: 'manager' },
+    { id: 'accountant' },
+    { id: 'cashier' },
+    { id: 'salesperson' },
+    { id: 'storekeeper' },
+    { id: 'custom' }
 ];
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {

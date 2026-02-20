@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "main": "electron/main.js",
-    "author": "Mared",
+    "author": "Mustafa Talat",
     "description": "Smart Accountant - ISOLATED DESKTOP VERSION",
     "scripts": {
         "dev": "next dev -p 3016 -H 127.0.0.1",
@@ -45,8 +45,10 @@
             }
         ],
         "win": {
+            "icon": "public/android-chrome-512x512.png",
             "target": "dir",
-            "requestedExecutionLevel": "asInvoker"
+            "requestedExecutionLevel": "asInvoker",
+            "sign": false
         },
         "directories": {
             "output": "dist_new"

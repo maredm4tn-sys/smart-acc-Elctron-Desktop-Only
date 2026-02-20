@@ -88,6 +88,8 @@ type POSContextType = {
         showImages: boolean;
         printLayout: 'standard' | 'thermal';
         numeralSystem: 'latn' | 'arab';
+        taxEnabled?: boolean;
+        taxRate?: number;
     };
     setSettings: (updates: Partial<POSContextType['settings']>) => void;
     addToCart: (product: Product, qty?: number) => void;
@@ -135,17 +137,22 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
         autoPrint: true,
         showImages: false,
         printLayout: 'thermal' as 'standard' | 'thermal',
-        numeralSystem: 'latn' as 'latn' | 'arab'
+        numeralSystem: 'latn' as 'latn' | 'arab',
+        taxEnabled: false,
+        taxRate: 14
     });
 
     const { dict } = useTranslation() as any;
-    const { currency: globalCurrency, numeralSystem: globalNumeralSystem } = useSettings();
+    const { currency: globalCurrency, numeralSystem: globalNumeralSystem, taxEnabled: globalTaxEnabled, taxRate: globalTaxRate } = useSettings();
 
     useEffect(() => {
-        if (globalNumeralSystem) {
-            setSettings(prev => ({ ...prev, numeralSystem: globalNumeralSystem as any }));
-        }
-    }, [globalNumeralSystem]);
+        setSettings(prev => ({
+            ...prev,
+            numeralSystem: (globalNumeralSystem as any) || prev.numeralSystem,
+            taxEnabled: globalTaxEnabled ?? prev.taxEnabled,
+            taxRate: globalTaxRate ?? prev.taxRate
+        }));
+    }, [globalNumeralSystem, globalTaxEnabled, globalTaxRate]);
 
     useEffect(() => {
         const sub = items.reduce((acc, item) => acc + (item.price * item.qty - item.discount), 0);
@@ -185,7 +192,7 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
 
         if (changed) {
             setItems(newItems);
-            toast.info(dict?.POS?.PricesUpdated || "Prices updated based on new price level.");
+            toast.info(dict?.POS?.PricesUpdated);
         }
     }, [header.priceType, products, items.length]);
 
@@ -290,7 +297,7 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
             const { createInvoice } = await import("@/features/sales/actions");
             const result = await createInvoice({
                 customerId: header.customerId === 0 ? null : header.customerId,
-                customerName: header.customerName || "عميل نقدي",
+                customerName: header.customerName ,
                 storeId: header.storeId,
                 priceType: header.priceType,
                 paymentMethod: header.paymentMethod,
@@ -318,7 +325,7 @@ export function POSProvider({ children }: { children: React.ReactNode }) {
                 clearCart();
                 return { success: true, id: result.id };
             } else {
-                toast.error(result.message || "Error saving invoice");
+                toast.error(result.message );
                 return { success: false };
             }
         } catch (error) {

@@ -14,25 +14,6 @@ export default async function InventoryPage() {
     const session = await getSession();
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-xl md:text-2xl font-bold tracking-tight">{dict.Inventory.Title}</h1>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {/* Excel Button Disabled for Desktop Native Stability
-                    <ExcelExportButton
-                        getData={getInventoryExport}
-                        fileName="Inventory_Report"
-                        label={dict.Inventory.ExportExcel}
-                    /> 
-                    */}
-                    <BulkUploadDialog />
-                    <AddProductDialog triggerLabel={dict.Inventory.NewItem} />
-                </div>
-            </div>
-
-            <InventoryClient initialProducts={productsList} dict={dict} />
-        </div>
+        <InventoryClient initialProducts={productsList} dict={dict} />
     );
 }

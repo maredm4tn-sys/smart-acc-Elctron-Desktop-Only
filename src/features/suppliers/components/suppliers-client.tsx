@@ -2,17 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Truck, CloudOff, Search } from "lucide-react";
+import { Truck, CloudOff, Search, ArrowRightLeft, Plus } from "lucide-react";
 import { SupplierActions } from "@/features/suppliers/components/supplier-actions";
 import { mirrorData, getLocalData, STORES } from "@/lib/offline-db";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Num } from "@/components/ui/num";
+import { Button } from "@/components/ui/button";
+import { exportToExcel } from "@/lib/export-excel";
+import { AddSupplierDialog } from "@/features/suppliers/components/add-supplier-dialog";
+import { BulkImportSuppliersDialog } from "./bulk-import-dialog";
 
-import { TranslationKeys } from "@/lib/translation-types";
-
-export function SuppliersClient({ initialSuppliers = [], dict }: { initialSuppliers?: any[], dict: TranslationKeys }) {
+export function SuppliersClient({ initialSuppliers = [], dict }: { initialSuppliers?: any[], dict: any }) {
     const [suppliers, setSuppliers] = useState(initialSuppliers);
     const [isOffline, setIsOffline] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -51,11 +53,32 @@ export function SuppliersClient({ initialSuppliers = [], dict }: { initialSuppli
     });
 
     return (
-        <div className="space-y-4" dir={dict.Common.Direction as any}>
+        <div className="space-y-6 animate-in fade-in duration-500 pb-10" dir={dict.Common.Direction as any}>
+            {/* Standard Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="w-full">
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-800">{dict.Suppliers.Title}</h1>
+                    <p className="text-slate-500 mt-1">{dict.Suppliers.Description}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 self-end">
+                    <BulkImportSuppliersDialog />
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => exportToExcel(suppliers, 'Suppliers', 'SuppliersList')}
+                        className="bg-white hover:bg-slate-50 border-slate-200 text-slate-700 font-bold gap-2 shadow-sm rounded-xl h-10 px-4"
+                    >
+                        <ArrowRightLeft className="h-4 w-4 text-blue-600" />
+                        <span className="hidden sm:inline">{dict.Suppliers.ExportExcel}</span>
+                    </Button>
+                    <AddSupplierDialog />
+                </div>
+            </div>
+
             {isOffline && (
-                <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center gap-2 text-amber-700 text-sm animate-pulse">
+                <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center justify-start gap-3 text-amber-700 shadow-sm animate-pulse">
                     <CloudOff size={18} />
-                    <span>{dict.Common.Offline.ConnectionLost}</span>
+                    <span className="text-sm font-medium">{dict.Common.Offline.NoConnection}</span>
                 </div>
             )}
 
@@ -66,7 +89,7 @@ export function SuppliersClient({ initialSuppliers = [], dict }: { initialSuppli
                     </div>
                     <Input
                         placeholder={dict.Common.Search}
-                        className="pr-10 text-right h-10 border-slate-200 focus:border-blue-400"
+                        className="pr-10 text-start h-10 border-slate-200 focus:border-blue-400"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />

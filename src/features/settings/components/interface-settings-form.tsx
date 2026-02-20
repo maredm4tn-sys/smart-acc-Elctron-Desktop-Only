@@ -70,7 +70,7 @@ export function InterfaceSettingsForm({ initialData }: { initialData: any }) {
             <div className="glass-morphism p-8 rounded-2xl border shadow-lg space-y-8 backdrop-blur-md bg-white/40 max-w-2xl mx-auto">
                 <h2 className="text-xl font-bold flex items-center gap-3 border-b border-primary/10 pb-4 mb-6">
                     <Monitor size={24} className="text-primary" />
-                    {dict.Settings.InterfaceForm.Title}
+                    {dict.Settings?.InterfaceForm?.Title}
                 </h2>
 
                 {/* Numeral System */}
@@ -87,8 +87,8 @@ export function InterfaceSettingsForm({ initialData }: { initialData: any }) {
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl">
-                            <SelectItem value="latn">{dict.Settings.InterfaceForm.NumeralLatn}</SelectItem>
-                            <SelectItem value="arab">{dict.Settings.InterfaceForm.NumeralArab}</SelectItem>
+                            <SelectItem value="latn">{dict.Settings?.InterfaceForm?.NumeralLatn}</SelectItem>
+                            <SelectItem value="arab">{dict.Settings?.InterfaceForm?.NumeralArab}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

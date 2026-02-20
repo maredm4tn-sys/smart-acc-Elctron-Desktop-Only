@@ -17,7 +17,7 @@ export default async function PrintRepresentativeReport({
 
     const settings = await getSettings();
     const currency = settings?.currency || "EGP";
-    const dict = await getDictionary();
+    const dict = await getDictionary() as any;
 
     // Default dates if missing
     const startDate = start || format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), "yyyy-MM-dd");
@@ -34,63 +34,63 @@ export default async function PrintRepresentativeReport({
             {/* Header */}
             <div className="flex items-center justify-between border-b-2 border-blue-600 pb-6 mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 mb-1">تقرير أداء مندوب مبيعات</h1>
+                    <h1 className="text-3xl font-black text-slate-900 mb-1">{dict.Representatives?.Report?.Print?.Title}</h1>
                     <h2 className="text-2xl font-black text-blue-700">{representative.name}</h2>
                     <div className="text-slate-500 text-sm mt-2 flex gap-4">
-                        <span>من: {startDate}</span>
-                        <span>إلى: {endDate}</span>
+                        <span>{dict.Representatives?.Report?.Print?.From} {startDate}</span>
+                        <span>{dict.Representatives?.Report?.Print?.To} {endDate}</span>
                     </div>
                 </div>
                 <div className="text-left">
                     <h2 className="text-xl font-bold">Smart Accountant</h2>
-                    <p className="text-xs text-muted-foreground">كشف عمولات ومبيعات</p>
-                    <p className="text-[10px] mt-1">تاريخ الطباعة: {new Date().toLocaleDateString('ar-EG')}</p>
+                    <p className="text-xs text-muted-foreground">{dict.Representatives?.Report?.Print?.Subtitle}</p>
+                    <p className="text-[10px] mt-1">{dict.Representatives?.Report?.Print?.PrintDate} {new Date().toLocaleDateString('en-GB')}</p>
                 </div>
             </div>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-5 gap-4 mb-10 border p-4 rounded-xl bg-slate-50">
                 <div className="text-center border-l">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1">إجمالي المبيعات</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1">{dict.Representatives?.Report?.Print?.TotalSales}</p>
                     <p className="text-lg font-black">{formatCurrency(summary.totalSales, currency)}</p>
-                    <p className="text-[10px] text-slate-400">{summary.invoicesCount} فاتورة</p>
+                    <p className="text-[10px] text-slate-400">{summary.invoicesCount} {dict.Representatives?.Report?.Print?.InvoicesCount}</p>
                 </div>
                 <div className="text-center border-l">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1">المحقق / المحصل</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1">{dict.Representatives?.Report?.Print?.Collected}</p>
                     <p className="text-lg font-black text-green-600">{formatCurrency(summary.totalCollected, currency)}</p>
                 </div>
                 <div className="text-center border-l">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1">الراتب الثابت</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1">{dict.Representatives?.Report?.Print?.FixedSalary}</p>
                     <p className="text-lg font-black">{formatCurrency(summary.salary, currency)}</p>
                 </div>
                 <div className="text-center border-l">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1">العمولة المستحقة</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1">{dict.Representatives?.Report?.Print?.DueCommission}</p>
                     <p className="text-lg font-black text-orange-600">{formatCurrency(summary.totalCommission, currency)}</p>
-                    <p className="text-[10px] text-slate-400">{summary.commissionRate} {summary.commissionType === 'percentage' ? '%' : 'ثابت'}</p>
+                    <p className="text-[10px] text-slate-400">{summary.commissionRate} {summary.commissionType === 'percentage' ? dict.Representatives?.Report?.Print?.RatePercentage : dict.Representatives?.Report?.Print?.RateFixed}</p>
                 </div>
                 <div className="text-center">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1 font-black">إجمالي المستحق</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1 font-black">{dict.Representatives?.Report?.Print?.TotalDue}</p>
                     <p className="text-lg font-black text-blue-700">{formatCurrency(summary.totalDue, currency)}</p>
                 </div>
             </div>
 
             {/* Invoices Table */}
             <div className="mb-10">
-                <h3 className="font-bold text-slate-700 mb-4 border-r-4 border-blue-500 pr-2">فواتير المبيعات المرتبطة</h3>
+                <h3 className="font-bold text-slate-700 mb-4 border-r-4 border-blue-500 pr-2">{dict.Representatives?.Report?.Print?.RelatedInvoicesTitle}</h3>
                 <Table className="border rounded-lg">
                     <TableHeader className="bg-slate-100">
                         <TableRow>
-                            <TableHead className="text-center">رقم الفاتورة</TableHead>
-                            <TableHead className="text-center">تاريخ</TableHead>
-                            <TableHead className="text-center">العميل</TableHead>
-                            <TableHead className="text-center">الإجمالي</TableHead>
-                            <TableHead className="text-center">المدفوع</TableHead>
-                            <TableHead className="text-center">الحالة</TableHead>
+                            <TableHead className="text-center">{dict.Representatives?.Report?.Print?.Table?.InvoiceNo}</TableHead>
+                            <TableHead className="text-center">{dict.Representatives?.Report?.Print?.Table?.Date}</TableHead>
+                            <TableHead className="text-center">{dict.Representatives?.Report?.Print?.Table?.Customer}</TableHead>
+                            <TableHead className="text-center">{dict.Representatives?.Report?.Print?.Table?.Total}</TableHead>
+                            <TableHead className="text-center">{dict.Representatives?.Report?.Print?.Table?.Paid}</TableHead>
+                            <TableHead className="text-center">{dict.Representatives?.Report?.Print?.Table?.Status}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {invoices.length === 0 ? (
-                            <TableRow><TableCell colSpan={6} className="text-center">لا يوجد بيانات</TableCell></TableRow>
+                            <TableRow><TableCell colSpan={6} className="text-center">{dict.Representatives?.Report?.Print?.NoData}</TableCell></TableRow>
                         ) : (
                             invoices.map((inv: any) => (
                                 <TableRow key={inv.id}>
@@ -100,7 +100,7 @@ export default async function PrintRepresentativeReport({
                                     <TableCell className="text-center font-mono font-bold">{formatCurrency(inv.totalAmount, currency)}</TableCell>
                                     <TableCell className="text-center font-mono text-green-600">{formatCurrency(inv.amountPaid, currency)}</TableCell>
                                     <TableCell className="text-center">
-                                        <span className="text-[10px]">{inv.paymentStatus === 'paid' ? 'خالص' : inv.paymentStatus === 'partial' ? 'جزئي' : 'آجل'}</span>
+                                        <span className="text-[10px]">{inv.paymentStatus === 'paid' ? dict.Representatives?.Report?.Print?.StatusPaid : inv.paymentStatus === 'partial' ? dict.Representatives?.Report?.Print?.StatusPartial : dict.Representatives?.Report?.Print?.StatusDeferred}</span>
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -112,15 +112,15 @@ export default async function PrintRepresentativeReport({
             {/* Footer */}
             <div className="mt-20 flex justify-between items-end border-t pt-10 px-10">
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">توقيع المندوب</p>
+                    <p className="font-bold underline mb-10">{dict.Representatives?.Report?.Print?.RepSignature}</p>
                     <p className="text-slate-300">..............................</p>
                 </div>
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">المراجعة والاعتماد</p>
+                    <p className="font-bold underline mb-10">{dict.Representatives?.Report?.Print?.ReviewApproval}</p>
                     <p className="text-slate-300">..............................</p>
                 </div>
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">ختم المنشأة</p>
+                    <p className="font-bold underline mb-10">{dict.Representatives?.Report?.Print?.FacilityStamp}</p>
                     <div className="h-20 w-20 border-4 border-slate-100 rounded-full mx-auto opacity-20"></div>
                 </div>
             </div>

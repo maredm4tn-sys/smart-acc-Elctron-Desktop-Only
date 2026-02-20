@@ -276,19 +276,46 @@ export async function bulkImportSuppliers(suppliersList: any[]) {
     const dict = await getSuppDict();
     return await withErrorHandling("bulkImportSuppliers", async () => {
         let count = 0;
+        const tenantId = (await requireSession().catch(() => ({ tenantId: DEFAULT_TENANT }))).tenantId;
+
+        const m = {
+            name: [dict.Suppliers.AddDialog.Name, "Name", "name", "الاسم", "المورد", "اسم المورد", "supplier name"],
+            companyName: [dict.Suppliers.AddDialog.Company, "Company", "company", "الشركة", "اسم الشركة"],
+            phone: [dict.Common.Note, "Phone", "phone", "الهاتف", "تليفون", "موبايل"],
+            openingBalance: [dict.Suppliers.AddDialog.OpeningBalance, "Opening Balance", "balance", "الرصيد الافتتاحي", "رصيد"]
+        };
+
+        const find = (raw: any, keys: string[]) => {
+            for (const k of keys) {
+                if (raw[k] !== undefined) return raw[k];
+                const match = Object.keys(raw).find(rk => {
+                    const cleanK = k.toLowerCase().trim();
+                    const cleanRK = rk.toLowerCase().trim();
+                    return cleanRK === cleanK || cleanRK.includes(cleanK) || cleanK.includes(cleanRK);
+                });
+                if (match !== undefined) return raw[match];
+            }
+            return undefined;
+        };
+
         for (const raw of suppliersList) {
-            const name = raw["Name"] || raw["name"];
-            if (!name) continue;
+            try {
+                const name = find(raw, m.name);
+                if (!name) continue;
 
-            const res = await createSupplier({
-                name: String(name),
-                companyName: raw["Company"],
-                phone: raw["Phone"],
-                openingBalance: Number(raw["Opening Balance"] || 0)
-            });
+                // Checking for duplicate in this import batch (already handled inside createSupplier but good to be safe)
+                const res = await createSupplier({
+                    name: String(name),
+                    companyName: find(raw, m.companyName),
+                    phone: find(raw, m.phone),
+                    openingBalance: Number(find(raw, m.openingBalance) || 0)
+                });
 
-            if (res.success) count++;
+                if (res) count++;
+            } catch (err: any) {
+                console.error("Supplier Import Row Error:", err);
+            }
         }
-        return dict.Common.Success;
+        return count;
     });
 }

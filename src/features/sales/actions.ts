@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { invoices, invoiceItems, products, journalEntries, journalLines, accounts, installments, customers, tenants } from "@/db/schema";
+import { invoices, invoiceItems, products, journalEntries, journalLines, accounts, installments, customers, tenants, stockLevels } from "@/db/schema";
 import { eq, and, sql, or, like, desc, inArray, isNotNull } from "drizzle-orm";
 // import { revalidatePath } from "next/cache";
 import { getSession } from "@/features/auth/actions";
@@ -11,6 +11,20 @@ import { getDictionary } from "@/lib/i18n-server";
 import { createJournalEntry } from "@/features/accounting/actions";
 import { getActiveShift } from "@/features/shifts/actions";
 import { z } from "zod";
+
+const ACCOUNTS = {
+    CASH: { code: '1101', type: 'asset', dictKey: 'MainCash' },
+    BANK: { code: '1102', type: 'asset', dictKey: 'Bank' },
+    CUSTOMERS: { code: '1103', type: 'asset', dictKey: 'Customers' },
+    INVENTORY: { code: '1104', type: 'asset', dictKey: 'Inventory' },
+    SUPPLIERS: { code: '2101', type: 'liability', dictKey: 'Suppliers' },
+    VAT: { code: '2102', type: 'liability', dictKey: 'VatTax' },
+    SALES: { code: '4101', type: 'revenue', dictKey: 'SalesRevenue' },
+    INTEREST: { code: '4102', type: 'revenue', dictKey: 'InterestIncome' },
+    DELIVERY: { code: '4103', type: 'revenue', dictKey: 'DeliveryRevenue' },
+    COGS: { code: '5101', type: 'asset', dictKey: 'COGS' },
+    DISCOUNT: { code: '5103', type: 'expense', dictKey: 'AllowedDiscount' }
+};
 
 // Helper to get or create accounts (Duplicate from vouchers to avoid circular deps in actions)
 export async function getOrCreateSpecificAccount(tenantId: string, name: string, codePrefix: string, type: any, entityId?: number) {
@@ -25,6 +39,7 @@ export async function getOrCreateSpecificAccount(tenantId: string, name: string,
             where: (acc, { and, eq, sql, or }) => and(
                 eq(acc.tenantId, tenantId),
                 or(
+                    eq(acc.code, codePrefix), // Also try by exact code if prefix is the code
                     eq(acc.name, name),
                     sql`trim(lower(${acc.name})) = trim(lower(${name}))`
                 )
@@ -122,7 +137,7 @@ export async function createInvoice(inputData: any) {
         if (license.isExpired && !license.isActivated) {
             return {
                 success: false as const,
-                message: dict?.Common?.TrialExpired || "Trial Version Expired. Please activate the full version."
+                message: dict?.Common?.TrialExpired
             };
         }
 
@@ -171,9 +186,10 @@ export async function createInvoice(inputData: any) {
 
         // --- Installment Logic ---
         let installmentMonthlyAmount = 0;
+        let interestVal = 0;
         if (data.isInstallment && (data.installmentInterest || 0) > 0) {
-            const interest = totalAmount * ((data.installmentInterest || 0) / 100);
-            totalAmount += interest;
+            interestVal = totalAmount * ((data.installmentInterest || 0) / 100);
+            totalAmount += interestVal;
         }
 
         if (data.isInstallment && (data.installmentCount || 0) > 0) {
@@ -344,9 +360,21 @@ export async function createInvoice(inputData: any) {
             if (pInfo?.type === 'goods') {
                 const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
                 const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+
+                // 1. Update Global Product Stock
                 await db.update(products)
                     .set({ stockQuantity: sql`${castNum(products.stockQuantity)} - ${item.quantity}` })
                     .where(and(eq(products.id, item.productId), eq(products.tenantId, tenantId)));
+
+                // 2. Update Warehouse Stock Level
+                const warehouseId = item.storeId || 1;
+                await db.update(stockLevels)
+                    .set({ quantity: sql`${castNum(stockLevels.quantity)} - ${item.quantity}` })
+                    .where(and(
+                        eq(stockLevels.productId, item.productId),
+                        eq(stockLevels.warehouseId, warehouseId),
+                        eq(stockLevels.tenantId, tenantId)
+                    ));
             }
         }
 
@@ -396,75 +424,19 @@ export async function createInvoice(inputData: any) {
         }
 
         // 3. Auto-Create Journal Entry
-        // Find OR Create Accounts
-        const cashAccountRows = await db.select().from(accounts).where(and(
-            eq(accounts.tenantId, tenantId),
-            or(like(accounts.code, '101%'), like(accounts.name, '%Cash%'), like(accounts.name, '%Treasury%'))
-        )).limit(1);
-        let cashAccount = cashAccountRows[0];
+        // Find OR Create Accounts using Standard Codes
 
-        if (!cashAccount) {
-            console.warn("⚠️ [Inventory] Cash account missing, creating one...");
-            const [newCash] = await db.insert(accounts).values({
-                tenantId,
-                name: `${dict.Accounting.SystemAccounts.MainCash} (Auto)`,
-                code: `101-${Date.now().toString().slice(-4)}`,
-                type: 'asset',
-                isActive: true
-            }).returning();
-            cashAccount = newCash;
-        }
+        // Cash Account (1101)
+        const cashAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.CASH.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.CASH.code, ACCOUNTS.CASH.type);
 
-        const salesAccountRows = await db.select().from(accounts).where(and(
-            eq(accounts.tenantId, tenantId),
-            or(like(accounts.code, '401%'), like(accounts.name, '%Sales%'), like(accounts.name, '%Revenue%'), like(accounts.name, '%المبيعات%'), like(accounts.name, '%إيرادات%'))
-        )).limit(1);
-        let salesAccount = salesAccountRows[0];
+        // Sales Account (4101)
+        const salesAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.SALES.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.SALES.code, ACCOUNTS.SALES.type);
 
-        if (!salesAccount) {
-            console.warn("⚠️ [Inventory] Sales account missing, creating one...");
-            const [newSales] = await db.insert(accounts).values({
-                tenantId,
-                name: `${dict.Accounting.SystemAccounts.SalesRevenue} (Auto)`,
-                code: `401-${Date.now().toString().slice(-4)}`,
-                type: 'revenue',
-                isActive: true
-            }).returning();
-            salesAccount = newSales;
-        }
+        // AR Account Reference (1103) - Main Customers Account
+        const arAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.CUSTOMERS.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.CUSTOMERS.code, ACCOUNTS.CUSTOMERS.type);
 
-        const arAccountRows = await db.select().from(accounts).where(and(
-            eq(accounts.tenantId, tenantId),
-            or(like(accounts.code, '1103%'), like(accounts.code, '102%'), like(accounts.name, '%Receivable%'), like(accounts.name, '%Customer%'), like(accounts.name, '%العملاء%'), like(accounts.name, '%المدينون%'))
-        )).limit(1);
-        let arAccount = arAccountRows[0];
-        if (!arAccount) {
-            // Create AR Account
-            const [newAR] = await db.insert(accounts).values({
-                tenantId,
-                name: `${dict.Accounting.SystemAccounts.Customers} (Auto)`,
-                code: `102-${Date.now().toString().slice(-4)}`,
-                type: 'asset',
-                balance: '0'
-            }).returning();
-            arAccount = newAR;
-        }
-
-        const discountAccountRows = await db.select().from(accounts).where(and(
-            eq(accounts.tenantId, tenantId),
-            or(like(accounts.code, '505%'), like(accounts.name, '%Discount%'), like(accounts.name, '%خصم%'))
-        )).limit(1);
-        let discountAccount = discountAccountRows[0];
-        if (!discountAccount) {
-            const [newDisc] = await db.insert(accounts).values({
-                tenantId,
-                name: `${dict.Accounting.SystemAccounts.AllowedDiscount} (Auto)`,
-                code: `505-${Date.now().toString().slice(-4)}`,
-                type: 'expense',
-                balance: '0'
-            }).returning();
-            discountAccount = newDisc;
-        }
+        // Discount Account (5103)
+        const discountAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.DISCOUNT.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.DISCOUNT.code, ACCOUNTS.DISCOUNT.type);
 
         if (salesAccount) {
             // Using static import logic
@@ -472,6 +444,8 @@ export async function createInvoice(inputData: any) {
             const baseTotalAmount = totalAmount * rate;
             const baseSubtotal = subtotal * rate;
             const baseTaxTotal = taxTotal * rate;
+            const baseInterest = interestVal * rate;
+            const baseDelivery = delivery * rate;
             const basePaid = paidAmount * rate;
             const baseRemaining = baseTotalAmount - basePaid;
 
@@ -485,14 +459,42 @@ export async function createInvoice(inputData: any) {
                 description: `Sales Revenue - Inv ${newInvoice.invoiceNumber}`
             });
 
+            // Credit Interest (Ensure Balanced Entry)
+            if (baseInterest > 0) {
+                const interestAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.INTEREST.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.INTEREST.code, ACCOUNTS.INTEREST.type);
+                if (interestAccount) {
+                    lines.push({
+                        accountId: interestAccount.id,
+                        debit: 0,
+                        credit: baseInterest,
+                        description: `Interest Income - Inv ${newInvoice.invoiceNumber}`
+                    });
+                }
+            }
+
+            const vatAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.VAT.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.VAT.code, ACCOUNTS.VAT.type);
+
             // Credit Tax
-            if (baseTaxTotal > 0) {
+            if (baseTaxTotal > 0 && vatAccount) {
                 lines.push({
-                    accountId: salesAccount.id,
+                    accountId: vatAccount.id,
                     debit: 0,
                     credit: baseTaxTotal,
                     description: "VAT Tax"
                 });
+            }
+
+            // Credit Delivery
+            if (baseDelivery > 0) {
+                const deliveryAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.DELIVERY.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.DELIVERY.code, ACCOUNTS.DELIVERY.type);
+                if (deliveryAccount) {
+                    lines.push({
+                        accountId: deliveryAccount.id,
+                        debit: 0,
+                        credit: baseDelivery,
+                        description: `Delivery Revenue - Inv ${newInvoice.invoiceNumber}`
+                    });
+                }
             }
 
             // Debit Cash
@@ -511,7 +513,8 @@ export async function createInvoice(inputData: any) {
                 let customerAccount = null;
                 if (data.customerId) {
                     const { getOrCreateSpecificAccount } = await import("@/features/vouchers/actions");
-                    customerAccount = await getOrCreateSpecificAccount(tenantId, data.customerName, '1103', 'asset', data.customerId);
+                    // Use Standard Customer Code Prefix 1103
+                    customerAccount = await getOrCreateSpecificAccount(tenantId, data.customerName, ACCOUNTS.CUSTOMERS.code, 'asset', data.customerId);
                 }
 
                 const targetAccountId = customerAccount ? customerAccount.id : (arAccount ? arAccount.id : null);
@@ -549,10 +552,9 @@ export async function createInvoice(inputData: any) {
             });
 
             if (totalCost > 0) {
-                // Find/Create Inventory & COGS Accounts
-                const inventoryAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting?.SystemAccounts?.Inventory || "Inventory", '106', 'asset');
-                const costAccountName = dict.Accounting?.SystemAccounts?.COGS || "Cost of Goods Sold";
-                const cogsAccount = await getOrCreateSpecificAccount(tenantId, costAccountName, '501', 'expense');
+                // Find/Create Inventory & COGS Accounts (Standardized)
+                const inventoryAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.INVENTORY.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.INVENTORY.code, 'asset');
+                const cogsAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.COGS.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.COGS.code, 'expense');
 
                 if (inventoryAccount && cogsAccount) {
                     lines.push({
@@ -667,18 +669,8 @@ export async function recordPayment(inputData: z.infer<typeof recordPaymentSchem
             }).where(and(eq(invoices.id, invoice.id), eq(invoices.tenantId, tenantId)));
 
             // 3. Create Journal Entry (Cash Debit, AR Credit)
-            // Find Accounts (Re-using logic, ideal to refactor to helper)
-            const cashAccountRows = await tx.select().from(accounts).where(and(
-                eq(accounts.tenantId, tenantId),
-                or(like(accounts.code, '101%'), like(accounts.name, '%Cash%'))
-            )).limit(1);
-            const cashAccount = cashAccountRows[0];
-
-            const arAccountRows = await tx.select().from(accounts).where(and(
-                eq(accounts.tenantId, tenantId),
-                or(like(accounts.code, '1103%'), like(accounts.code, '102%'), like(accounts.name, '%Customer%'))
-            )).limit(1);
-            const arAccount = arAccountRows[0];
+            const cashAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.CASH.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.CASH.code, ACCOUNTS.CASH.type);
+            const arAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.CUSTOMERS.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.CUSTOMERS.code, ACCOUNTS.CUSTOMERS.type);
 
             if (cashAccount && arAccount) {
                 const { createJournalEntry } = await import("@/features/accounting/actions");
@@ -743,9 +735,20 @@ export async function deleteInvoice(id: number) {
             const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
             for (const item of items) {
                 if (item.productId) {
+                    const warehouseId = item.storeId || 1;
+                    // Restore Global Stock
                     await tx.update(products)
                         .set({ stockQuantity: sql`${castNum(products.stockQuantity)} + ${item.quantity}` })
                         .where(and(eq(products.id, item.productId), eq(products.tenantId, tenantId)));
+
+                    // Restore Warehouse Stock
+                    await tx.update(stockLevels)
+                        .set({ quantity: sql`${castNum(stockLevels.quantity)} + ${item.quantity}` })
+                        .where(and(
+                            eq(stockLevels.productId, item.productId),
+                            eq(stockLevels.warehouseId, warehouseId),
+                            eq(stockLevels.tenantId, tenantId)
+                        ));
                 }
             }
 
@@ -869,7 +872,13 @@ export async function createReturnInvoice(inputData: z.infer<typeof createReturn
             .from(products)
             .where(inArray(products.id, returnProductIds));
 
+        // Fetch original items to get their store_id
+        const originalItems = await db.select().from(invoiceItems).where(eq(invoiceItems.invoiceId, data.originalInvoiceId));
+
         for (const item of data.items) {
+            const originalItem = originalItems.find(oi => oi.productId === item.productId);
+            const warehouseId = originalItem?.storeId || 1;
+
             await db.insert(invoiceItems).values({
                 invoiceId: returnInvoiceId,
                 productId: item.productId,
@@ -877,51 +886,38 @@ export async function createReturnInvoice(inputData: z.infer<typeof createReturn
                 quantity: item.quantity.toString(),
                 unitPrice: item.unitPrice.toString(),
                 total: (-1 * item.quantity * item.unitPrice).toString(),
+                storeId: warehouseId,
             });
 
             // RESTOCK (Increase Quantity)
             const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
             const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
+
+            // 1. Update Global Product Stock
             await db.update(products)
                 .set({ stockQuantity: sql`${castNum(products.stockQuantity)} + ${item.quantity}` })
                 .where(and(eq(products.id, item.productId), eq(products.tenantId, tenantId)));
+
+            // 2. Update Warehouse Stock Level
+            await db.update(stockLevels)
+                .set({ quantity: sql`${castNum(stockLevels.quantity)} + ${item.quantity}` })
+                .where(and(
+                    eq(stockLevels.productId, item.productId),
+                    eq(stockLevels.warehouseId, warehouseId),
+                    eq(stockLevels.tenantId, tenantId)
+                ));
         }
 
         // 4. Accounting Entry (Reverse of Sale)
 
-        // Find OR Create Sales Account
-        const salesAccountRows = await db.select().from(accounts).where(and(
-            eq(accounts.tenantId, tenantId),
-            or(like(accounts.code, '401%'), like(accounts.name, '%Sales%'), like(accounts.name, '%Revenue%'))
-        )).limit(1);
-        let salesAccount = salesAccountRows[0];
-        if (!salesAccount) {
-            const [newSales] = await db.insert(accounts).values({
-                tenantId,
-                name: "Sales Revenue (Auto)",
-                code: `401-${Date.now().toString().slice(-4)}`,
-                type: 'revenue',
-                balance: '0'
-            }).returning();
-            salesAccount = newSales;
-        }
+        // Find OR Create Sales Account (Standard 4101)
+        const salesAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.SALES.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.SALES.code, ACCOUNTS.SALES.type);
 
-        // Find OR Create Cash Account
-        const cashAccountRows = await db.select().from(accounts).where(and(
-            eq(accounts.tenantId, tenantId),
-            or(like(accounts.code, '101%'), like(accounts.name, '%Cash%'))
-        )).limit(1);
-        let cashAccount = cashAccountRows[0];
-        if (!cashAccount) {
-            const [newCash] = await db.insert(accounts).values({
-                tenantId,
-                name: "Cash Account (Auto)",
-                code: `101-${Date.now().toString().slice(-4)}`,
-                type: 'asset',
-                balance: '0'
-            }).returning();
-            cashAccount = newCash;
-        }
+        // Find OR Create Cash Account (Standard 1101)
+        const cashAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.CASH.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.CASH.code, ACCOUNTS.CASH.type);
+
+        // Find OR Create VAT Account (Standard 2102)
+        const vatAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.VAT.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.VAT.code, ACCOUNTS.VAT.type);
 
         if (salesAccount) {
             const { createJournalEntry } = await import("@/features/accounting/actions");
@@ -938,18 +934,18 @@ export async function createReturnInvoice(inputData: z.infer<typeof createReturn
                     description: `Sales Return - Inv ${originalInvoice.invoiceNumber}`
                 },
                 // Debit Tax (Reduce Tax Liability)
-                ...(baseTaxTotal > 0 ? [{
-                    accountId: salesAccount.id,
+                ...(baseTaxTotal > 0 && vatAccount ? [{
+                    accountId: vatAccount.id, // FIX: Use VAT Account
                     debit: baseTaxTotal,
                     credit: 0,
-                    description: `Return Tax - Inv ${originalInvoice.invoiceNumber}`
+                    description: `VAT Return - Inv ${originalInvoice.invoiceNumber}`
                 }] : [])
             ];
 
             // --- SMART REFUND LOGIC ---
             // If credit sale, reduce AR. If cash sale, reduce Cash.
             if (originalInvoice.paymentMethod === 'credit') {
-                const customerAccount = await getOrCreateSpecificAccount(tenantId, originalInvoice.customerName, '1103', 'asset', originalInvoice.customerId ?? undefined);
+                const customerAccount = await getOrCreateSpecificAccount(tenantId, originalInvoice.customerName, ACCOUNTS.CUSTOMERS.code, 'asset', originalInvoice.customerId ?? undefined);
                 lines.push({
                     accountId: customerAccount.id,
                     debit: 0,
@@ -984,9 +980,8 @@ export async function createReturnInvoice(inputData: z.infer<typeof createReturn
             });
 
             if (totalReturnCost > 0) {
-                const inventoryAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting?.SystemAccounts?.Inventory || "Inventory", '106', 'asset');
-                const costAccountName = dict.Accounting?.SystemAccounts?.COGS || "Cost of Goods Sold";
-                const cogsAccount = await getOrCreateSpecificAccount(tenantId, costAccountName, '501', 'expense');
+                const inventoryAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.INVENTORY.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.INVENTORY.code, 'asset');
+                const cogsAccount = await getOrCreateSpecificAccount(tenantId, dict.Accounting.SystemAccounts[ACCOUNTS.COGS.dictKey as keyof typeof dict.Accounting.SystemAccounts], ACCOUNTS.COGS.code, 'expense');
 
                 if (inventoryAccount && cogsAccount) {
                     lines.push({
@@ -1116,4 +1111,24 @@ export async function getInvoices(page: number = 1, pageSize: number = 100) {
             hasNextPage
         };
     });
+}
+
+export async function getInvoiceItems(invoiceId: number) {
+    try {
+        const { tenantId } = await requireSession();
+        const items = await db.select({
+            id: invoiceItems.id,
+            description: invoiceItems.description,
+            quantity: invoiceItems.quantity,
+            unitPrice: invoiceItems.unitPrice,
+            total: invoiceItems.total
+        })
+            .from(invoiceItems)
+            .where(eq(invoiceItems.invoiceId, invoiceId));
+
+        return { success: true, data: items };
+    } catch (e: any) {
+        console.error("Error fetching invoice items:", e);
+        return { success: false, message: e.message || "Error" };
+    }
 }

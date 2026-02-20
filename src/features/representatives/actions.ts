@@ -139,18 +139,18 @@ export async function payRepresentativeCommission(data: any) {
         const rep = await db.query.representatives.findFirst({
             where: and(eq(representatives.id, representativeId), eq(representatives.tenantId, tenantId))
         });
-        if (!rep) throw new Error(dict.Common?.Errors?.NotFound || "Not Found");
+        if (!rep) throw new Error(dict.Common?.Errors?.NotFound);
 
         // 1. Get Accounts (Cash Account by Code 101)
         const cashAcc = await db.query.accounts.findFirst({
             where: and(eq(accounts.tenantId, tenantId), like(accounts.code, '101%'))
         });
 
-        if (!cashAcc) throw new Error(dict.Accounting?.Errors?.NoCashAccount || "Cash account not found");
+        if (!cashAcc) throw new Error(dict.Accounting?.Errors?.NoCashAccount);
 
         // 2. Find/Create Commission Expense Account (Code 501 / 5xx)
         const { getOrCreateSpecificAccount } = await import("../vouchers/actions");
-        const expenseAcc = await getOrCreateSpecificAccount(tenantId, dict.Accounting?.System?.CommissionDefault || "Commission Expense", "501005", "expense");
+        const expenseAcc = await getOrCreateSpecificAccount(tenantId, dict.Accounting?.System?.CommissionDefault, "501005", "expense");
 
         // 3. Create Journal Entry
         const ref = `COMM-${representativeId}-${Date.now().toString().slice(-4)}`;
@@ -158,14 +158,82 @@ export async function payRepresentativeCommission(data: any) {
 
         await createJournalEntry({
             date: new Date().toISOString().split('T')[0],
-            description: `${dict.Representatives?.Settlement || 'Settlement'}: ${rep.name} - ${period}`,
+            description: `${dict.Representatives?.Settlement}: ${rep.name} - ${period}`,
             reference: ref,
             lines: [
-                { accountId: expenseAcc.id, debit: Number(amount), credit: 0, description: dict.Representatives?.CommissionDue || "Commission Due" },
-                { accountId: cashAcc.id, debit: 0, credit: Number(amount), description: dict.Representatives?.PaymentToRep || "Payment to Representative" }
+                { accountId: expenseAcc.id, debit: Number(amount), credit: 0, description: dict.Representatives?.CommissionDue },
+                { accountId: cashAcc.id, debit: 0, credit: Number(amount), description: dict.Representatives?.PaymentToRep }
             ]
         });
 
-        return { success: true, message: dict.Common?.Success || "Success" };
+        return { success: true, message: dict.Common?.Success };
     });
+}
+
+export async function bulkImportRepresentatives(representativesList: any[]) {
+    const result = await withErrorHandling("bulkImportRepresentatives", async () => {
+        const { tenantId } = await requireSession();
+        let count = 0;
+        const dict = await getDictionary();
+
+        const m = {
+            name: [dict.Representatives.Dialog.Name, "Name", "name", "الاسم", "اسم المندوب", "rep name", "representative name"],
+            phone: [dict.Representatives.Dialog.Phone, "Phone", "phone", "رقم التليفون", "تليفون", "هاتف", "mobile"],
+            type: [dict.Representatives.Dialog.Type, "Type", "type", "النوع", "نوع المندوب", "rep type"],
+            commissionRate: [dict.Representatives.Dialog.CommissionRate, "Commission Rate", "commission", "نسبة العموله", "العمولة", "rate"],
+            salary: [dict.Representatives.Dialog.Salary, "Salary", "salary", "الراتب", "راتب المندوب", "الأساسي", "basic salary"]
+        };
+
+        const find = (raw: any, keys: string[]) => {
+            for (const k of keys) {
+                if (raw[k] !== undefined) return raw[k];
+                const match = Object.keys(raw).find(rk => {
+                    const cleanK = k.toLowerCase().trim();
+                    const cleanRK = rk.toLowerCase().trim();
+                    return cleanRK === cleanK || cleanRK.includes(cleanK) || cleanK.includes(cleanRK);
+                });
+                if (match !== undefined) return raw[match];
+            }
+            return undefined;
+        };
+
+        const cleanNum = (val: any) => {
+            if (val === undefined || val === null || val === "") return "0";
+            if (typeof val === "number") return String(val);
+            const cleaned = String(val).replace(/[^0-9.]/g, "");
+            return cleaned || "0";
+        };
+
+        for (const raw of representativesList) {
+            try {
+                const name = find(raw, m.name);
+                if (!name) continue;
+
+                const rawType = String(find(raw, m.type) || "").toLowerCase();
+                const type = rawType.includes("delivery") || rawType.includes("توصيل") ? "delivery" : "sales";
+
+                await db.insert(representatives).values({
+                    tenantId,
+                    name: String(name),
+                    phone: find(raw, m.phone) ? String(find(raw, m.phone)) : null,
+                    type: type,
+                    commissionRate: cleanNum(find(raw, m.commissionRate)),
+                    commissionType: 'percentage',
+                    salary: cleanNum(find(raw, m.salary)),
+                    isActive: true
+                });
+                count++;
+            } catch (err: any) {
+                console.error("Representative Import Row Error:", err);
+            }
+        }
+
+        return count;
+    });
+
+    const dict = await getDictionary();
+    if (result.success) {
+        return { success: true, message: `${dict.Common.Success}: ${result.data}` };
+    }
+    return { success: false, message: result.message };
 }

@@ -110,9 +110,19 @@ export interface TranslationKeys {
         DeleteError: string;
         AddSuccess: string;
         AddError: string;
-        Test: string;
+        New: string;
+        Reports: string;
+        PrintReport: string;
+        ExportExcel: string;
         Show: string;
         Hide: string;
+        Print: string;
+        Settle: string;
+        Test: string;
+        Errors: {
+            NotFound: string;
+            Loading: string;
+        };
     };
     Installments: {
         Title: string;
@@ -180,6 +190,8 @@ export interface TranslationKeys {
     PartnersManagement: {
         Title: string;
         Description: string;
+        ExportExcel: string;
+        ImportExcel: string;
         NewPartner: string;
         Count: string;
         ActiveCount: string;
@@ -222,6 +234,7 @@ export interface TranslationKeys {
                 ProfitWithdrawal: string;
                 CapitalIncrease: string;
                 Settlement: string;
+                OpeningDeposit: string;
             };
         };
         Statement: {
@@ -250,6 +263,8 @@ export interface TranslationKeys {
     Partners: {
         Title: string;
         Description: string;
+        ExportExcel: string;
+        ImportExcel: string;
         NewPartner: string;
         InitialCapital: string;
         Table: {
@@ -259,10 +274,23 @@ export interface TranslationKeys {
             Capital: string;
             Date: string;
             Actions: string;
+            ViewDetails: string;
         };
         Messages: {
             Success: string;
             Error: string;
+        };
+        DetailsDialog: {
+            SharePercentage: string;
+            CurrentCapital: string;
+            Phone: string;
+            Email: string;
+            NationalId: string;
+            JoinDate: string;
+            Address: string;
+            InitialCapital: string;
+            Notes: string;
+            Close: string;
         };
     };
     EmployeesManagement: {
@@ -478,6 +506,7 @@ export interface TranslationKeys {
         Categories: string;
         Units: string;
         BulkUpload: string;
+        ExportExcel: string;
         ImportExcel: string;
         SearchPlaceholder: string;
         Table: {
@@ -491,6 +520,11 @@ export interface TranslationKeys {
             Type: string;
             Actions: string;
             NoProducts: string;
+            MainStore: string;
+            MovementTypes: {
+                Return: string;
+                Sale: string;
+            };
             Goods: string;
             Service: string;
             RequiresToken: string;
@@ -701,6 +735,8 @@ export interface TranslationKeys {
         Title: string;
         Description: string;
         NewSupplier: string;
+        ExportExcel: string;
+        ImportExcel: string;
         ListTitle: string;
         Table: {
             Name: string;
@@ -912,7 +948,11 @@ export interface TranslationKeys {
                 Customer: string;
                 SelectCustomer: string;
                 SelectProduct: string;
+                CashCustomer: string;
                 IssueDate: string;
+                Table: {
+                    Item: string;
+                };
                 DueDate: string;
                 Currency: string;
                 ExchangeRate: string;
@@ -944,13 +984,20 @@ export interface TranslationKeys {
                     AmountExceeds: string;
                 };
             };
+            Table: {
+                Subtotal: string;
+                Tax: string;
+                Discount: string;
+                Total: string;
+            };
             Print: {
                 Title: string;
                 SimpleTitle: string;
                 BillTo: string;
                 TaxId: string;
-                InvoiceNo: string;
+                InvoiceNumber: string;
                 Date: string;
+                Time: string;
                 DueDate: string;
                 Item: string;
                 Qty: string;
@@ -958,6 +1005,7 @@ export interface TranslationKeys {
                 Total: string;
                 Subtotal: string;
                 Tax: string;
+                Discount: string;
                 GrandTotal: string;
                 Footer: string;
                 Token: string;
@@ -985,34 +1033,44 @@ export interface TranslationKeys {
             StatusLabels: {
                 Returned: string;
                 PartiallyReturned: string;
+                Paid: string;
+                Issued: string;
             };
+            Items: string;
+            Remaining: string;
+            PaidBreakdown: string;
+            UnitPrice: string;
+            Subtotal: string;
+            Tax: string;
+            Price: string;
+            Discount: string;
             SaleMode: string;
             Cash: string;
             Credit: string;
             Card: string;
             Installment: string;
-            Subtotal: string;
-            Tax: string;
-            Discount: string;
-        };
-        Returns: {
-            Title: string;
-            Description: string;
-            Confirm: string;
-            Messages: {
-                SelectItems: string;
-            };
-        };
-        Form: {
-            ItemDescription: string;
-            Quantity: string;
-            UnitPrice: string;
-            ReturnQty: string;
-            Total: string;
-            TotalReturn: string;
+            Item: string;
+            Qty: string;
         };
     };
+    Returns: {
+        Title: string;
+        Description: string;
+        Confirm: string;
+        Messages: {
+            SelectItems: string;
+        };
+    };
+    Form: {
+        ItemDescription: string;
+        Quantity: string;
+        UnitPrice: string;
+        ReturnQty: string;
+        Total: string;
+        TotalReturn: string;
+    };
     POS: {
+        MainStore: string;
         RetailSale: string;
         SearchProducts: string;
         SelectCustomer: string;
@@ -1040,6 +1098,7 @@ export interface TranslationKeys {
         FullScreen: string;
         Cash: string;
         Card: string;
+        Bank: string;
         Credit: string;
         Loading: string;
         PriceLevel: string;
@@ -1047,6 +1106,17 @@ export interface TranslationKeys {
         PayCash: string;
         PayCard: string;
         PayCredit: string;
+        TodaySalesSummary: string;
+        Items: string;
+        Unit: string;
+        Stock: string;
+        Search: string;
+        Title: string;
+        SearchPlaceholder: string;
+        PaymentMethod: string;
+        Category: string;
+        Categories: string;
+        AllCategories: string;
         Types: {
             Retail: string;
             Wholesale: string;
@@ -1062,7 +1132,15 @@ export interface TranslationKeys {
             Select: string;
             Search: string;
             NoResults: string;
-            List: string;
+            Title: string;
+        };
+    };
+    Products: {
+        Table: {
+            PriceRetail: string;
+            PriceWholesale: string;
+            PriceHalfWholesale: string;
+            PriceSpecial: string;
         };
     };
     Payroll: {
@@ -1187,7 +1265,7 @@ export interface TranslationKeys {
     Invoices: {
         Title: string;
         Table: {
-            InvoiceNo: string;
+            InvoiceNumber: string;
             Customer: string;
             Date: string;
             Total: string;
@@ -1214,6 +1292,8 @@ export interface TranslationKeys {
     Employees: {
         Title: string;
         Description: string;
+        ExportExcel: string;
+        ImportExcel: string;
         NewEmployee: string;
         Empty: string;
         DeleteConfirm: string;
@@ -1408,6 +1488,14 @@ export interface TranslationKeys {
     Settings: {
         Title: string;
         Description: string;
+        InterfaceForm: {
+            Title: string;
+            NumeralSystem: string;
+            NumeralLatn: string;
+            NumeralArab: string;
+            ZoomLevel: string;
+            ZoomHelp: string;
+        };
         Form: {
             CompanyDetails: string;
             Logo: string;
@@ -1424,6 +1512,7 @@ export interface TranslationKeys {
             SelectCurrency: string;
             Save: string;
             Saving: string;
+            SaveSuccess: string;
             Success: string;
             Error: string;
             SaveAll: string;
@@ -1449,6 +1538,7 @@ export interface TranslationKeys {
             Backup: string;
             Subscribers: string;
             Danger: string;
+            Interface: string;
         };
         Invoices: {
             Title: string;
@@ -1513,6 +1603,7 @@ export interface TranslationKeys {
             UserEmail: string;
             Password: string;
             RecipientEmail: string;
+            QuickSetup: string;
             Messages: {
                 BackupSuccess: string;
                 SavedTo: string;
@@ -1588,6 +1679,9 @@ export interface TranslationKeys {
             AllowedDiscount: string;
             COGS: string;
             VatTax: string;
+            InterestIncome: string;
+            DeliveryRevenue: string;
+            CashOverShort: string;
         };
         Journal: {
             InvalidData: string;
@@ -1604,6 +1698,9 @@ export interface TranslationKeys {
             BalanceError: string;
             TreasuryDisbursement: string;
             TreasuryDeposit: string;
+            InputVAT: string;
+            SalesCost: string;
+            ShiftDiscrepancy: string;
         };
         Accounts: {
             CodeUsed: string;
@@ -1640,5 +1737,134 @@ export interface TranslationKeys {
             TotalCredit: string;
             Difference: string;
         };
+        Errors: {
+            NoCashAccount: string;
+            InsufficientFunds: string;
+            NotBalanced: string;
+        };
+        System: {
+            CommissionDefault: string;
+            OpeningBalance: string;
+        };
+    };
+    Purchases: {
+        Title: string;
+        Description: string;
+        NewInvoice: string;
+        Form: {
+            Supplier: string;
+            SelectSupplier: string;
+            Date: string;
+            Items: string;
+            AddItem: string;
+            Total: string;
+            Save: string;
+            Product: string;
+            Quantity: string;
+            Cost: string;
+            SelectProduct: string;
+            InvoiceNumber: string;
+            Notes: string;
+            PaymentStatus: string;
+            AmountPaid: string;
+        };
+        Table: {
+            InvoiceNumber: string;
+            Supplier: string;
+            Date: string;
+            Total: string;
+            PaidAmount: string;
+            Balance: string;
+            Status: string;
+            Actions: string;
+            NoInvoices: string;
+            Draft: string;
+            Returned: string;
+            StatusLabels: {
+                Paid: string;
+                Unpaid: string;
+                Partial: string;
+            };
+            Edit: string;
+            Return: string;
+            QtyBought: string;
+            QtyReturn: string;
+        };
+        ReturnInvoice: {
+            Title: string;
+            Description: string;
+            ErrorQtyLimit: string;
+            ErrorEmptySelection: string;
+            JournalRef: string;
+            JournalRefLine: string;
+        };
+        Messages: {
+            Success: string;
+            UpdateSuccess: string;
+        };
+        Journal: {
+            InventoryIn: string;
+            Payable: string;
+            Payment: string;
+            CashOut: string;
+            EditPrefix: string;
+            Returns: {
+                JournalRef: string;
+                JournalRefLine: string;
+                Title: string;
+                Success: string;
+            };
+        };
+    };
+    Representatives: {
+        Title: string;
+        Description: string;
+        ExportExcel: string;
+        ImportExcel: string;
+        Dialog: {
+            AddTitle: string;
+            EditTitle: string;
+            Description: string;
+            Name: string;
+            Type: string;
+            Phone: string;
+            Address: string;
+            CommissionRate: string;
+            CommissionBasis: string;
+            Notes: string;
+            Save: string;
+            Saving: string;
+            Success: string;
+            Salary: string;
+            CommissionType: string;
+            CommissionValue: string;
+            Types: {
+                Sales: string;
+                Delivery: string;
+                Percentage: string;
+                Fixed: string;
+            };
+            UpdateSuccess: string;
+            Error: string;
+        };
+        Reports: {
+            Title: string;
+            Description: string;
+            TotalSales: string;
+            Collected: string;
+            CommissionRate: string;
+            Salary: string;
+            CommissionAmount: string;
+            InvoicesList: string;
+            Settle: string;
+            SettleTitle: string;
+            Amount: string;
+            Period: string;
+            PaymentNotes: string;
+            ConfirmPay: string;
+        };
+        Settlement: string;
+        CommissionDue: string;
+        PaymentToRep: string;
     };
 }

@@ -35,12 +35,12 @@ export function ActivationDialog({ dict }: { dict: any }) {
         setLoading(true);
         const res = await activateLicense(key);
         if (res.success) {
-            toast.success(dict?.Common?.Success || "Activated Successfully!");
+            toast.success(dict?.Common?.Success);
             setOpen(false);
             refreshLicense();
             window.location.reload(); // Refresh to unlock everything
         } else {
-            toast.error(res.error || "Invalid Key");
+            toast.error(res.error );
         }
         setLoading(false);
     }

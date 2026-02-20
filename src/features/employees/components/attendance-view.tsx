@@ -67,7 +67,7 @@ export function AttendanceView({ employees, dict }: { employees: any[], dict: an
                             <TableHeader>
                                 <TableRow className="bg-slate-50">
                                     <TableHead className="text-start font-bold">{dict.Employees.Table.Name}</TableHead>
-                                    <TableHead className="text-center font-bold">{dict.Attendance.Status || "الحالة"}</TableHead>
+                                    <TableHead className="text-center font-bold">{dict.Attendance.Status}</TableHead>
                                     <TableHead className="text-center font-bold">{dict.Attendance.CheckIn}</TableHead>
                                     <TableHead className="text-center font-bold">{dict.Attendance.CheckOut}</TableHead>
                                     <TableHead className="text-end font-bold">{dict.Common.Actions}</TableHead>

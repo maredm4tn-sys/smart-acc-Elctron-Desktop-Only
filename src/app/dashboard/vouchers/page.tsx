@@ -18,10 +18,10 @@ export default async function VouchersPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                        {dict.Vouchers?.Title || dict.Vouchers || "السندات والمقبوضات"}
+                        {dict.Vouchers?.Title || dict.Vouchers}
                     </h1>
                     <p className="text-sm md:text-base text-muted-foreground">
-                        {dict.Sidebar?.FinancialOperations || "العمليات المالية"}
+                        {dict.Sidebar?.FinancialOperations}
                     </p>
                 </div>
                 <div className="w-full sm:w-auto">

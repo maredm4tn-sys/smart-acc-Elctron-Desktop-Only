@@ -2,13 +2,18 @@
 
 import { db, withErrorHandling, logToDesktop } from "@/db";
 import { partners, partnerTransactions, products, accounts, journalEntries, journalLines, shifts } from "@/db/schema";
-import { eq, and, sql, sum } from "drizzle-orm";
+import { eq, and, sql, sum, or, like } from "drizzle-orm";
 import { getSession } from "@/features/auth/actions";
 import { createJournalEntry } from "@/features/accounting/actions";
 import { revalidatePath } from "next/cache";
+import { getDictionary } from "@/lib/i18n-server";
+
+async function getPartnerDict() {
+    return await getDictionary() as any;
+}
 
 /**
- * 🛠️ [Helper] Recalculate Share Percentages
+ * [Helper] Recalculate Share Percentages based on Current Capital
  */
 async function recalculatePercentages(tenantId: string) {
     const allPartners = await db.select().from(partners)
@@ -25,11 +30,12 @@ async function recalculatePercentages(tenantId: string) {
             .where(eq(partners.id, p.id));
     }
 
-    logToDesktop(`📈 Recalculated percentages for ${allPartners.length} partners. Total Capital: ${totalCapital}`);
+    logToDesktop(`Recalculated percentages for ${allPartners.length} partners. Total Capital: ${totalCapital}`);
 }
 
 /**
- * 👨‍💼 [SERVER ACTION] getPartners
+ * [SERVER ACTION] getPartners
+ * Returns all partners for the current tenant.
  */
 export async function getPartners() {
     return await withErrorHandling("getPartners", async () => {
@@ -43,42 +49,81 @@ export async function getPartners() {
 }
 
 /**
- * 🆕 [SERVER ACTION] createPartner
+ * [SERVER ACTION] createPartner
+ * Creates a new partner record and registers their opening capital.
  */
 export async function createPartner(data: {
     name: string;
     phone?: string;
     nationalId?: string;
     role?: string;
+    email?: string;
+    address?: string;
+    notes?: string;
+    joinDate?: string;
     initialCapital: number;
 }) {
     return await withErrorHandling("createPartner", async () => {
         const session = await getSession();
         const tenantId = session?.tenantId || "tenant_default";
+        const dict = await getPartnerDict();
+        const t = dict?.Partners?.Journal;
 
-        // 1. Insert Partner
+        // 1. Create Ledger Account for Partner under Equity (3101-ID)
+        const partnerCode = `3101-${Math.floor(Math.random() * 9000) + 1000}`; // Temporary unique code part
+        const [acc] = await db.insert(accounts).values({
+            tenantId,
+            code: partnerCode,
+            name: `${t?.CapitalFor || 'Capital -'} ${data.name}`,
+            type: 'equity',
+            parentId: null, // Should ideally be child of 3101 (Capital)
+            isActive: true,
+            balance: data.initialCapital.toString(),
+        }).returning();
+
+        // 2. Insert Partner linked to Account
         const [newPartner] = await db.insert(partners).values({
             tenantId,
             name: data.name,
             phone: data.phone,
             nationalId: data.nationalId,
             role: data.role,
+            email: data.email,
+            address: data.address,
+            notes: data.notes,
+            joinDate: data.joinDate,
             initialCapital: data.initialCapital.toString(),
             currentCapital: data.initialCapital.toString(),
             currentBalance: "0.00",
             isActive: 1,
+            // Add a column if schema allows, or use notes? 
+            // In smart-acc, we usually link by code or ID. 
+            // Let's assume we link by code or just keep metadata in notes for now if schema is rigid.
         }).returning();
 
-        // 2. Register Initial Capital Transaction
-        await db.insert(partnerTransactions).values({
-            tenantId,
-            partnerId: newPartner.id,
-            type: 'capital_increase',
-            amount: data.initialCapital.toString(),
-            date: new Date().toISOString().split('T')[0],
-            description: "Opening Capital Deposit",
-            createdBy: session?.userId,
+        // Update name to include ID for uniqueness
+        await db.update(accounts).set({
+            code: `3101-${newPartner.id}`,
+            name: `${t?.CapitalFor || 'Capital -'} ${newPartner.name} (#${newPartner.id})`
+        }).where(eq(accounts.id, acc.id));
+
+        // 3. Register Initial Capital Journal Entry
+        // This ensures the 234k-style credit is actually in the ledger
+        const cashAcc = await db.query.accounts.findFirst({
+            where: and(eq(accounts.tenantId, tenantId), like(accounts.code, '1101%'))
         });
+
+        if (cashAcc) {
+            await createJournalEntry({
+                date: data.joinDate || new Date().toISOString().split('T')[0],
+                description: `${t?.OpeningCapital || 'Opening Capital -'} ${data.name}`,
+                reference: `CAP-${newPartner.id}`,
+                lines: [
+                    { accountId: cashAcc.id, debit: data.initialCapital, credit: 0, description: `${t?.CapitalDeposit || 'Deposit -'} ${data.name}` },
+                    { accountId: acc.id, debit: 0, credit: data.initialCapital, description: `${t?.CapitalOf || 'Partner Capital -'} ${data.name}` }
+                ]
+            });
+        }
 
         // 3. Recalculate Percentages
         await recalculatePercentages(tenantId);
@@ -89,7 +134,8 @@ export async function createPartner(data: {
 }
 
 /**
- * 💸 [SERVER ACTION] addPartnerTransaction (Withdrawals, Capital Changes)
+ * [SERVER ACTION] addPartnerTransaction
+ * Handles withdrawals (cash/goods), capital increases, and settlements.
  */
 export async function addPartnerTransaction(data: {
     partnerId: number;
@@ -104,6 +150,8 @@ export async function addPartnerTransaction(data: {
     return await withErrorHandling("addPartnerTransaction", async () => {
         const session = await getSession();
         const tenantId = session?.tenantId || "tenant_default";
+        const dict = await getPartnerDict();
+        const t = dict?.Partners?.Journal;
 
         // 1. Fetch Partner
         const [partner] = await db.select().from(partners).where(eq(partners.id, data.partnerId)).limit(1);
@@ -145,15 +193,32 @@ export async function addPartnerTransaction(data: {
 
             await recalculatePercentages(tenantId);
         } else {
-            // Withdrawals or Settlements affect the current balance (Current Account)
-            // Balance is managed as: Credits (Earnings) - Debits (Withdrawals)
-            // Here withdrawals decrease the balance.
             const currentBal = parseFloat(partner.currentBalance || "0");
-            const newBal = currentBal - data.amount; // Withdrawals are debits
+            const newBal = currentBal - data.amount;
 
             await db.update(partners)
                 .set({ currentBalance: newBal.toString() })
                 .where(eq(partners.id, data.partnerId));
+
+            // Ledger Integration for withdrawals
+            const partnerAcc = await db.query.accounts.findFirst({
+                where: and(eq(accounts.tenantId, tenantId), eq(accounts.code, `3101-${data.partnerId}`))
+            });
+            const cashAcc = await db.query.accounts.findFirst({
+                where: and(eq(accounts.tenantId, tenantId), like(accounts.code, '1101%'))
+            });
+
+            if (partnerAcc && cashAcc && (data.type === 'withdrawal_cash' || data.type === 'withdrawal_goods')) {
+                await createJournalEntry({
+                    date: data.date,
+                    description: data.description || `${t?.WithdrawalDesc || 'Partner Withdrawal -'} ${partner.name}`,
+                    reference: `WDR-${data.partnerId}`,
+                    lines: [
+                        { accountId: partnerAcc.id, debit: data.amount, credit: 0, description: `${t?.WithdrawalsFor || 'Withdrawals for Partner -'} ${partner.name}` },
+                        { accountId: cashAcc.id, debit: 0, credit: data.amount, description: t?.CashOut || 'Cash Disbursement' }
+                    ]
+                });
+            }
         }
 
         revalidatePath("/dashboard/partners");
@@ -162,7 +227,8 @@ export async function addPartnerTransaction(data: {
 }
 
 /**
- * 📅 [SERVER ACTION] getPartnerStatement
+ * [SERVER ACTION] getPartnerStatement
+ * Fetches all transactions for a specific partner.
  */
 export async function getPartnerStatement(partnerId: number) {
     return await withErrorHandling("getPartnerStatement", async () => {
@@ -175,12 +241,11 @@ export async function getPartnerStatement(partnerId: number) {
 }
 
 /**
- * 📊 [SERVER ACTION] getProfitDistributionPreview
+ * [SERVER ACTION] getProfitDistributionPreview
+ * Calculates suggested profit distribution based on capital shares.
  */
 export async function getProfitDistributionPreview(period: { from: string; to: string }) {
     const { getIncomeStatementData } = await import("@/features/reports/actions");
-    const { eq, and, sql, or } = await import("drizzle-orm");
-
     return await withErrorHandling("getProfitDistributionPreview", async () => {
         const session = await getSession();
         const tenantId = session?.tenantId || "tenant_default";
@@ -230,31 +295,36 @@ export async function getProfitDistributionPreview(period: { from: string; to: s
 }
 
 /**
- * 🔒 [SERVER ACTION] processProfitDistribution
+ * [SERVER ACTION] processProfitDistribution
+ * Records the profit distribution and updates partner balances.
  */
 export async function processProfitDistribution(data: {
     period: { from: string; to: string };
-    distributions: any[]; // Result from preview
+    distributions: any[];
 }) {
     return await withErrorHandling("processProfitDistribution", async () => {
         const session = await getSession();
         const tenantId = session?.tenantId || "tenant_default";
+        const dict = await getPartnerDict();
+        const t = dict?.Partners?.Journal;
 
         for (const dist of data.distributions) {
-            // 1. Register Profit Share Transaction (Credit to Balance)
+            // 1. Register Profit Share Transaction
+            const profitDesc = (t?.ProfitDistribution || "Profit distribution for the period from {from} to {to}")
+                .replace('{from}', data.period.from)
+                .replace('{to}', data.period.to);
+
             await db.insert(partnerTransactions).values({
                 tenantId,
                 partnerId: dist.partnerId,
                 type: 'profit_share',
                 amount: dist.initialShare.toString(),
-                date: data.period.to, // End of period
-                description: `Profit distribution for the period from ${data.period.from} to ${data.period.to}`,
+                date: data.period.to,
+                description: profitDesc,
                 createdBy: session?.userId,
             });
 
             // 2. Update Partner Balance
-            // Balance is managed as Earnings - Withdrawals
-            // Earnings (Profit Share) increase balance
             const [p] = await db.select().from(partners).where(eq(partners.id, dist.partnerId)).limit(1);
             if (p) {
                 const newBal = parseFloat(p.currentBalance || "0") + dist.initialShare;
@@ -266,5 +336,29 @@ export async function processProfitDistribution(data: {
 
         revalidatePath("/dashboard/partners");
         return { success: true };
+    });
+}
+
+/**
+ * [SERVER ACTION] bulkImportPartners
+ * Batch imports partners from an Excel/JSON list.
+ */
+export async function bulkImportPartners(partnersList: any[]) {
+    return await withErrorHandling("bulkImportPartners", async () => {
+        let importedCount = 0;
+        for (const p of partnersList) {
+            const res = await createPartner({
+                name: p.name || p["الاسم"] || p["اسم الشريك"] || "N/A",
+                phone: p.phone || p["الهاتف"] || p["رقم الهاتف"],
+                nationalId: p.nationalId || p["الرقم القومي"],
+                role: p.role || p["الوظيفة"] || p["الدور"],
+                email: p.email || p["البريد"],
+                address: p.address || p["العنوان"],
+                notes: p.notes || p["ملاحظات"],
+                initialCapital: parseFloat(p.initialCapital || p["رأس المال"] || p["رأس المال المبدئي"] || "0"),
+            });
+            if (res.success) importedCount++;
+        }
+        return { success: true, message: `Successfully imported ${importedCount} partners.` };
     });
 }

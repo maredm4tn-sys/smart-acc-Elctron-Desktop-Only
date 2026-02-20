@@ -10,14 +10,16 @@ set "ROOT=%~dp0"
 set "NODE_DIR=%ROOT%node_portable\node-v20.11.0-win-x64"
 set "PATH=%NODE_DIR%;%ROOT%node_modules\.bin;%PATH%"
 
-:: 1.2 Force kill existing processes TRIPLE STACK
+:: 1.2 Force kill existing processes
 echo 🔫 Killing all related processes...
 taskkill /F /IM "SmartAcc.exe" /T 2>nul
 taskkill /F /IM "electron.exe" /T 2>nul
 taskkill /F /IM "node.exe" /T 2>nul
-wmic process where "name='SmartAcc.exe'" delete 2>nul
-wmic process where "name='node.exe'" delete 2>nul
-timeout /t 3 /nobreak >nul
+timeout /t 5 /nobreak >nul
+
+:: Ensure old files are not read-only
+if exist "dist_new" icacls "dist_new" /grant Everyone:(F) /T /C /Q >nul
+if exist ".next" icacls ".next" /grant Everyone:(F) /T /C /Q >nul
 
 :: Set memory limit for the heavy build parts
 set "NODE_OPTIONS=--max-old-space-size=4096"

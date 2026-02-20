@@ -46,6 +46,6 @@ export async function getDailySummary() {
         };
     } catch (error: any) {
         console.error("Daily summary error:", error);
-        return { success: false, message: error.message || "Failed to load summary" };
+        return { success: false, message: error.message  };
     }
 }

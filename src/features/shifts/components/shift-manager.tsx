@@ -60,7 +60,7 @@ export function ShiftManager() {
         try {
             const res = await openShift(Number(startBalance));
             if (res.success) {
-                toast.success(dict.Shifts.OpenSuccess || "Shift started");
+                toast.success(dict.Shifts.OpenSuccess);
                 setTimeout(() => window.location.reload(), 500);
                 resetState();
             } else {
@@ -95,7 +95,7 @@ export function ShiftManager() {
 
             const res = await closeShift(activeShift.id, actual, notes);
             if (res.success) {
-                toast.success(dict.Shifts.CloseSuccess || "Shift closed");
+                toast.success(dict.Shifts.CloseSuccess);
                 setTimeout(() => window.location.reload(), 2000);
 
                 setClosingData({

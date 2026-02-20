@@ -12,6 +12,7 @@ import { useTranslation } from "@/components/providers/i18n-provider";
 import { useSettings } from "@/components/providers/settings-provider";
 import { getStagnantProducts } from "@/features/reports/actions";
 import { toast } from "sonner";
+import { ReportsBackButton } from "@/components/dashboard/reports-back-button";
 
 export default function StagnantStockReportPage() {
     const { dict } = useTranslation() as any;
@@ -33,7 +34,7 @@ export default function StagnantStockReportPage() {
             }
         } catch (e: any) {
             console.error(e);
-            toast.error(dict.Common?.Error || "Failed to load report");
+            toast.error(dict.Common?.Error);
         } finally {
             setLoading(false);
         }
@@ -44,29 +45,30 @@ export default function StagnantStockReportPage() {
     }, [period]);
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500" dir="rtl">
+        <div className="space-y-6 animate-in fade-in duration-500 p-6" dir="rtl">
+            <ReportsBackButton />
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="text-right">
                     <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
                         <TrendingDown className="w-8 h-8 text-amber-600" />
-                        {dict.Reports?.StagnantStock?.Title || "تحليل الركود السلعي"}
+                        {dict.Reports?.StagnantStock?.Title}
                     </h1>
                     <p className="text-slate-500 mt-1 font-bold">
-                        {dict.Reports?.StagnantStock?.Desc || "تحديد المنتجات التي لم تُبع لفترة طويلة لتحرير رأس المال المجمد."}
+                        {dict.Reports?.StagnantStock?.Desc}
                     </p>
                 </div>
 
                 <div className="flex items-center gap-2 bg-white p-2 rounded-xl border shadow-sm">
-                    <span className="text-sm font-bold text-gray-500 px-2">{dict.Reports?.StagnantStock?.Period || "فترة الركود"}:</span>
+                    <span className="text-sm font-bold text-gray-500 px-2">{dict.Reports?.StagnantStock?.Period}:</span>
                     <Select value={period} onValueChange={setPeriod}>
                         <SelectTrigger className="w-[180px] h-10 font-bold border-none shadow-none bg-slate-50">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="30">{dict.Reports?.StagnantStock?.Days30 || "30 يوم (تنبيه)"}</SelectItem>
-                            <SelectItem value="60">{dict.Reports?.StagnantStock?.Days60 || "60 يوم (بطيء)"}</SelectItem>
-                            <SelectItem value="90">{dict.Reports?.StagnantStock?.Days90 || "90 يوم (راكد)"}</SelectItem>
-                            <SelectItem value="180">{dict.Reports?.StagnantStock?.Days180 || "180 يوم (مخزون ميت)"}</SelectItem>
+                            <SelectItem value="30">{dict.Reports?.StagnantStock?.Days30}</SelectItem>
+                            <SelectItem value="60">{dict.Reports?.StagnantStock?.Days60}</SelectItem>
+                            <SelectItem value="90">{dict.Reports?.StagnantStock?.Days90}</SelectItem>
+                            <SelectItem value="180">{dict.Reports?.StagnantStock?.Days180}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -78,10 +80,10 @@ export default function StagnantStockReportPage() {
                     <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-200/20 rounded-full blur-2xl"></div>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-amber-800 text-lg flex items-center gap-2 font-black">
-                            <DollarSign className="w-5 h-5" /> {dict.Reports?.StagnantStock?.TotalValue || "رأس المال المجمد"}
+                            <DollarSign className="w-5 h-5" /> {dict.Reports?.StagnantStock?.TotalValue}
                         </CardTitle>
                         <CardDescription className="text-amber-600 font-bold">
-                            {dict.Reports?.StagnantStock?.TotalValueDesc || "إجمالي قيمة التكلفة للأصناف الراكدة"}
+                            {dict.Reports?.StagnantStock?.TotalValueDesc}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -96,16 +98,16 @@ export default function StagnantStockReportPage() {
                 <Card className="bg-white border-slate-200 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-slate-700 text-lg flex items-center gap-2 font-black">
-                            <PackageOpen className="w-5 h-5" /> {dict.Reports?.StagnantStock?.ItemsCount || "عدد الأصناف الراكدة"}
+                            <PackageOpen className="w-5 h-5" /> {dict.Reports?.StagnantStock?.ItemsCount}
                         </CardTitle>
                         <CardDescription className="font-bold">
-                            {dict.Reports?.StagnantStock?.ItemsCountDesc || "عدد المنتجات الفريدة التي لا توجد عليها حركة"}
+                            {dict.Reports?.StagnantStock?.ItemsCountDesc}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {loading ? <Loader2 className="w-6 h-6 animate-spin text-slate-600" /> : (
                             <div className="text-4xl font-black text-slate-900">
-                                {data.length} <span className="text-lg font-bold text-gray-500">{dict.Common?.Item || "صنف"}</span>
+                                {data.length} <span className="text-lg font-bold text-gray-500">{dict.Common?.Item}</span>
                             </div>
                         )}
                     </CardContent>
@@ -115,7 +117,7 @@ export default function StagnantStockReportPage() {
             {/* Table */}
             <Card className="border shadow-lg overflow-hidden rounded-2xl">
                 <CardHeader className="bg-slate-50 border-b">
-                    <CardTitle className="font-black text-slate-800">{dict.Reports?.StagnantStock?.TableTitle || "تفاصيل الأصناف الراكدة"}</CardTitle>
+                    <CardTitle className="font-black text-slate-800">{dict.Reports?.StagnantStock?.TableTitle}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     {loading ? (
@@ -123,19 +125,19 @@ export default function StagnantStockReportPage() {
                     ) : data.length === 0 ? (
                         <div className="py-20 flex flex-col items-center justify-center text-slate-400">
                             <AlertTriangle className="w-16 h-16 mb-4 opacity-20" />
-                            <h3 className="text-lg font-black text-slate-600">{dict.Reports?.StagnantStock?.NoData || "ممتاز! لا يوجد ركود سلعي."}</h3>
-                            <p className="font-bold">{dict.Reports?.StagnantStock?.NoDataDesc || "المخزون يتحرك بشكل جيد خلال هذه الفترة."}</p>
+                            <h3 className="text-lg font-black text-slate-600">{dict.Reports?.StagnantStock?.NoData}</h3>
+                            <p className="font-bold">{dict.Reports?.StagnantStock?.NoDataDesc}</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader className="bg-slate-50">
                                     <TableRow>
-                                        <TableHead className="text-start font-black">{dict.Inventory?.Table?.Name || "اسم المنتج"}</TableHead>
-                                        <TableHead className="text-start font-black">{dict.Inventory?.Table?.SKU || "الكود"}</TableHead>
-                                        <TableHead className="text-center font-black">{dict.Inventory?.Table?.Stock || "الكمية"}</TableHead>
-                                        <TableHead className="text-end font-black">{dict.Inventory?.Table?.BuyPrice || "سعر التكلفة"}</TableHead>
-                                        <TableHead className="text-end font-black">{dict.Reports?.StagnantStock?.TotalCost || "القيمة المجمدة"}</TableHead>
+                                        <TableHead className="text-start font-black">{dict.Inventory?.Table?.Name}</TableHead>
+                                        <TableHead className="text-start font-black">{dict.Inventory?.Table?.SKU}</TableHead>
+                                        <TableHead className="text-center font-black">{dict.Inventory?.Table?.Stock}</TableHead>
+                                        <TableHead className="text-end font-black">{dict.Inventory?.Table?.BuyPrice}</TableHead>
+                                        <TableHead className="text-end font-black">{dict.Reports?.StagnantStock?.TotalCost}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>

@@ -33,7 +33,7 @@ export function AdvanceForm({ employees, dict }: { employees: any[], dict: Trans
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedEmployee || !amount) {
-            toast.error(dict.Common?.Error || "Error");
+            toast.error(dict.Common?.Error);
             return;
         }
 
@@ -48,7 +48,7 @@ export function AdvanceForm({ employees, dict }: { employees: any[], dict: Trans
         });
 
         if (res.success) {
-            toast.success(dict.EmployeesManagement?.Advances?.Success || "تم تسجيل العملية");
+            toast.success(dict.EmployeesManagement?.Advances?.Success);
             window.location.reload();
         } else {
             toast.error(res.message || dict.Common.Error);
@@ -60,7 +60,7 @@ export function AdvanceForm({ employees, dict }: { employees: any[], dict: Trans
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <CreditCard className="h-5 w-5 text-primary" />
-                    {dict.EmployeesManagement?.Advances?.Title || "السلف والعهد"}
+                    {dict.EmployeesManagement?.Advances?.Title}
                 </CardTitle>
             </CardHeader>
             <CardContent>
@@ -72,7 +72,7 @@ export function AdvanceForm({ employees, dict }: { employees: any[], dict: Trans
                             className="flex-1"
                             onClick={() => setType('advance')}
                         >
-                            {dict.EmployeesManagement?.Advances?.Disbursement || "صرف سلفة"}
+                            {dict.EmployeesManagement?.Advances?.Disbursement}
                         </Button>
                         <Button
                             type="button"
@@ -80,16 +80,16 @@ export function AdvanceForm({ employees, dict }: { employees: any[], dict: Trans
                             className="flex-1"
                             onClick={() => setType('repayment')}
                         >
-                            {dict.EmployeesManagement?.Advances?.Repayment || "سداد سلفة"}
+                            {dict.EmployeesManagement?.Advances?.Repayment}
                         </Button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label>{dict.EmployeesManagement?.Table?.Name || "اسم الموظف"}</Label>
+                            <Label>{dict.EmployeesManagement?.Table?.Name}</Label>
                             <Select onValueChange={setSelectedEmployee}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={dict.EmployeesManagement?.Payroll?.SelectEmployee || "اختر الموظف"} />
+                                    <SelectValue placeholder={dict.EmployeesManagement?.Payroll?.SelectEmployee} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {employees.map(emp => (
@@ -99,18 +99,18 @@ export function AdvanceForm({ employees, dict }: { employees: any[], dict: Trans
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label>{dict.EmployeesManagement?.Advances?.Amount || "المبلغ"}</Label>
+                            <Label>{dict.EmployeesManagement?.Advances?.Amount}</Label>
                             <Input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="font-mono font-bold" />
                         </div>
                         <div className="space-y-2">
-                            <Label>{dict.EmployeesManagement?.Advances?.Month || "عن شهر"}</Label>
+                            <Label>{dict.EmployeesManagement?.Advances?.Month}</Label>
                             <Input type="month" value={salaryMonth} onChange={(e) => setSalaryMonth(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <Label>{dict.EmployeesManagement?.Payroll?.Treasury || "الخزينة"}</Label>
+                            <Label>{dict.EmployeesManagement?.Payroll?.Treasury}</Label>
                             <Select onValueChange={setTreasury} value={treasury}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={dict.EmployeesManagement?.Payroll?.SelectTreasury || "اختر الخزينة"} />
+                                    <SelectValue placeholder={dict.EmployeesManagement?.Payroll?.SelectTreasury} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {treasuries.map(acc => (
@@ -122,8 +122,8 @@ export function AdvanceForm({ employees, dict }: { employees: any[], dict: Trans
                     </div>
 
                     <div className="space-y-2">
-                        <Label>{dict.EmployeesManagement?.Form?.Notes || "ملاحظات"}</Label>
-                        <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={dict.EmployeesManagement?.Payroll?.NotesPlaceholder || "تفاصيل إضافية..."} />
+                        <Label>{dict.EmployeesManagement?.Form?.Notes}</Label>
+                        <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={dict.EmployeesManagement?.Payroll?.NotesPlaceholder} />
                     </div>
 
                     <Button type="submit" className="w-full h-12 text-lg gap-2" variant={type === 'advance' ? 'default' : 'secondary'}>

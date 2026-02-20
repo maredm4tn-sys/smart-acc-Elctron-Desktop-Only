@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { vouchers, accounts, customers, suppliers, journalEntries } from "@/db/schema";
+import { vouchers, accounts, customers, suppliers, journalEntries, journalLines } from "@/db/schema";
 import { eq, and, like, desc, count } from "drizzle-orm";
 import { requireSession } from "@/lib/tenant-security";
 import { z } from "zod";
@@ -29,7 +29,7 @@ export async function createVoucher(input: z.infer<typeof createVoucherSchema>) 
     const dict = await getVoucherDict();
 
     if (!validation.success) {
-        return { success: false, message: dict.Vouchers?.Messages?.InvalidData || "⚠️" };
+        return { success: false, message: dict.Vouchers?.Messages?.InvalidData };
     }
 
     const data = validation.data;
@@ -60,10 +60,10 @@ export async function createVoucher(input: z.infer<typeof createVoucherSchema>) 
         }).returning();
 
         if (!newVoucher) {
-            throw new Error(dict.Vouchers?.Errors?.CreateFailed || "❌");
+            throw new Error(dict.Vouchers?.Errors?.CreateFailed);
         }
 
-        const cashName = dict.Vouchers?.System?.CashAccountDefault || (dict.Common?.Direction === 'rtl' ? "الصندوق" : "Cash");
+        const cashName = dict.Vouchers?.System?.CashAccountDefault;
         let cashAccount = await db.query.accounts.findFirst({
             where: (acc, { and, eq, or, like }) => and(
                 eq(acc.tenantId, tenantId),
@@ -86,24 +86,24 @@ export async function createVoucher(input: z.infer<typeof createVoucherSchema>) 
 
         if (data.partyType === 'other' && data.accountId) {
             targetAccountId = data.accountId;
-            targetDescription = dict.Vouchers?.System?.GeneralAccount || (dict.Common?.Direction === 'rtl' ? "حساب عام" : "General Account");
+            targetDescription = dict.Vouchers?.System?.GeneralAccount;
         } else if (data.partyType === 'customer' && data.partyId) {
             const customer = await db.query.customers.findFirst({
                 where: (cust, { eq, and }) => and(eq(cust.id, data.partyId!), eq(cust.tenantId, tenantId))
             });
             if (customer) {
-                const arAccount = await getOrCreateSpecificAccount(tenantId, customer.name, '102', 'asset', customer.id);
+                const arAccount = await getOrCreateSpecificAccount(tenantId, customer.name, '1103', 'asset', customer.id);
                 targetAccountId = arAccount.id;
-                targetDescription = `${dict.Vouchers?.Form?.Types?.Customer || (dict.Common?.Direction === 'rtl' ? "عميل" : "Customer")}: ${customer.name}`;
+                targetDescription = `${dict.Vouchers?.Form?.Types?.Customer}: ${customer.name}`;
             }
         } else if (data.partyType === 'supplier' && data.partyId) {
             const supplier = await db.query.suppliers.findFirst({
                 where: (supp, { eq, and }) => and(eq(supp.id, data.partyId!), eq(supp.tenantId, tenantId))
             });
             if (supplier) {
-                const apAccount = await getOrCreateSpecificAccount(tenantId, supplier.name, '201', 'liability', supplier.id);
+                const apAccount = await getOrCreateSpecificAccount(tenantId, supplier.name, '2101', 'liability', supplier.id);
                 targetAccountId = apAccount.id;
-                targetDescription = `${dict.Vouchers?.Form?.Types?.Supplier || (dict.Common?.Direction === 'rtl' ? "مورد" : "Supplier")}: ${supplier.name}`;
+                targetDescription = `${dict.Vouchers?.Form?.Types?.Supplier}: ${supplier.name}`;
             }
         }
 
@@ -111,27 +111,27 @@ export async function createVoucher(input: z.infer<typeof createVoucherSchema>) 
             const lines: any[] = [];
             const settings = await getSettings();
             if (data.type === 'receipt') {
-                lines.push({ accountId: cashAccount.id, debit: data.amount, credit: 0, description: `${dict.Vouchers?.System?.Journal?.Receipt || (dict.Common?.Direction === 'rtl' ? "إيصال" : "Receipt")} - ${targetDescription}` });
-                lines.push({ accountId: targetAccountId, debit: 0, credit: data.amount, description: `${dict.Vouchers?.System?.Journal?.PaymentFrom || (dict.Common?.Direction === 'rtl' ? "الدفع من" : "Payment from")} ${targetDescription}` });
+                lines.push({ accountId: cashAccount.id, debit: data.amount, credit: 0, description: `${dict.Vouchers?.System?.Journal?.Receipt} - ${targetDescription}` });
+                lines.push({ accountId: targetAccountId, debit: 0, credit: data.amount, description: `${dict.Vouchers?.System?.Journal?.PaymentFrom} ${targetDescription}` });
             } else {
-                lines.push({ accountId: targetAccountId, debit: data.amount, credit: 0, description: `${dict.Vouchers?.System?.Journal?.Disbursement || (dict.Common?.Direction === 'rtl' ? "صرف" : "Disbursement")} - ${targetDescription}` });
-                lines.push({ accountId: cashAccount.id, debit: 0, credit: data.amount, description: dict.Vouchers?.System?.Journal?.CashOut || (dict.Common?.Direction === 'rtl' ? "نقد خارج" : "Cash Out") });
+                lines.push({ accountId: targetAccountId, debit: data.amount, credit: 0, description: `${dict.Vouchers?.System?.Journal?.Disbursement} - ${targetDescription}` });
+                lines.push({ accountId: cashAccount.id, debit: 0, credit: data.amount, description: dict.Vouchers?.System?.Journal?.CashOut });
             }
             await createJournalEntry({
                 date: data.date,
                 reference: newVoucher.voucherNumber,
-                description: `${data.type === 'receipt' ? (dict.Vouchers?.System?.Journal?.PrefixReceipt || (dict.Common?.Direction === 'rtl' ? "إيصال" : "Receipt")) : (dict.Vouchers?.System?.Journal?.PrefixPayment || (dict.Common?.Direction === 'rtl' ? "دفع" : "Payment"))} - ${data.description || ''}`,
+                description: `${data.type === 'receipt' ? (dict.Vouchers?.System?.Journal?.PrefixReceipt) : (dict.Vouchers?.System?.Journal?.PrefixPayment)} - ${data.description || ''}`,
                 currency: settings?.currency || "EGP",
                 lines: lines
             });
         }
 
-        return { success: true, message: dict.Vouchers?.Messages?.Success || "✅", id: newVoucher.id };
+        return { success: true, message: dict.Vouchers?.Messages?.Success, id: newVoucher.id };
     } catch (e: any) {
         console.error("Create Voucher Error:", e);
         return {
             success: false,
-            message: `${dict.Vouchers?.Errors?.CreateFailed || "❌"}: ${e.message}`
+            message: `${dict.Vouchers?.Errors?.CreateFailed}: ${e.message}`
         };
     }
 }
@@ -178,6 +178,18 @@ export async function getVouchers() {
     }
 }
 
+export async function getVoucherById(id: number) {
+    try {
+        const { tenantId } = await requireSession();
+        return await db.query.vouchers.findFirst({
+            where: and(eq(vouchers.id, id), eq(accounts.tenantId, tenantId)),
+            with: { createdByUser: true, account: true, customer: true, supplier: true }
+        });
+    } catch (e) {
+        return null;
+    }
+}
+
 export async function deleteVoucher(id: number) {
     const dict = await getVoucherDict();
     try {
@@ -187,23 +199,24 @@ export async function deleteVoucher(id: number) {
         });
 
         if (!voucher) {
-            throw new Error(dict.Vouchers?.Messages?.NotFound || "❌");
+            throw new Error(dict.Vouchers?.Messages?.NotFound);
         }
 
-        await db.transaction(async (tx) => {
-            const je = await tx.query.journalEntries.findFirst({
-                where: and(eq(journalEntries.tenantId, tenantId), eq(journalEntries.reference, voucher.voucherNumber))
-            });
-
-            if (je) {
-                const { deleteJournalEntry } = await import("@/features/accounting/actions");
-                await deleteJournalEntry(je.id, tx);
-            }
-
-            await tx.delete(vouchers).where(and(eq(vouchers.id, id), eq(vouchers.tenantId, tenantId)));
+        const je = await db.query.journalEntries.findFirst({
+            where: and(eq(journalEntries.tenantId, tenantId), eq(journalEntries.reference, voucher.voucherNumber))
         });
 
-        return { success: true, message: dict.Vouchers?.Messages?.DeleteSuccess || "✅" };
+        db.transaction((tx) => {
+            if (je) {
+                // deleteJournalEntry logic (Manual sync as it's better-sqlite3)
+                tx.delete(journalLines).where(eq(journalLines.journalEntryId, je.id)).run();
+                tx.delete(journalEntries).where(eq(journalEntries.id, je.id)).run();
+            }
+
+            tx.delete(vouchers).where(and(eq(vouchers.id, id), eq(vouchers.tenantId, tenantId))).run();
+        });
+
+        return { success: true, message: dict.Vouchers?.Messages?.DeleteSuccess };
     } catch (e: any) {
         return { success: false, error: dict.Vouchers?.Errors?.DeleteFailed || e.message };
     }

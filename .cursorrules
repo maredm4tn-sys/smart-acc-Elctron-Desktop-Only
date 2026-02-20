@@ -1,0 +1,6 @@
+# Localization Standards
+- NEVER hardcode user-facing strings in the UI or server actions.
+- All Arabic and English text must be placed in `src/messages/ar.json` and `src/messages/en.json`.
+- Use the `useTranslation()` hook in client components.
+- Use dot-notation keys for nested translations (e.g., `dict.SmartAlerts.Title`).
+- For server components that return data for the UI, return translation keys and parameters, not formatted strings.

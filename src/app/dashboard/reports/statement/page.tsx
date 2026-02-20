@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { formatNumber, formatCurrency } from "@/lib/utils";
 import { useTranslation } from "@/components/providers/i18n-provider";
 import { useSettings } from "@/components/providers/settings-provider";
+import { ReportsBackButton } from "@/components/dashboard/reports-back-button";
 
 // Simple Internal Entity Select Component
 function EntitySelect({ type, value, onChange }: { type: string, value: number | null, onChange: (val: number) => void }) {
@@ -56,12 +57,12 @@ function EntitySelect({ type, value, onChange }: { type: string, value: number |
     return (
         <Select value={value?.toString()} onValueChange={(v) => onChange(Number(v))}>
             <SelectTrigger className="w-full bg-white/50 backdrop-blur-sm border-slate-200 focus:ring-blue-500 transition-all">
-                <SelectValue placeholder={loading ? dict?.Reports?.GeneralStatement?.Loading || "جاري التحميل..." : dict?.Reports?.GeneralStatement?.SelectPlaceholder || "اختر..."} />
+                <SelectValue placeholder={loading ? dict?.Reports?.GeneralStatement?.Loading : dict?.Reports?.GeneralStatement?.SelectPlaceholder} />
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
                 <div className="p-2 border-b">
                     <Input
-                        placeholder="بحث..."
+                        placeholder={dict.Common?.SearchPlaceholder || "Search..."}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
@@ -76,7 +77,7 @@ function EntitySelect({ type, value, onChange }: { type: string, value: number |
                     ))
                 ) : (
                     <div className="p-4 text-sm text-gray-400 text-center italic">
-                        {loading ? "جاري البحث..." : (dict?.Reports?.GeneralStatement?.NoData || "لا توجد نتائج")}
+                        {loading ? (dict.Common?.Loading || "Loading...") : (dict?.Reports?.GeneralStatement?.NoData)}
                     </div>
                 )}
             </SelectContent>
@@ -105,7 +106,7 @@ export default function StatementPage() {
 
     const handleSearch = async () => {
         if (!selectedId) {
-            toast.error(dict?.Reports?.GeneralStatement?.Errors?.SelectAccount || "الرجاء اختيار الحساب");
+            toast.error(dict?.Reports?.GeneralStatement?.Errors?.SelectAccount);
             return;
         }
         setLoading(true);
@@ -119,7 +120,7 @@ export default function StatementPage() {
             setData(result);
         } catch (e: any) {
             console.error(e);
-            toast.error((dict?.Reports?.GeneralStatement?.Errors?.FetchFailed || "فشل الجلب") + ": " + e.message);
+            toast.error((dict?.Reports?.GeneralStatement?.Errors?.FetchFailed) + ": " + e.message);
         } finally {
             setLoading(false);
         }
@@ -171,23 +172,24 @@ function StatementContent({
         const titles = dict?.Reports?.GeneralStatement?.ReportTitles;
         if (!titles) return "كشف حساب";
         switch (type) {
-            case 'customer': return titles.Customer || "كشف حساب عميل";
-            case 'supplier': return titles.Supplier || "كشف حساب مورد";
-            case 'treasury': return titles.Treasury || "كشف حركة نقدية";
-            case 'expense': return titles.Expense || "تحليل مصروفات";
-            default: return titles.General || "كشف حساب عام";
+            case 'customer': return titles.Customer;
+            case 'supplier': return titles.Supplier;
+            case 'treasury': return titles.Treasury;
+            case 'expense': return titles.Expense;
+            default: return titles.General;
         }
     };
 
     return (
-        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500" dir="rtl">
+        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 p-6" dir="rtl">
+            <ReportsBackButton />
             {/* Header / Options Bar - Ultra Compact */}
             <div className="bg-white/80 backdrop-blur-md border border-slate-200 rounded-xl p-3 shadow-sm sticky top-0 z-10">
                 <div className="flex flex-col lg:flex-row items-center gap-3">
                     <div className="flex items-center gap-2 min-w-[200px]">
                         <Activity className="h-5 w-5 text-blue-600" />
                         <h1 className="text-xl font-black text-slate-800 tracking-tight whitespace-nowrap">
-                            {dict?.Reports?.GeneralStatement?.Title || "كشف حساب"}
+                            {dict?.Reports?.GeneralStatement?.Title}
                         </h1>
                     </div>
 
@@ -198,12 +200,12 @@ function StatementContent({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="customer">{dict?.Reports?.GeneralStatement?.Types?.Customer || "العملاء"}</SelectItem>
-                                    <SelectItem value="supplier">{dict?.Reports?.GeneralStatement?.Types?.Supplier || "الموردين"}</SelectItem>
-                                    <SelectItem value="treasury">{dict?.Reports?.GeneralStatement?.Types?.Treasury || "الخزينة"}</SelectItem>
-                                    <SelectItem value="expense">{dict?.Reports?.GeneralStatement?.Types?.Expense || "المصروفات"}</SelectItem>
-                                    <SelectItem value="revenue">{dict?.Reports?.GeneralStatement?.Types?.Revenue || "الإيرادات"}</SelectItem>
-                                    <SelectItem value="equity">{dict?.Reports?.GeneralStatement?.Types?.Equity || "حقوق الملكية"}</SelectItem>
+                                    <SelectItem value="customer">{dict?.Reports?.GeneralStatement?.Types?.Customer}</SelectItem>
+                                    <SelectItem value="supplier">{dict?.Reports?.GeneralStatement?.Types?.Supplier}</SelectItem>
+                                    <SelectItem value="treasury">{dict?.Reports?.GeneralStatement?.Types?.Treasury}</SelectItem>
+                                    <SelectItem value="expense">{dict?.Reports?.GeneralStatement?.Types?.Expense}</SelectItem>
+                                    <SelectItem value="revenue">{dict?.Reports?.GeneralStatement?.Types?.Revenue}</SelectItem>
+                                    <SelectItem value="equity">{dict?.Reports?.GeneralStatement?.Types?.Equity}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -213,24 +215,24 @@ function StatementContent({
                         </div>
 
                         <div className="flex items-center bg-slate-50 rounded-md border h-9 px-2 gap-2">
-                            <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">{dict?.Reports?.GeneralStatement?.FromDate || "من"}</span>
+                            <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">{dict?.Reports?.GeneralStatement?.FromDate}</span>
                             <input
                                 type="date"
                                 value={startDate}
                                 onChange={e => setStartDate(e.target.value)}
                                 className="bg-transparent border-none text-xs focus:ring-0 w-full"
-                                aria-label={dict?.Reports?.GeneralStatement?.FromDate || "من تاريخ"}
+                                aria-label={dict?.Reports?.GeneralStatement?.FromDate}
                             />
                         </div>
 
                         <div className="flex items-center bg-slate-50 rounded-md border h-9 px-2 gap-2">
-                            <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">{dict?.Reports?.GeneralStatement?.ToDate || "إلى"}</span>
+                            <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">{dict?.Reports?.GeneralStatement?.ToDate}</span>
                             <input
                                 type="date"
                                 value={endDate}
                                 onChange={e => setEndDate(e.target.value)}
                                 className="bg-transparent border-none text-xs focus:ring-0 w-full"
-                                aria-label={dict?.Reports?.GeneralStatement?.ToDate || "إلى تاريخ"}
+                                aria-label={dict?.Reports?.GeneralStatement?.ToDate}
                             />
                         </div>
                     </div>
@@ -242,13 +244,13 @@ function StatementContent({
                             className="h-9 px-6 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all font-bold"
                         >
                             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4 ml-1.5" />}
-                            {dict?.Reports?.GeneralStatement?.ShowReport || "عرض"}
+                            {dict?.Reports?.GeneralStatement?.ShowReport}
                         </Button>
 
                         {data && (
                             <Button variant="outline" onClick={handlePrint} className="h-9 px-4 border-slate-200 hover:bg-slate-50">
                                 <Printer className="w-4 h-4 ml-1.5 text-slate-600" />
-                                {dict?.Reports?.GeneralStatement?.Print || "طباعة"}
+                                {dict?.Reports?.GeneralStatement?.Print}
                             </Button>
                         )}
                     </div>
@@ -261,7 +263,7 @@ function StatementContent({
                     <div className="p-6 bg-slate-50 rounded-full">
                         <Search size={40} className="opacity-20" />
                     </div>
-                    <p className="text-sm font-medium">الرجاء اختيار الحساب والبيانات المطلوبة لعرض الكشف</p>
+                    <p className="text-sm font-medium">{dict.Reports?.GeneralStatement?.SelectAccount}</p>
                 </div>
             )}
 
@@ -273,7 +275,7 @@ function StatementContent({
                             <Activity className="h-6 w-6 text-blue-600/50 animate-pulse" />
                         </div>
                     </div>
-                    <p className="text-sm font-bold text-slate-500 animate-pulse">جاري معالجة البيانات وتحميل الكشف...</p>
+                    <p className="text-sm font-bold text-slate-500 animate-pulse">{dict.Common?.Loading}</p>
                 </div>
             )}
 
@@ -329,13 +331,13 @@ function StatementContent({
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="bg-slate-50/80 border-b border-slate-100">
-                                        <th className="py-4 px-4 text-start font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Date || "التاريخ"}</th>
-                                        <th className="py-4 px-4 text-start font-black text-amber-600 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.DueDate || "تاريخ الاستحقاق"}</th>
-                                        <th className="py-4 px-4 text-start font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Description || "البيان / الوصف"}</th>
-                                        <th className="py-4 px-4 text-start font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Reference || "رقم المرجع"}</th>
-                                        <th className="py-4 px-4 text-end font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Debit || "مدين (+)"}</th>
-                                        <th className="py-4 px-4 text-end font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Credit || "دائن (-)"}</th>
-                                        <th className="py-4 px-4 text-end font-black text-slate-500 uppercase tracking-tighter text-[10px] bg-slate-50">{dict?.Reports?.GeneralStatement?.Table?.Balance || "الرصيد"}</th>
+                                        <th className="py-4 px-4 text-start font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Date}</th>
+                                        <th className="py-4 px-4 text-start font-black text-amber-600 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.DueDate}</th>
+                                        <th className="py-4 px-4 text-start font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Description}</th>
+                                        <th className="py-4 px-4 text-start font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Reference}</th>
+                                        <th className="py-4 px-4 text-end font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Debit}</th>
+                                        <th className="py-4 px-4 text-end font-black text-slate-500 uppercase tracking-tighter text-[10px]">{dict?.Reports?.GeneralStatement?.Table?.Credit}</th>
+                                        <th className="py-4 px-4 text-end font-black text-slate-500 uppercase tracking-tighter text-[10px] bg-slate-50">{dict?.Reports?.GeneralStatement?.Table?.Balance}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
@@ -356,7 +358,7 @@ function StatementContent({
                                             </td>
                                             <td className="py-3 px-4">
                                                 <div className="font-bold text-slate-700">{row.description}</div>
-                                                {row.type === 'OPENING' && <span className="text-[10px] text-amber-600 bg-amber-100/50 px-2 py-0.5 rounded-full font-bold">رصيد أول</span>}
+                                                {row.type === 'OPENING' && <span className="text-[10px] text-amber-600 bg-amber-100/50 px-2 py-0.5 rounded-full font-bold">{dict.Reports?.GeneralStatement?.Table?.OpeningBalance}</span>}
                                             </td>
                                             <td className="py-3 px-4 font-mono text-[10px] text-slate-400">{row.reference || '-'}</td>
                                             <td className="py-3 px-4 text-end font-black text-slate-900 dir-ltr">
@@ -387,7 +389,7 @@ function StatementContent({
                             </div>
                             <h3 className="text-lg font-black mb-4 flex items-center gap-2">
                                 <span className="h-8 w-1 bg-blue-500 rounded-full"></span>
-                                جدول الأقساط المتبقية
+                                {dict.Installments?.Title}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {data.installments.map((inst: any, i: number) => (
@@ -395,11 +397,11 @@ function StatementContent({
                                         <div className="flex justify-between items-start mb-2">
                                             <span className="text-[10px] font-bold text-blue-200">{inst.dueDate}</span>
                                             <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase ${inst.status === 'paid' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-900'}`}>
-                                                {inst.status === 'paid' ? 'تم التحصيل' : 'مستحق'}
+                                                {inst.status === 'paid' ? dict.Installments?.Table?.Paid : dict.Installments?.Table?.Unpaid}
                                             </span>
                                         </div>
                                         <div className="text-xl font-black">{formatCurrency(inst.amount, currency)}</div>
-                                        <div className="text-[9px] text-white/50 mt-1">مرجع: {inst.invoiceNumber}</div>
+                                        <div className="text-[9px] text-white/50 mt-1">{dict.Reports?.GeneralStatement?.Table?.Ref}: {inst.invoiceNumber}</div>
                                     </div>
                                 ))}
                             </div>

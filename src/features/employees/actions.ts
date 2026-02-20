@@ -32,6 +32,16 @@ export async function getEmployees() {
     } catch (error: any) { return []; }
 }
 
+export async function getEmployeeById(id: number) {
+    try {
+        const { tenantId } = await getContext();
+        const data = await db.query.employees.findFirst({
+            where: and(eq(employees.id, id), eq(employees.tenantId, tenantId))
+        });
+        return data;
+    } catch (error: any) { return null; }
+}
+
 export async function upsertEmployee(data: any) {
     const result = await withErrorHandling("upsertEmployee", async () => {
         const { tenantId } = await getContext();
@@ -119,14 +129,14 @@ export async function createAdvance(data: any) {
                 const dict = await loadDictionary();
                 await createJournalEntry({
                     date: data.date,
-                    description: `${isAdvance ? dict.Sidebar.Employees.Advances.Disbursement : dict.Sidebar.Employees.Advances.Repayment} - ${data.notes || ''}`,
+                    description: `${isAdvance ? dict.EmployeesManagement.Advances.Disbursement : dict.EmployeesManagement.Advances.Repayment} - ${data.notes || ''}`,
                     reference: `ADV-${newAdvance.id}`,
                     lines: [
                         {
                             accountId: advanceAcc.id,
                             debit: isAdvance ? amount : 0,
                             credit: isAdvance ? 0 : amount,
-                            description: `${dict.Accounting.SystemAccounts.EmployeeAdvances} - ID: ${data.employeeId}`
+                            description: `${dict.EmployeesManagement.Advances.Title} - ID: ${data.employeeId}`
                         },
                         {
                             accountId: data.treasuryAccountId,
@@ -191,7 +201,7 @@ export async function processPayroll(data: any) {
                         accountId: salaryExpAcc.id,
                         debit: basic + incentives - deductions,
                         credit: 0,
-                        description: `${dict.Sidebar.Employees.Payroll.SalaryMonth}: ${data.salaryMonth}`
+                        description: `${dict.EmployeesManagement.Payroll.SalaryMonth}: ${data.salaryMonth}`
                     },
                     {
                         accountId: data.treasuryAccountId,
@@ -207,7 +217,7 @@ export async function processPayroll(data: any) {
                         accountId: advanceAcc.id,
                         debit: 0,
                         credit: advDed,
-                        description: dict.Sidebar.Employees.Payroll.AdvanceDeduction
+                        description: dict.EmployeesManagement.Payroll.AdvanceDed
                     });
 
                     // Also mark the advances as 'deducted' in advances table
@@ -223,7 +233,7 @@ export async function processPayroll(data: any) {
 
                 await createJournalEntry({
                     date: data.paymentDate,
-                    description: `${dict.Sidebar.Employees.Payroll.Title} - ${data.notes || ''}`,
+                    description: `${dict.EmployeesManagement.Payroll.Title} - ${data.notes || ''}`,
                     reference: `PAY-${newPayroll.id}`,
                     lines: lines
                 });
@@ -301,4 +311,79 @@ export async function getEmployeeStatement(employeeId: number, startDate: string
     } catch (error) {
         return { payrolls: [], advances: [], summary: null };
     }
+}
+
+export async function bulkImportEmployees(employeesList: any[]) {
+    const result = await withErrorHandling("bulkImportEmployees", async () => {
+        const { tenantId } = await getContext();
+        let count = 0;
+        const dict = await loadDictionary();
+
+        const m = {
+            name: [dict.Employees.Form.Name, "Name", "name", "الاسم", "اسم الموظف", "الاسم الكامل", "employee name", "full name"],
+            code: [dict.Employees.Form.Code, "Code", "code", "كود الموظف", "الكود", "رقم الوظيفة", "employee code"],
+            phone: [dict.Employees.Form.Phone, "Phone", "phone", "رقم التليفون", "تليفون", "هاتف", "mobile"],
+            address: [dict.Employees.Form.Address, "Address", "address", "العنوان", "عنوان"],
+            email: [dict.Employees.Form.Email, "Email", "email", "البريد الإلكتروني", "ايميل"],
+            basicSalary: [dict.Employees.Form.BasicSalary, "Basic Salary", "basic_salary", "الراتب الأساسي", "راتب", "salary", "basic"]
+        };
+
+        const find = (raw: any, keys: string[]) => {
+            for (const k of keys) {
+                if (raw[k] !== undefined) return raw[k];
+                const match = Object.keys(raw).find(rk => {
+                    const cleanK = k.toLowerCase().trim();
+                    const cleanRK = rk.toLowerCase().trim();
+                    return cleanRK === cleanK || cleanRK.includes(cleanK) || cleanK.includes(cleanRK);
+                });
+                if (match !== undefined) return raw[match];
+            }
+            return undefined;
+        };
+
+        const cleanNum = (val: any) => {
+            if (val === undefined || val === null || val === "") return "0";
+            if (typeof val === "number") return String(val);
+            const cleaned = String(val).replace(/[^0-9.]/g, "");
+            return cleaned || "0";
+        };
+
+        for (const raw of employeesList) {
+            try {
+                const name = find(raw, m.name);
+                if (!name) continue;
+
+                const code = find(raw, m.code) || `EMP-${Math.floor(1000 + Math.random() * 9000)}`;
+
+                // Check for existing employee with same code
+                const existing = await db.select().from(employees)
+                    .where(and(eq(employees.tenantId, tenantId), eq(employees.code, String(code))))
+                    .limit(1);
+
+                if (existing.length > 0) continue;
+
+                await db.insert(employees).values({
+                    tenantId,
+                    name: String(name),
+                    code: String(code),
+                    phone: find(raw, m.phone) ? String(find(raw, m.phone)) : null,
+                    address: find(raw, m.address) ? String(find(raw, m.address)) : null,
+                    email: find(raw, m.email) ? String(find(raw, m.email)) : null,
+                    basicSalary: cleanNum(find(raw, m.basicSalary)),
+                    status: 'active'
+                });
+                count++;
+            } catch (err: any) {
+                console.error("Employee Import Row Error:", err);
+            }
+        }
+
+        return count;
+    });
+
+    const dict = await loadDictionary();
+    if (result.success) {
+        return { success: true, message: `${dict.Common.Success}: ${result.data}` };
+    }
+    return { success: false, message: result.message };
 }

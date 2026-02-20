@@ -118,7 +118,28 @@
         "Show": "عرض",
         "Hide": "إخفاء",
         "Print": "طباعة",
-        "Settle": "تسوية وصرف"
+        "Settle": "تسوية وصرف",
+        "Customer": "عميل",
+        "Credit": "رصيد دائن",
+        "Details": "التفاصيل",
+        "Description": "الوصف",
+        "ContactInfo": "بيانات الاتصال",
+        "Days": {
+            "1": "يوم",
+            "7": "أسبوع",
+            "14": "أسبوعين",
+            "30": "شهر"
+        },
+        "English": "English",
+        "Arabic": "العربية"
+    },
+    "InterfaceForm": {
+        "Title": "إعدادات الواجهة",
+        "NumeralSystem": "نظام الأرقام",
+        "NumeralLatn": "أرقام لاتينية (123)",
+        "NumeralArab": "أرقام عربية (١٢٣)",
+        "ZoomLevel": "مستوى التقريب (Zoom)",
+        "ZoomHelp": "تحكم في حجم النصوص والعناصر"
     },
     "Sidebar": {
         "MainMenu": "القائمة الرئيسية",
@@ -132,6 +153,7 @@
         "JournalEntries": "القيود اليومية",
         "SalesAndInvoices": "المبيعات والفواتير",
         "Reports": "التقارير",
+        "SmartAlerts": "التنبيهات الذكية",
         "IncomeStatement": "قائمة الدخل",
         "AccountStatement": "كشف حساب تفصيلي",
         "Management": "الإدارة",
@@ -151,6 +173,8 @@
     "PartnersManagement": {
         "Title": "الشركاء ورأس المال",
         "Description": "إدارة حصص الشركاء، مساهمات رأس المال، وتوزيع الأرباح.",
+        "ExportExcel": "تصدير (Excel)",
+        "ImportExcel": "استيراد (Excel)",
         "NewPartner": "إضافة شريك جديد",
         "Count": "عدد الشركاء",
         "ActiveCount": "الشركاء النشطين",
@@ -222,6 +246,8 @@
     "Partners": {
         "Title": "الشركاء",
         "Description": "إدارة بيانات الشركاء وحصصهم في رأس المال.",
+        "ExportExcel": "تصدير (Excel)",
+        "ImportExcel": "استيراد (Excel)",
         "NewPartner": "إضافة شريك جديد",
         "InitialCapital": "رأس المال المبدئي",
         "Table": {
@@ -230,11 +256,24 @@
             "Phone": "الهاتف",
             "Capital": "رأس المال",
             "Date": "التاريخ",
-            "Actions": "العمليات"
+            "Actions": "العمليات",
+            "ViewDetails": "عرض التفاصيل"
         },
         "Messages": {
             "Success": "تمت العملية بنجاح",
             "Error": "حدث خطأ أثناء العملية"
+        },
+        "DetailsDialog": {
+            "SharePercentage": "نسبة المساهمة",
+            "CurrentCapital": "رأس المال الحالي",
+            "Phone": "رقم الهاتف",
+            "Email": "البريد الإلكتروني",
+            "NationalId": "الرقم القومي",
+            "JoinDate": "تاريخ الانضمام",
+            "Address": "العنوان",
+            "InitialCapital": "رأس المال المبدئي",
+            "Notes": "ملاحظات",
+            "Close": "إغلاق"
         }
     },
     "EmployeesManagement": {
@@ -251,6 +290,79 @@
             "Advances": "السلف والعهد",
             "Attendance": "سجل الحضور",
             "Reports": "التقارير"
+        },
+        "ExportExcel": "Export (Excel)",
+        "ImportExcel": "Import (Excel)",
+        "Table": {
+            "Code": "الكود",
+            "Name": "اسم الموظف",
+            "Salary": "الراتب",
+            "Status": "الحالة",
+            "Active": "نشط",
+            "Inactive": "غير نشط",
+            "Actions": "العمليات"
+        },
+        "Form": {
+            "Title": "بيانات الموظف",
+            "PersonalData": "البيانات الشخصية",
+            "SalaryData": "البيانات المالية",
+            "Name": "اسم الموظف",
+            "Code": "كود الموظف",
+            "Phone": "رقم الهاتف",
+            "Address": "العنوان",
+            "Email": "البريد الإلكتروني",
+            "Position": "المسمى الوظيفي",
+            "Salary": "الراتب",
+            "BasicSalary": "الراتب الأساسي",
+            "Status": "الحالة",
+            "Notes": "ملاحظات إضافية",
+            "Active": "نشط",
+            "Inactive": "غير نشط",
+            "Cancel": "إلغاء",
+            "Save": "حفظ الموظف",
+            "Success": "تم حفظ بيانات الموظف بنجاح.",
+            "Error": "فشل في حفظ بيانات الموظف.",
+            "Placeholders": {
+                "Name": "أدخل الاسم بالكامل",
+                "Code": "EMP-XXXX",
+                "Phone": "01XXXXXXXXX",
+                "Address": "العنوان بالتفصيل",
+                "Email": "email@example.com",
+                "Notes": "...أية ملاحظات أخرى"
+            }
+        },
+        "Advances": {
+            "Title": "السلف والعهد",
+            "New": "سلفة جديدة",
+            "Amount": "المبلغ",
+            "Repayment": "سداد سلفة",
+            "Disbursement": "صرف سلفة",
+            "Type": "النوع",
+            "Month": "شهر الاستحقاق",
+            "Success": "تم تسجيل الحركة المالية بنجاح",
+            "Error": "خطأ في تسجيل الحركة"
+        },
+        "Payroll": {
+            "Title": "إصدار راتب",
+            "Month": "الشهر",
+            "Basic": "الراتب الأساسي",
+            "Incentives": "الحوافز والمكافآت",
+            "Deductions": "الخصومات",
+            "Advances": "السلف المستردة",
+            "Net": "الصافي المستحق",
+            "Treasury": "حساب الخزينة/البنك",
+            "SelectTreasury": "اختر حساب الدفع..",
+            "Notes": "ملاحظات الدفع",
+            "NotesPlaceholder": "...ملاحظات بشأن راتب هذا الشهر",
+            "Confirm": "تأكيد وصرف الراتب",
+            "SelectEmployee": "اختر الموظف..",
+            "CalculatedInfo": "البيانات المالية المحسوبة",
+            "AdvancesTitle": "بيانات السلف",
+            "HasAdvances": "يوجد سلف",
+            "SaveSuccess": "تم تسجيل صرف الراتب بـنجاح",
+            "SaveError": "خطأ إثناء الصرف",
+            "Deducts": "الخصومات (جزاء/غياب)",
+            "Bonuses": "المكافآت"
         }
     },
     "Dashboard": {
@@ -318,7 +430,8 @@
         "NoSalesData": "لا توجد بيانات مبيعات حالياً",
         "Title": "لوحة التحكم",
         "CashLiquidity": "السيولة النقدية",
-        "InventoryValue": "قيمة المخزن",
+        "TotalAssets": "إجمالي الأصول والممتلكات",
+        "InventoryValue": "قيمة المخزون",
         "CustomerDebtAlerts": "مديونيات العملاء",
         "SupplierDebtAlerts": "مديونيات الموردين",
         "UpcomingInstallmentsTotal": "تحصيلات الأقساط القادمة",
@@ -451,6 +564,7 @@
                 "PaymentDayMax": "أقصى يوم هو 31"
             },
             "Success": "تمت إضافة العميل بنجاح",
+            "AddSuccess": "تم إضافة العميل بنجاح",
             "Error": "فشل في إضافة العميل",
             "Save": "حفظ العميل",
             "Saving": "جاري الحفظ...",
@@ -494,11 +608,43 @@
                 "Payment": "سند قبض",
                 "NoData": "لا توجد حركات مسجلة لهذا العميل بعد."
             }
+        },
+        "Report": {
+            "Print": {
+                "Subtitle": "كشف حساب عميل مالي",
+                "ReportDate": "تاريخ التقرير:",
+                "SaleInvoice": "فاتورة بيع",
+                "ReceiptVoucher": "سند قبض",
+                "Table": {
+                    "Date": "التاريخ",
+                    "Type": "النوع",
+                    "Reference": "المرجع",
+                    "Description": "البيان",
+                    "Debit": "مدين",
+                    "Credit": "دائن",
+                    "Balance": "الرصيد"
+                },
+                "AccountantSignature": "توقيع المحاسب",
+                "ReviewSignature": "توقيع المراجعة",
+                "FacilityStamp": "ختم المؤسسة"
+            }
+        },
+        "Journal": {
+            "CapitalFor": "رأس مال -",
+            "CapitalOf": "رأس مال الشريك -",
+            "OpeningCapital": "رأس مال افتتاحي -",
+            "CapitalDeposit": "إيداع رأس مال -",
+            "WithdrawalDesc": "سحب شريك -",
+            "WithdrawalsFor": "مسحوبات الشريك -",
+            "CashOut": "صرف من الخزينة",
+            "ProfitDistribution": "توزيع أرباح عن الفترة من {from} إلى {to}"
         }
     },
     "Suppliers": {
         "Title": "الموردين",
         "Description": "إدارة الموردين وقائمة الشركات",
+        "ExportExcel": "تصدير (Excel)",
+        "ImportExcel": "استيراد (Excel)",
         "NewSupplier": "إضافة مورد",
         "ListTitle": "قائمة الموردين",
         "Table": {
@@ -591,6 +737,7 @@
         "Description": "تتبع وإدارة مصروفات العمل وتدفقات السيولة",
         "NewExpense": "إضافة مصروف",
         "ExportExcel": "تصدير (Excel)",
+        "ImportExcel": "استيراد (Excel)",
         "ListTitle": "قائمة المصروفات",
         "Summary": {
             "TotalMonthly": "إجمالي المصروفات الشهرية",
@@ -608,6 +755,12 @@
             "EntryNo": "رقم القيد",
             "Actions": "الإجراءات",
             "NoExpenses": "لا توجد مصروفات مسجلة حالياً."
+        },
+        "ExpensesManagement": {
+            "Title": "إدارة المصروفات",
+            "Description": "تتبع النفقات وصرف الخزينة",
+            "NewExpense": "مصروف جديد",
+            "Report": "تقرير المصروفات"
         },
         "AddDialog": {
             "Trigger": "تسجيل مصروف",
@@ -637,10 +790,26 @@
     "Inventory": {
         "Title": "المخزون والمنتجات",
         "Description": "إدارة الأصناف، الكميات، الأسعار وتتبع حركتها المخزنية.",
+        "Warehouses": {
+            "Title": "المستودعات / المخازن",
+            "MainWarehouse": "المخزن الرئيسي",
+            "AddWarehouse": "إضافة مخزن",
+            "EditWarehouse": "تعديل المخزن",
+            "Name": "اسم المخزن",
+            "Location": "الموقع",
+            "IsDefault": "تعيين كافتراضي",
+            "Default": "افتراضي",
+            "StockPerWarehouse": "الرصيد حسب المخزن",
+            "Empty": "لم يتم العثور على مخازن.",
+            "ConfirmDelete": "هل أنت متأكد من حذف هذا المخزن؟",
+            "InitDefault": "تهيئة المخزن الافتراضي",
+            "InitDefaultHint": "اضغط هنا لتهيئة المخزن الرئيسي وربط الأصناف الحالية به"
+        },
         "AddProduct": "إضافة صنف جديد",
+        "ExportExcel": "تصدير (Excel)",
         "Categories": "الأقسام / التصنيفات",
         "Units": "وحدات القياس",
-        "BulkUpload": "استيراد من إكسيل",
+        "BulkUpload": "استيراد (Excel)",
         "SearchPlaceholder": "بحث بالاسم أو الكود...",
         "Table": {
             "Product": "الصنف",
@@ -699,7 +868,7 @@
             "Print": "طباعة"
         },
         "Import": {
-            "Title": "استيراد الأصناف من إكسيل",
+            "Title": "استيراد (Excel)",
             "Description": "ارفع ملف إكسيل يحتوي على قائمة بمنتجاتك لإضافتها للنظام.",
             "SelectFile": "اختر ملف إكسيل (.xlsx, .xls, .csv)",
             "Success": "تم استيراد {count} صنف بنجاح",
@@ -720,7 +889,8 @@
             "FileLabel": "اختر الملف من الجهاز",
             "Processing": "جاري الاستيراد...",
             "EmptyError": "الملف فارغ أو غير صالح"
-        }
+        },
+        "ImportExcel": "Import (Excel)"
     },
     "Dialogs": {
         "DeleteConfirm": "هل أنت متأكد من حذف هذا العنصر؟",
@@ -855,6 +1025,11 @@
             "List": "الوحدات الموجودة",
             "NoUnits": "لا توجد وحدات",
             "DeleteConfirm": "هل أنت متأكد من حذف هذه الوحدة؟"
+        },
+        "Attributes": {
+            "Color": "اللون",
+            "Size": "المقاس",
+            "Material": "الخامة"
         }
     },
     "Journal": {
@@ -922,6 +1097,7 @@
     },
     "Sales": {
         "Title": "فواتير المبيعات",
+        "Record": "سجل المبيعات",
         "Description": "إدارة المبيعات والفواتير الضريبية.",
         "NewInvoice": "فاتورة جديدة",
         "Invoice": {
@@ -940,6 +1116,7 @@
                 "ExchangeRate": "سعر الصرف",
                 "IncludeTax": "تطبيق الضريبة",
                 "IsInstallment": "بيع بالتقسيط",
+                "CreditSaleTag": "بيع آجل",
                 "InstallmentMonths": "عدد الأشهر",
                 "InstallmentInterest": "الفائدة %",
                 "ExpectedMonthlyInstallment": "القسط الشهري المتوقع",
@@ -952,20 +1129,25 @@
                 "Paid": "المدفوع",
                 "RemainingDue": "المتبقي",
                 "Remaining": "المتبقي",
+                "Items": "الأصناف",
+                "InitialPayment": "الدفعة المقدمة",
                 "Interest": "الفائدة",
                 "PrintButton": "طباعة",
                 "Discount": "خصم",
+                "DiscountAmount": "قيمة الخصم",
                 "PrintLayout": "نمط الطباعة",
                 "AutoPrint": "طباعة تلقائية",
                 "CashCustomer": "عميل نقدي",
                 "DueDate": "تاريخ الاستحقاق",
                 "Table": {
                     "Number": "#",
-                    "Item": "الصنف / الخدمة",
+                    "Item": "الصنف",
                     "Description": "الوصف",
                     "Qty": "الكمية",
-                    "Price": "السعر",
-                    "Total": "الإجمالي"
+                    "Price": "سعر الوحدة",
+                    "UnitPrice": "سعر الوحدة",
+                    "Total": "الإجمالي",
+                    "Subtotal": "الإجمالي"
                 },
                 "Errors": {
                     "CustomerRequired": "العميل مطلوب",
@@ -984,7 +1166,7 @@
                 "SimpleTitle": "فاتورة مبيعات",
                 "BillTo": "فاتورة إلى",
                 "TaxId": "الرقم الضريبي",
-                "InvoiceNo": "رقم الفاتورة #",
+                "InvoiceNumber": "رقم الفاتورة #",
                 "Date": "التاريخ",
                 "DueDate": "تاريخ الاستحقاق",
                 "Item": "الصنف",
@@ -992,10 +1174,11 @@
                 "Price": "سعر",
                 "Total": "إجمالي",
                 "Subtotal": "صافي الفاتورة",
-                "Tax": "الضريبة",
+                "Tax": "ضريبة القيمة المضافة",
                 "GrandTotal": "الإجمالي الكلي",
                 "Footer": "نشكركم لتعاملكم معنا.",
-                "Token": "رقم الطابور"
+                "Token": "رقم الطابور",
+                "InstallmentInterest": "فائدة التقسيط"
             }
         },
         "Table": {
@@ -1003,52 +1186,66 @@
             "Customer": "العميل",
             "Date": "التاريخ",
             "Status": "الحالة",
-            "Total": "إجمالي الفاتورة",
+            "Total": "الإجمالي",
             "Actions": "الإجراءات",
             "NoInvoices": "لا توجد فواتير.",
+            "CreateReturn": "إنشاء مرتجع",
             "Paid": "مدفوعة",
             "Issued": "تم الإصدار",
             "Draft": "مسودة",
             "Cancelled": "ملغاة",
             "Print": "تقرير الطباعة",
             "Type": "النوع",
-            "CreateReturn": "عمل مرتجع",
+            "Items": "الأصناف",
+            "Remaining": "المتبقي",
+            "PaidBreakdown": "تفصيل الدفع",
+            "UnitPrice": "سعر الوحدة",
+            "Subtotal": "صافي الفاتورة",
+            "Tax": "الضريبة",
+            "Price": "السعر",
+            "Discount": "الخصم",
+            "SaleMode": "طريقة البيع",
+            "Cash": "نقدي",
+            "Credit": "آجل",
+            "Card": "بطاقة / فيزا",
+            "Installment": "تقسيط",
+            "Item": "الصنف",
+            "Qty": "الكمية",
+            "StatusLabels": {
+                "Returned": "تم الارتجاع",
+                "PartiallyReturned": "مرتجع جزئياً",
+                "Paid": "مدفوعة",
+                "Issued": "تم الإصدار"
+            },
             "Types": {
                 "Return": "مرتجع",
                 "Sale": "بيع"
-            },
-            "StatusLabels": {
-                "Returned": "تم الارتجاع",
-                "PartiallyReturned": "مرتجع جزئياً"
-            },
-            "SaleMode": "طريقة البيع",
-            "Cash": "كاش",
-            "Credit": "آجل",
-            "Card": "فيزا / كارت",
-            "Installment": "تقسيط",
-            "Subtotal": "المجموع الفرعي",
-            "Tax": "الضريبة",
-            "Discount": "الخصم"
+            }
         },
         "Returns": {
-            "Title": "مرتجع مبيعات",
-            "Description": "اختر الكميات المراد إرجاعها. سيتم تحديث المخزون والحسابات تلقائياً.",
-            "Confirm": "تأكيد الارتجاع",
+            "Title": "Return Invoice",
+            "Description": "Select quantities to return. Inventory and ledger will be updated automatically.",
+            "Confirm": "Confirm Return",
             "Messages": {
-                "SelectItems": "يرجى اختيار صنف واحد على الأقل للارتجاع"
+                "SelectItems": "Please select at least one item to return"
             }
         },
         "Form": {
-            "ItemDescription": "اسم الصنف",
-            "Quantity": "الكمية",
-            "UnitPrice": "السعر",
-            "ReturnQty": "كمية المرتجع",
-            "Total": "الإجمالي",
-            "TotalReturn": "إجمالي المبلغ المسترد"
+            "ItemDescription": "Item",
+            "Quantity": "Qty",
+            "UnitPrice": "Price",
+            "ReturnQty": "Return Qty",
+            "Total": "Total",
+            "TotalReturn": "Total Refund"
         }
     },
-    "Confirm": {
-        "Message": "هل أنت متأكد من المتابعة؟"
+    "Returns": {
+        "Title": "مرتجع مبيعات",
+        "Description": "اختر الكميات المراد إرجاعها. سيتم تحديث المخزون والحسابات تلقائياً.",
+        "Confirm": "تأكيد الارتجاع",
+        "Messages": {
+            "SelectItems": "يرجى اختيار صنف واحد على الأقل للارتجاع"
+        }
     },
     "Reports": {
         "Title": "التقارير والإحصائيات",
@@ -1070,8 +1267,8 @@
         "SubTitle": "رؤية شاملة للوضع المالي والضريبي",
         "WorkingCapital": "رأس المال العامل",
         "WorkingCapitalDesc": "السيولة (نقدية + مخزون + ديون عملاء) - مدفوعات موردين",
-        "TotalCash": "إجمالي النقدية",
-        "TotalCashDesc": "النقدية المتوفرة في الخزينة والبنوك",
+        "TotalCash": "السيولة النقدية (خزينة وبنك)",
+        "TotalCashDesc": "إجمالي المبالغ المتوفرة في الخزينة والبنك حالياً",
         "InventoryValue": "قيمة المخزون",
         "InventoryValueDesc": "قيمة البضاعة حالياً بسعر الشراء",
         "FiscalYearTotal": "إجمالي السنة المالية",
@@ -1088,6 +1285,8 @@
             "Payments": "المدفوعات",
             "ProfitAndLoss": "الأرباح والخسائر",
             "DepartmentSales": "إيرادات الأقسام",
+            "TrialBalance": "ميزان المراجعة",
+            "BalanceSheet": "الميزانية العمومية",
             "Employees": "كشوف الموظفين"
         },
         "NoData": "لا توجد بيانات خلال هذه الفترة",
@@ -1115,7 +1314,9 @@
                 "CurrentStock": "الرصيد الحالي",
                 "BuyPrice": "سعر الشراء",
                 "Action": "إجراء",
-                "ActionRequired": "اتخاذ إجراء"
+                "ActionRequired": "اتخاذ إجراء",
+                "NoLowStock": "Stock is good! No low stock (less than 5).",
+                "OrderSupply": "Order Supply"
             },
             "PrintSettings": {
                 "AccountantSignature": "توقيع المحاسب",
@@ -1180,6 +1381,25 @@
             "TableTitle": "تفاصيل المديونيات",
             "NoData": "لا توجد مديونيات حالية."
         },
+        "SupplierDebitReport": {
+            "Title": "تقرير مديونيات الموردين",
+            "Desc": "متابعة المبالغ المستحقة للموردين وجدولة السداد.",
+            "TotalRemaining": "إجمالي المستحقات للموردين",
+            "InvoicesCount": "عدد فواتير الشراء الآجلة",
+            "TableTitle": "تفاصيل مديونيات الموردين",
+            "NoData": "لا توجد مديونيات للموردين حالياً.",
+            "OpeningBalanceLabel": "رصيد سابق / افتتاحية",
+            "NoDataHint": "كافة مستحقات الموردين مسددة بالكامل."
+        },
+        "CustomerCreditReport": {
+            "Title": "أرصدة العملاء الدائنة",
+            "Desc": "العملاء الذين لديهم مبالغ دفع مقدم متبقية أو مرتجعات غير مسواة.",
+            "TotalCredit": "إجمالي أرصدة العملاء الدائنة",
+            "CustomersCount": "عدد العملاء الدائنين",
+            "TableTitle": "تفاصيل الأرصدة الدائنة",
+            "NoData": "لا توجد أرصدة دائنة للعملاء حالياً.",
+            "NoDataHint": "كافة أرصدة العملاء ضمن الدورة الطبيعية للتحصيل."
+        },
         "DepartmentSalesPage": {
             "Title": "الإيرادات حسب القسم",
             "Description": "تحليل تفصيلي للمبيعات حسب أقسام وفئات المنتجات",
@@ -1225,26 +1445,105 @@
             },
             "Table": {
                 "Date": "التاريخ",
-                "Description": "البيان / الوصف",
-                "Reference": "رقم المرجع",
+                "DueDate": "الاستحقاق",
+                "Description": "البيان",
+                "Reference": "المرجع",
                 "Debit": "مدين (+)",
                 "Credit": "دائن (-)",
-                "Balance": "الرصيد التراكمي",
-                "DueDate": "تاريخ الاستحقاق"
+                "Balance": "الرصيد"
             },
             "NoData": "لا توجد بيانات لهذا الحساب في الفترة المحددة",
             "ReportTitles": {
-                "Customer": "كشف حساب عميل تفصيلي",
-                "Supplier": "كشف حساب مورد تفصيلي",
-                "Treasury": "كشف حركة نقدية / بنك",
-                "Expense": "بيان تحليلي للمصروفات",
+                "Customer": "كشف حساب عميل",
+                "Supplier": "كشف حساب مورد",
+                "Treasury": "كشف حركة نقدية",
+                "Expense": "تحليل مصروفات",
                 "General": "كشف حساب عام"
             },
-            "Footer": "تم استخراج هذا التقرير بتاريخ {date}",
+            "Footer": {
+                "AccountantSignature": "توقيع المحاسب",
+                "ReviewSignature": "توقيع المراجعة",
+                "Stamp": "ختم المؤسسة",
+                "DateGenerated": "تم إنشاء هذا التقرير بواسطة المحاسب الذكي في {date}"
+            },
             "Errors": {
                 "SelectAccount": "يرجى اختيار الحساب أولاً",
                 "FetchFailed": "عفواً، فشل جلب البيانات من الخادم"
+            },
+            "Headers": {
+                "PrintDate": "تاريخ الطباعة:",
+                "PeriodFrom": "تقرير حركة الحساب في الفترة من",
+                "PeriodTo": "إلى",
+                "Code": "الكود:"
+            },
+            "Summary": {
+                "OpeningBalance": "الرصيد الافتتاحي",
+                "TotalMovement": "إجمالي الحركة",
+                "ClosingBalance": "الرصيد الختامي"
             }
+        },
+        "FinancialCommand": {
+            "Title": "مركز القيادة المالية",
+            "Description": "رؤية استراتيجية للسيولة، الديون، وصافي الموقف المالي.",
+            "NetPosition": "صافي المركز المالي",
+            "TotalLiquidity": "إجمالي السيولة",
+            "CashLiquidity": "السيولة النقدية",
+            "InventoryValue": "قيمة المخزون",
+            "Receivables": "مديونيات العملاء",
+            "Payables": "مديونيات الموردين",
+            "LiquidityMeter": "مؤشر السيولة",
+            "AgedCurrent": "حالٍ (غير متأخر)",
+            "Aged1to30": "متأخر (١-٣٠ يوم)",
+            "Aged31Plus": "متأخر (أكثر من ٣٠ يوم)",
+            "Assets": "إجمالي الأصول",
+            "Liabilities": "إجمالي الالتزامات",
+            "DebtTimeline": "الجدول الزمني للديون",
+            "StrategyAlerts": "تنبيهات استراتيجية",
+            "CoverageRate": "معدل التغطية",
+            "NoDebts": "لا توجد ديون",
+            "LiquidityCoversDebts": "السيولة تغطي الديون",
+            "DebtsExceedLiquidity": "عجز في تغطية الديون",
+            "StrategicSummary": "الملخص الاستراتيجي",
+            "NetPositionSummary": "صافي الموقف المالي للمؤسسة يبلغ {amount}",
+            "FormulaDesc": "(إجمالي ما تملكه - كل ما عليك)",
+            "ExcellentPosition": "موقف مالي ممتاز! السيولة الجاهزة والمخزون يتجاوزون كافة ديون الموردين، مما يعزز قدرتك على التوسع.",
+            "CriticalPosition": "تنبيه هام: إجمالي ديون الموردين يتخطى حاجز السيولة المتاحة، يرجى موازنة التحصيلات والمشتريات.",
+            "RecommendationTitle": "توصيات ذكية",
+            "UrgentCollection": "تحصيل عاجل",
+            "UrgentCollectionDesc": "لديك {amount} ديون للعملاء متأخرة لأكثر من ٣٠ يوم تهدد السيولة.",
+            "CashShortage": "توفير كاش",
+            "CashShortageDesc": "النقدية المتوفرة لوحدها لا تغطي الديون الحالية للموردين، قد تحتاج لتسييل بعض المخزون أو تحصيل عملاء.",
+            "InvestmentOpportunity": "فرصة استثمار",
+            "InvestmentOpportunityDesc": "الموقف المالي ممتاز، يمكنك التفكير في زيادة المخزون أو التوسع في النشاط.",
+            "SecuredZone": "منطقة استراتيجية مؤمنة",
+            "StrongPosition": "مركز مالي قوي ومستقر",
+            "DeficitPosition": "تنبيه: عجز في المركز المالي"
+        },
+        "TrialBalance": {
+            "Title": "ميزان المراجعة",
+            "Description": "كشف بجميع أرصدة الحسابات للتأكد من توازن القيد المزدوج.",
+            "Table": {
+                "AccountCode": "كود الحساب",
+                "AccountName": "اسم الحساب",
+                "Debit": "مدين (أرصدة)",
+                "Credit": "دائن (أرصدة)",
+                "DebitMotion": "مدين (حركة)",
+                "CreditMotion": "دائن (حركة)",
+                "Total": "الإجماليات"
+            },
+            "Balanced": "الميزان متزن",
+            "Unbalanced": "الميزان غير متزن! يوجد فرق {diff}"
+        },
+        "BalanceSheet": {
+            "Title": "الميزانية العمومية الرسمية",
+            "Description": "بيان بالمركز المالي للمؤسسة (الأصول، الالتزامات، وحقوق الملكية).",
+            "Assets": "الأصول (الموجودات)",
+            "Liabilities": "الالتزامات (المطلوبات)",
+            "Equity": "حقوق الملكية",
+            "TotalAssets": "إجمالي الأصول",
+            "TotalLiabilitiesAndEquity": "إجمالي الالتزامات وحقوق الملكية",
+            "EquationBalanced": "معادلة الميزانية متزنة",
+            "EquationUnbalanced": "تنبيه: يوجد خلل في معادلة الميزانية!"
         }
     },
     "Users": {
@@ -1289,7 +1588,41 @@
                 "UsernameExists": "اسم المستخدم موجود مسبقاً",
                 "Unauthorized": "غير مصرح لك بهذا الإجراء",
                 "CreateError": "خطأ في إنشاء المستخدم"
-            }
+            },
+            "EditTitle": "تعديل بيانات المستخدم",
+            "DeleteConfirm": "هل أنت متأكد من حذف هذا المستخدم؟",
+            "DeleteSuccess": "تم الحذف بنجاح",
+            "UpdateSuccess": "تم التعديل بنجاح",
+            "Edit": "تعديل",
+            "Delete": "حذف",
+            "LeaveEmptyPassword": "اتركه فارغاً للإبقاء عليه",
+            "RolePlaceholder": "المسمى الوظيفي...",
+            "SelectAll": "تحديد الكل",
+            "DeselectAll": "الغاء تحديد الكل",
+            "Permissions": "الصلاحيات"
+        },
+        "PermissionsList": {
+            "pos": "نقطة البيع (POS)",
+            "sales": "المبيعات والفواتير",
+            "returns": "المرتجعات",
+            "customers": "إدارة العملاء",
+            "suppliers": "إدارة الموردين",
+            "inventory": "المخزون والمنتجات",
+            "accounting": "الحسابات والقيود",
+            "expenses": "المصروفات والسندات",
+            "reports": "التقارير المالية",
+            "employees": "شؤون الموظفين",
+            "settings": "إعدادات النظام",
+            "users": "إدارة المستخدمين"
+        },
+        "RolesList": {
+            "admin": "مدير نظام",
+            "manager": "مدير فرع",
+            "accountant": "محاسب",
+            "cashier": "كاشير",
+            "salesperson": "مندوب مبيعات",
+            "storekeeper": "أمين مخزن",
+            "custom": "أخرى (مسمى مخصص)"
         }
     },
     "SubscriberManagement": {
@@ -1376,6 +1709,51 @@
     },
     "Settings": {
         "Title": "إعدادات المنشأة",
+        "Backup": {
+            "Title": "إعدادات النسخ الاحتياطي",
+            "Description": "إدارة النسخ الاحتياطي لقاعدة البيانات واستعادتها.",
+            "BackupNow": "نسخ احتياطي الآن",
+            "AlertTitle": "تنبيه هام",
+            "AlertDescription": "يرجى التأكد من حفظ كافة التغييرات قبل إجراء النسخ الاحتياطي.",
+            "RestoreFromFile": "استعادة من ملف",
+            "ScheduledSystem": "النسخ الاحتياطي المجدول",
+            "EnableScheduled": "تفعيل النسخة المجدولة",
+            "ScheduledHint": "سيتم إجراء النسخ الاحتياطي تلقائياً في الأوقات المحددة.",
+            "DailySlots": "أوقات النسخ اليومي",
+            "AddSlot": "إضافة وقت",
+            "LocalFolder": "مجلد الحفظ المحلي",
+            "PathHint": "المسار الذي سيتم حفظ ملفات النسخ الاحتياطي فيه",
+            "TelegramTitle": "نسخ احتياطي سحابي (تيليجرام)",
+            "EnableTelegram": "تفعيل النسخ إلى تيليجرام",
+            "BotToken": "توكن البوت (Bot Token)",
+            "ChatID": "معرف المحادثة (Chat ID)",
+            "TestTelegram": "اختبار الاتصال",
+            "EmailTitle": "نسخ احتياطي سحابي (البريد الإلكتروني)",
+            "EnableEmail": "تفعيل النسخ إلى البريد",
+            "SmtpHost": "خادم SMTP",
+            "Port": "المنفذ (Port)",
+            "UserEmail": "البريد الإلكتروني للمرسل",
+            "Password": "كلمة المرور",
+            "RecipientEmail": "البريد الإلكتروني للمستلم",
+            "QuickSetup": "إعداد سريع",
+            "Messages": {
+                "BackupSuccess": "تم النسخ الاحتياطي بنجاح",
+                "BackupFailed": "فشل النسخ الاحتياطي",
+                "UnexpectedError": "حدث خطأ غير متوقع",
+                "RestoreWarning": "تحذير: استعادة قاعدة البيانات ستقوم باستبدال البيانات الحالية. هل أنت متأكد؟",
+                "RestoreSuccess": "تمت استعادة قاعدة البيانات بنجاح. سيتم إعادة تشغيل التطبيق.",
+                "RestoreFailed": "فشلت استعادة قاعدة البيانات",
+                "MaxTimesReached": "الحد الأقصى لأوقات النسخ هو 4 مرات",
+                "FillTelegramInfo": "يرجى تعبئة بيانات تيليجرام",
+                "TestTelegramSuccess": "تم الاتصال بتيليجرام بنجاح",
+                "FillEmailInfo": "يرجى تعبئة بيانات البريد الإلكتروني",
+                "TestEmailSuccess": "تم الاتصال بالبريد الإلكتروني بنجاح",
+                "SavedTo": "Saved to: {path}",
+                "Restarting": "Restarting application..."
+            },
+            "ScheduledDescription": "Configure automatic backup intervals.",
+            "TelegramDescription": "Secure cloud storage via Telegram Bot."
+        },
         "Description": "تخصيص بيانات الشركة، الشعار، والعملة.",
         "Tabs": {
             "Facility": "إعدادات المنشأة",
@@ -1386,13 +1764,14 @@
             "Backup": "نسخ احتياطي",
             "Subscribers": "المشتركين",
             "Danger": "منطقة الخطر",
-            "Interface": "واجهة المستخدم"
+            "Interface": "واجهة المستخدم",
+            "Accounting": "المحاسبة"
         },
         "InterfaceForm": {
             "Title": "إعدادات واجهة المستخدم",
             "NumeralSystem": "نظام الأرقام",
             "NumeralLatn": "أرقام إنجليزية (123)",
-            "NumeralArab": "أرقام عربية (١٣)",
+            "NumeralArab": "أرقام عربية (١٢٣)",
             "ZoomLevel": "مستوى تكبير الشاشة",
             "ZoomHelp": "يمكنك أيضاً استخدام Ctrl+ و Ctrl- للتكبير والتصغير من لوحة المفاتيح."
         },
@@ -1428,7 +1807,8 @@
                 "SAR": "الريال السعودي",
                 "USD": "الدولار الأمريكي",
                 "EUR": "اليوبرو"
-            }
+            },
+            "Error": "Error updating settings"
         },
         "Invoices": {
             "Title": "إعدادات الفواتير والترقيم",
@@ -1465,49 +1845,24 @@
             },
             "Hint": "يمكن تغيير هذا الإعداد لكل فاتورة أو صنف على حدة."
         },
-        "Backup": {
-            "Title": "النسخ الاحتياطي",
-            "Description": "إدارة قواعد البيانات وتأمين البيانات.",
-            "AlertTitle": "تنبيه هام",
-            "AlertDescription": "يرجى التعامل مع ملفات قاعدة البيانات بحذر، النسخ الاحتياطي الدوري يحميك من فقدان البيانات.",
-            "BackupNow": "نسخ احتياطي الآن",
-            "RestoreFromFile": "استعادة من ملف",
-            "ScheduledSystem": "نظام النسخ المجدول",
-            "ScheduledDescription": "إعداد فترات النسخ الاحتياطي التلقائي.",
-            "EnableScheduled": "تفعيل النسخ التلقائي",
-            "ScheduledHint": "حفظ نسخ محلية وسحابية بشكل آلي.",
-            "DailySlots": "فترات النسخ اليومية",
-            "AddSlot": "إضافة فترة",
-            "LocalFolder": "مجلد الحفظ المحلي",
-            "PathHint": "يفضل اختيار قرص خارجي أو مجلد متزامن سحابياً.",
-            "TelegramTitle": "نسخ سحابي (تيليجرام)",
-            "TelegramDescription": "تخزين سحابي آمن وسريع عبر بوت تيليجرام.",
-            "EnableTelegram": "تفعيل نسخ تيليجرام",
-            "TestTelegram": "اختبار الاتصال",
-            "EmailTitle": "نسخ سحابي (البريد الإلكتروني)",
-            "EnableEmail": "تفعيل نسخ البريد",
-            "BotToken": "توكن البوت",
-            "ChatID": "Chat ID",
-            "SmtpHost": "SMTP Host",
-            "Port": "المنفذ (Port)",
-            "UserEmail": "البريد / المستخدم",
-            "Password": "كلمة المرور",
-            "RecipientEmail": "البريد المستلم",
-            "QuickSetup": "إعداد سريع",
-            "Messages": {
-                "BackupSuccess": "تم النسخ الاحتياطي بنجاح",
-                "SavedTo": "تم الحفظ في: {path}",
-                "BackupFailed": "فشل النسخ الاحتياطي",
-                "RestoreWarning": "تحذير: الاستعادة ستقوم باستبدال البيانات الحالية، هل تريد الاستمرار؟",
-                "RestoreSuccess": "تم استعادة البيانات بنجاح",
-                "RestoreFailed": "فشلت عملية الاستعادة",
-                "UnexpectedError": "حدث خطأ غير متوقع",
-                "FillEmailInfo": "يرجى ملء بيانات البريد الإلكتروني",
-                "FillTelegramInfo": "يرجى إدخال التوكن وChat ID",
-                "TestEmailSuccess": "تم إرسال بريد الاختبار بنجاح",
-                "TestTelegramSuccess": "تم إرسال رسالة الاختبار بنجاح",
-                "MaxTimesReached": "الحد الأقصى 4 مرات يومياً",
-                "Restarting": "جاري إعادة تشغيل التطبيق..."
+        "Accounting": {
+            "Title": "المحاسبة والإدارة المالية",
+            "Description": "إدارة السنوات المالية وعمليات إغلاق الفترات.",
+            "FiscalClosing": {
+                "Title": "إغلاق السنة المالية",
+                "Description": "إغلاق السنة المالية هو عملية حاسمة تقوم بتصفير حسابات الإيرادات والمصروفات وتحويل صافي الربح/الخسارة إلى حساب النتيجة.",
+                "ActionTitle": "إجراءات إقفال السنة المالية",
+                "Step1": "1. تأكد من ترحيل جميع قيود اليومية للسنة الحالية.",
+                "Step2": "2. مراجعة ميزان المراجعة والميزانية العمومية.",
+                "Step3": "3. اضغط على الزر أدناه لإتمام عملية الإقفال.",
+                "Warning": "تنبيه: هذه العملية ستقوم بقفل السنة المالية الحالية وفتح السنة التالية. هذا الإجراء غير قابل للتراجع بمجرد التأكيد.",
+                "CloseButton": "إجراء إقفال السنة المالية",
+                "Progress": "جاري إغلاق السنة المالية...",
+                "Success": "تم إغلاق السنة المالية بنجاح! تم فتح السنة التالية.",
+                "NoOpenYear": "خطأ: لم يتم العثور على سنة مالية مفتوحة.",
+                "ConfirmTitle": "هل أنت متأكد تماماً؟",
+                "ConfirmMessage": "سيؤدي هذا إلى تصفير جميع حسابات الإيرادات والمصروفات وتحويل النتيجة الصافية إلى حساب الأرباح والخسائر. سيتم إنشاء قيد إقفال تلقائياً.",
+                "Error": "فشل إغلاق السنة المالية"
             }
         },
         "FactoryReset": {
@@ -1524,7 +1879,8 @@
             "ConfirmButton": "تأكيد المسح",
             "Canceling": "جاري مسح البيانات...",
             "Success": "تمت إعادة ضبط المصنع بنجاح",
-            "InvalidPassword": "كلمة المرور غير صحيحة"
+            "InvalidPassword": "كلمة المرور غير صحيحة",
+            "Error": "Error during factory reset"
         }
     },
     "Purchases": {
@@ -1543,42 +1899,60 @@
             "Quantity": "الكمية",
             "Cost": "سعر التكلفة",
             "SelectProduct": "اختر الصنف",
-            "InvoiceNumber": "رقم فاتورة المورد #",
+            "InvoiceNumber": "رقم الفاتورة",
             "Notes": "ملاحظات",
             "PaymentStatus": "حالة الدفع",
             "AmountPaid": "المبلغ المدفوع"
         },
         "Table": {
-            "InvoiceNo": "رقم الفاتورة",
+            "InvoiceNumber": "رقم الفاتورة",
             "Supplier": "المورد",
             "Date": "التاريخ",
             "Total": "الإجمالي",
             "PaidAmount": "المدفوع",
             "Balance": "المتبقي",
+            "CreateReturn": "إنشاء مرتجع",
             "Status": "الحالة",
             "Actions": "الإجراءات",
             "NoInvoices": "لا توجد فواتير.",
             "Draft": "مسودة",
-            "Returned": "مرتجع",
+            "Returned": "تم الارتجاع",
             "StatusLabels": {
-                "Paid": "خالص",
+                "Paid": "مدفوعة",
                 "Unpaid": "آجل",
                 "Partial": "مدفوع جزئياً"
             },
             "Edit": "تعديل",
-            "Return": "مرتجع",
-            "QtyBought": "كمية الشراء",
-            "QtyReturn": "الكمية المرتجعة"
+            "Return": "إرجاع",
+            "QtyBought": "Purchase Qty",
+            "QtyReturn": "Returned Qty"
         },
-        "Return": {
+        "QtyBought": "كمية الشراء",
+        "QtyReturn": "الكمية المرتجعة",
+        "ReturnInvoice": {
             "Title": "مرتجع مشتريات",
             "Description": "استخدم هذه الشاشة لإرجاع بضاعة للمورد وتحديث المخزن.",
             "ErrorQtyLimit": "الكمية المرتجعة أكبر من الكمية المشتراة",
-            "ErrorEmptySelection": "يرجى تحديد كمية صنف واحد على الأقل"
+            "ErrorEmptySelection": "يرجى تحديد كمية صنف واحد على الأقل",
+            "JournalRef": "مرتجع مشتريات",
+            "JournalRefLine": "إخراج مخزون (مرتجع)"
         },
         "Messages": {
             "Success": "تم حفظ فاتورة المشتريات بنجاح",
-            "UpdateSuccess": "تم تحديث الفاتورة بنجاح"
+            "UpdateSuccess": "تم تحديث الفاتورة بنجاح",
+            "DeleteSuccess": "Purchase invoice deleted successfully"
+        },
+        "Print": {
+            "Title": "فاتورة مشتريات",
+            "Supplier": "المورد:",
+            "PaymentMethod": "طريقة الدفع:",
+            "Item": "الصنف / البيان",
+            "Qty": "الكمية",
+            "Price": "السعر",
+            "Total": "الإجمالي",
+            "Subtotal": "المجموع الفرعي:",
+            "GrandTotal": "الإجمالي النهائي:",
+            "Footer": "شكراً لتعاملكم معنا"
         }
     },
     "AddCustomer": {
@@ -1629,7 +2003,10 @@
             "OpeningBalance": "رصيد أول المدة",
             "AllowedDiscount": "خصم مسموح به",
             "COGS": "تكلفة البضاعة المباعة",
-            "VatTax": "ضريبة القيمة المضافة"
+            "VatTax": "ضريبة القيمة المضافة",
+            "InterestIncome": "إيرادات الفوائد",
+            "DeliveryRevenue": "إيرادات التوصيل",
+            "CashOverShort": "عجز/زيادة الصندوق (فروقات جرد)"
         },
         "Journal": {
             "InvalidData": "بيانات القيد غير صالحة",
@@ -1640,13 +2017,15 @@
             "ManualEntry": "يدوي",
             "InvoiceEntry": "فاتورة",
             "PaymentEntry": "دفعة",
-            "SalesCost": "تكلفة مبيعات",
             "DebitTitle": "إجمالي مدين",
             "CreditTitle": "إجمالي دائن",
             "AccountsSummary": "الحسابات المتأثرة",
             "BalanceError": "خطأ في الاتزان",
             "TreasuryDisbursement": "صرف من الخزينة",
-            "TreasuryDeposit": "إيداع في الخزينة"
+            "TreasuryDeposit": "ايداع داخل الصندوق",
+            "InputVAT": "ضريبة مدخلات (مشتريات)",
+            "SalesCost": "تكلفة مبيعات",
+            "ShiftDiscrepancy": "تسوية عجز/زيادة إغلاق وردية رقم {number}"
         },
         "Accounts": {
             "CodeUsed": "رقم الحساب مستخدم من قبل",
@@ -1685,11 +2064,15 @@
         }
     },
     "POS": {
+        "SearchProducts": "بحث عن الأصناف...",
         "WalkInCustomer": "عميل عابر",
         "CashCustomer": "عميل نقدي",
         "Cart": "سلة البيع",
         "Clear": "إفراغ السلة",
         "PricesUpdated": "تم تحديث أسعار الأصناف بناءً على فئة السعر",
+        "SelectCustomer": "اختر العميل...",
+        "MainStore": "المخزن الرئيسي",
+        "RetailSale": "بيع قطاعي",
         "Customer": {
             "Label": "العميل",
             "Select": "اختر العميل...",
@@ -1697,7 +2080,6 @@
             "List": "قائمة العملاء",
             "NoResults": "لا توجد نتائج للبحث عن '{search}'"
         },
-        "SelectCustomer": "اختر العميل",
         "InvoiceSavedSuccess": "تم حفظ الفاتورة بنجاح! رقم: {id}",
         "EmptyCart": "السلة فارغة",
         "Subtotal": "المجموع الفرعي",
@@ -1758,8 +2140,10 @@
         }
     },
     "Representatives": {
-        "Title": "المناديب والموزعين",
-        "Description": "إدارة المناديب، العمولات وتتبع الأداء.",
+        "Title": "المندوبين",
+        "Description": "إدارة مندوبي المبيعات والتحصيل وتتبع الأداء.",
+        "ExportExcel": "تصدير (Excel)",
+        "ImportExcel": "استيراد (Excel)",
         "AddDialog": {
             "AddTitle": "إضافة مندوب",
             "EditTitle": "تعديل مندوب",
@@ -1773,7 +2157,17 @@
             "Address": "العنوان",
             "Notes": "ملاحظات",
             "Save": "حفظ",
-            "Update": "تحديث"
+            "Update": "تحديث",
+            "CommissionValue": "Value",
+            "Salary": "Basic Monthly Salary",
+            "Success": "Representative saved successfully",
+            "Error": "Failed to save representative",
+            "Types": {
+                "Sales": "Sales Rep",
+                "Delivery": "Delivery Rep",
+                "Percentage": "Percentage (%)",
+                "Fixed": "Fixed Amount (per invoice)"
+            }
         },
         "Table": {
             "Name": "الاسم",
@@ -1782,7 +2176,12 @@
             "Commission": "نسبة العمولة %",
             "Address": "العنوان",
             "Notes": "ملاحظات",
-            "Actions": "الإجراءات"
+            "Actions": "الإجراءات",
+            "NoRepresentatives": "لا يوجد مناديب",
+            "CommissionRate": "Commission %",
+            "Edit": "Edit",
+            "Delete": "Delete",
+            "ViewReport": "View Report"
         },
         "Report": {
             "Title": "تقرير الأداء والمبيعات",
@@ -1791,7 +2190,38 @@
             "CommissionRateCard": "نسبة العمولة",
             "NoSales": "لا توجد مبيعات",
             "CommissionDue": "العمولة المستحقة",
-            "SalaryPlus": "(الراتب + العمولة)"
+            "SalaryPlus": "(الراتب + العمولة)",
+            "Print": {
+                "Title": "تقرير أداء مندوب مبيعات",
+                "Subtitle": "كشف عمولات ومبيعات",
+                "From": "من:",
+                "To": "إلى:",
+                "PrintDate": "تاريخ الطباعة:",
+                "TotalSales": "إجمالي المبيعات",
+                "InvoicesCount": "فاتورة",
+                "Collected": "المحقق / المحصل",
+                "FixedSalary": "الراتب الثابت",
+                "DueCommission": "العمولة المستحقة",
+                "RatePercentage": "%",
+                "RateFixed": "ثابت",
+                "TotalDue": "إجمالي المستحق",
+                "RelatedInvoicesTitle": "فواتير المبيعات المرتبطة",
+                "NoData": "لا توجد فواتير مرتبطة خلال هذه الفترة",
+                "StatusPaid": "خالص",
+                "StatusPartial": "جزئي",
+                "StatusDeferred": "آجل",
+                "RepSignature": "توقيع المندوب",
+                "ReviewApproval": "المراجعة والاعتماد",
+                "FacilityStamp": "ختم المنشأة",
+                "Table": {
+                    "InvoiceNo": "رقم الفاتورة",
+                    "Date": "تاريخ",
+                    "Customer": "العميل",
+                    "Total": "الإجمالي",
+                    "Paid": "المدفوع",
+                    "Status": "الحالة"
+                }
+            }
         },
         "MenuLabel": "المندوبين",
         "SearchPlaceholder": "اختر المندوب",
@@ -1818,6 +2248,7 @@
             "Notes": "ملاحظات",
             "Save": "حفظ",
             "Saving": "جاري الحفظ...",
+            "Error": "حدث خطأ أثناء الحفظ",
             "Success": "تم حفظ المندوب بنجاح",
             "Salary": "الراتب الشهري",
             "CommissionType": "نظام العمولة",
@@ -1828,8 +2259,7 @@
                 "Percentage": "نسبة مئوية (%)",
                 "Fixed": "مبلغ ثابت (لكل فاتورة)"
             },
-            "UpdateSuccess": "تم التحديث بنجاح",
-            "Error": "فشل في حفظ المندوب"
+            "UpdateSuccess": "تم التحديث بنجاح"
         },
         "Reports": {
             "Title": "تقرير الأداء والمبيعات",
@@ -1861,6 +2291,7 @@
             "Status": "الحالة",
             "Actions": "الإجراءات",
             "NoInvoices": "لا توجد فواتير",
+            "CreateReturn": "إنشاء مرتجع",
             "Draft": "مسودة",
             "Returned": "مرتجع",
             "StatusLabels": {
@@ -1873,11 +2304,18 @@
             "Edit": "تعديل",
             "Return": "مرتجع"
         },
-        "UpdateSuccess": "تم تحديث الفاتورة بنجاح"
+        "UpdateSuccess": "تم تحديث الفاتورة بنجاح",
+        "Messages": {
+            "Success": "تم حفظ الفاتورة بنجاح",
+            "UpdateSuccess": "تم تحديث الفاتورة بنجاح",
+            "DeleteSuccess": "تم حذف الفاتورة بنجاح"
+        }
     },
     "Employees": {
-        "Title": "إدارة الموظفين",
-        "Description": "إدارة كادر العمل، بياناتهم الشخصية والمهنية.",
+        "Title": "الموظفين",
+        "Description": "إدارة كادر العمل، بياناتهم الشخصية والمهنية والرواتب.",
+        "ExportExcel": "تصدير (Excel)",
+        "ImportExcel": "استيراد (Excel)",
         "NewEmployee": "إضافة موظف جديد",
         "Empty": "لا يوجد موظفين مسجلين. ابدأ بإضافة موظف!",
         "DeleteConfirm": "هل أنت متأكد من حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.",
@@ -1906,6 +2344,7 @@
             "Phone": "رقم الهاتف",
             "Address": "العنوان",
             "Email": "البريد الإلكتروني",
+            "Position": "المسمى الوظيفي",
             "BasicSalary": "الراتب الأساسي",
             "Notes": "ملاحظات إضافية",
             "Save": "حفظ البيانات",
@@ -1918,6 +2357,42 @@
                 "Address": "المحافظة، اسم الشارع...",
                 "Email": "example@company.com",
                 "Notes": "أي تفاصيل إضافية..."
+            }
+        },
+        "Report": {
+            "Print": {
+                "Title": "تقرير مالي للموظف",
+                "From": "من:",
+                "To": "إلى:",
+                "PrintDate": "تاريخ الطباعة:",
+                "TotalBasic": "إجمالي الأساسي",
+                "TotalIncentives": "إجمالي الحوافز",
+                "TotalDeductions": "إجمالي الاستقطاعات",
+                "NetDisbursed": "صافي المنصرف",
+                "PayrollRecords": "سجلات الرواتب",
+                "AdvancesRecords": "سجلات السلف والقروض",
+                "NoData": "لا يوجد بيانات",
+                "Table": {
+                    "Date": "التاريخ",
+                    "Month": "الشهر",
+                    "Basic": "الأساسي",
+                    "Incentives": "حوافز",
+                    "Deductions": "استقطاعات",
+                    "AdvanceDeduction": "خصم سلف",
+                    "Net": "الصافي",
+                    "Type": "النوع",
+                    "Amount": "المبلغ",
+                    "DeductionMonth": "شهر الخصم",
+                    "Status": "الحالة",
+                    "Notes": "ملاحظات"
+                },
+                "AdvanceTypeDisburse": "صرف سلفة",
+                "AdvanceTypeRepay": "استرداد نقدي",
+                "StatusDeducted": "تم الخصم",
+                "StatusOpen": "رصيد مفتوح",
+                "EmpSignature": "توقيع الموظف",
+                "ReviewApproval": "المراجعة والاعتماد",
+                "FacilityStamp": "ختم المنشأة"
             }
         }
     },
@@ -2068,7 +2543,8 @@
             "StatusLabels": {
                 "Posted": "مرحل",
                 "Draft": "مسودة"
-            }
+            },
+            "Pending": "Pending"
         },
         "Messages": {
             "Success": "تم حفظ السند بنجاح",
@@ -2153,12 +2629,88 @@
         "ReviewSignature": "توقيع المراجعة",
         "Stamp": "ختم المؤسسة"
     },
-    "InterfaceForm": {
-        "Title": "إعدادات واجهة المستخدم",
-        "NumeralSystem": "نظام الأرقام",
-        "NumeralLatn": "أرقام إنجليزية (123)",
-        "NumeralArab": "أرقام عربية (١٢٣)",
-        "ZoomLevel": "مستوى تكبير الشاشة",
-        "ZoomHelp": "يمكنك أيضاً استخدام Ctrl+ و Ctrl- للتكبير والتصغير من لوحة المفاتيح."
+    "SmartAlerts": {
+        "Title": "مركز التنبيهات الذكية",
+        "Description": "مراقبة دقيقة للحالة المحاسبية، المخزون، وسلامة النظام",
+        "BackHome": "العودة للرئيسية",
+        "AllSetTitle": "كل شيء على ما يرام!",
+        "AllSetDesc": "لا توجد تنبيهات حالياً. النظام لا يسجل أي حالات عدم تطابق أو مشاكل في المخزن.",
+        "TipsTitle": "نصائح من المحاسب الذكي",
+        "Tip1": "دائماً تأكد من توازن ميزان المراجعة. التنبيهات تساعدك في اكتشاف الفروقات الناتجة عن نسيان تسجيل قيود المخزون أو السندات.",
+        "Tip2": "الأصناف الراكدة تستهلك رأس المال. استخدم تقرير \"الراكد\" لعمل عروض وتصفيف للمخزون القديم.",
+        "ActionLabelDefault": "اتخاذ إجراء",
+        "Severity": {
+            "High": "هام جداً",
+            "Medium": "تنبيه",
+            "Low": "ملاحظة"
+        },
+        "Category": {
+            "Accounting": "محاسبة",
+            "Inventory": "مخزون",
+            "Sales": "مبيعات",
+            "Finance": "مالية",
+            "System": "نظام"
+        },
+        "Alerts": {
+            "InvMismatch": {
+                "Title": "عدم تطابق أرصدة المخزون",
+                "Message": "قيمة المخزون الفعلي ({physicalValue} ج.م) لا تطابق الرصيد المحاسبي ({accountingValue} ج.م). الفرق: {diff} ج.م. قد يكون هناك قيد يومية ناقص."
+            },
+            "LowStock": {
+                "Title": "أصناف قاربت على النفاذ",
+                "Message": "يوجد عدد ({count}) صنف تحت حد الطلب. يرجى مراجعة المخزون."
+            },
+            "OverdueSales": {
+                "Title": "فواتير مبيعات متأخرة",
+                "Message": "يوجد عدد ({count}) فاتورة مبيع تجاوزت تاريخ الاستحقاق ولم تسدد بالكامل."
+            },
+            "OverdueInstallments": {
+                "Title": "أقساط متأخرة السداد",
+                "Message": "يوجد عدد ({count}) قسط مستحق لم يتم تحصيله بعد."
+            },
+            "DraftDocs": {
+                "Title": "وثائق غير مرحلة (مسودات)",
+                "Message": "يوجد ({count}) وثيقة (فواتير/سندات) في حالة \"مسودة\". لن تظهر في التقارير المالية حتى يتم ترحيلها."
+            },
+            "CreditBreach": {
+                "Title": "تجاوز حد الائتمان للعملاء",
+                "Message": "العميل: {name} تخطت مديونيته ({balance} ج.م) حد الائتمان المسموح به ({limit} ج.م)."
+            },
+            "StagnantStock": {
+                "Title": "أصناف راكدة (فرص ضائعة)",
+                "Message": "يوجد ({count}) صنف لديهم رصيد في المخزن ولكن لم يتم تسجيل أي مبيعات لهم خلال الـ ٣٠ يوماً الماضية."
+            },
+            "OrphanVouchers": {
+                "Title": "سندات مرحلة غير مقيدة حسابياً",
+                "Message": "يوجد ({count}) سندات مالية في حالة \"مرحل\" ولكن لم يتم إنشاء قيود يومية مقابلة لها في دفتر الأستاذ."
+            },
+            "BackupCheck": {
+                "Title": "تأكيد النسخ الاحتياطي",
+                "Message": "تذكر دائماً أخذ نسخة احتياطية من بياناتك بشكل دوري لضمان سلامة السجلات."
+            },
+            "ExpenseSurge": {
+                "Title": "ارتفاع حاد في المصروفات",
+                "Message": "مصروفات هذا الشهر ({currentAmount} ج.م) تتجاوز متوسط الـ 3 أشهر السابقة ({avgAmount}) بنسبة {percentage}%. يرجى المراجعة."
+            },
+            "HighCashRisk": {
+                "Title": "تكأدس نقدي في الخزينة (مخاطرة)",
+                "Message": "رصيد الخزينة الرئيسية ({balance} ج.م) يتجاوز الحد الآمن الموصى به ({limit} ج.م). يُنصح بالتوريد للبنك."
+            },
+            "CustomerInactivity": {
+                "Title": "ركود لدى كبار العملاء",
+                "Message": "العميل الرئيسي '{name}' لم يقم بإجراء أي عمليات شراء خلال الـ {days} يوماً الماضية."
+            },
+            "UninvoicedReceipts": {
+                "Title": "مقبوضات نقدية بدون فواتير سابقة",
+                "Message": "تم تحصيل دفعة كبيرة بقيمة {amount} ج.م من العميل {name} مؤخراً، ولا توجد فاتورة مبيعات قريبة مسجلة."
+            }
+        }
+    },
+    "ExpensesManagement": {
+        "Title": "Expenses Management",
+        "Description": "Record and track daily and administrative expenses."
+    },
+    "Confirm": {
+        "Message": "Are you sure you want to proceed?"
     }
 }

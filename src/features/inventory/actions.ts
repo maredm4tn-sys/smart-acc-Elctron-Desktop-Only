@@ -17,10 +17,20 @@ import { productSchema, validateEntity } from "@/lib/validations";
 export async function getProducts() {
     try {
         const { tenantId } = await requireSession().catch(() => ({ tenantId: 'tenant_default' }));
-        const data = await db.select().from(products)
-            .where(eq(products.tenantId, tenantId))
-            .orderBy(desc(products.createdAt));
-        return data;
+        const data = await db.query.products.findMany({
+            where: (products: any, { eq }: any) => eq(products.tenantId, tenantId),
+            with: {
+                stockLevels: {
+                    with: {
+                        warehouse: true
+                    }
+                },
+                category: true,
+                unit: true
+            },
+            orderBy: (products: any, { desc }: any) => [desc(products.createdAt)]
+        });
+        return data as any[];
     } catch (e: any) {
         logToDesktop(`❌ [getProducts] Error: ${e.message}`, 'error');
         return [];
@@ -72,6 +82,26 @@ export async function createProduct(inputData: any) {
             categoryId: data.categoryId || null,
             unitId: data.unitId || null,
         }).returning();
+
+        // --- 3. Multi-Warehouse Support: Link to Warehouse ---
+        const { warehouses, stockLevels } = await import("@/db/schema");
+
+        let targetWhId = data.warehouseId;
+        if (!targetWhId) {
+            const [defaultWh] = await db.select().from(warehouses)
+                .where(and(eq(warehouses.tenantId, tenantId), eq(warehouses.isDefault, true)))
+                .limit(1);
+            if (defaultWh) targetWhId = defaultWh.id;
+        }
+
+        if (targetWhId) {
+            await db.insert(stockLevels).values({
+                tenantId,
+                productId: newProduct.id,
+                warehouseId: Number(targetWhId),
+                quantity: String(data.stockQuantity || 0)
+            });
+        }
 
         revalidatePath('/dashboard/inventory');
         return newProduct;

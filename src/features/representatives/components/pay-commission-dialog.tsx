@@ -54,10 +54,10 @@ export function PayCommissionDialog({ open, setOpen, data }: PayCommissionDialog
             });
 
             if (result.success && result.data?.success) {
-                toast.success(result.data.message || "Operation recorded successfully");
+                toast.success(result.data.message );
                 setOpen(false);
             } else {
-                toast.error(result.message || result.data?.message || "Operation failed");
+                toast.error(result.message || result.data?.message );
             }
         });
     };
@@ -67,22 +67,22 @@ export function PayCommissionDialog({ open, setOpen, data }: PayCommissionDialog
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>{dict.Common?.Confirm || "Confirm Settlement"}</DialogTitle>
+                        <DialogTitle>{dict.Common?.Confirm}</DialogTitle>
                         <DialogDescription>
-                            {dict.Representatives?.SettlementPrompt || "Confirm payment of financial dues to the representative for the selected period."}
+                            {dict.Representatives?.SettlementPrompt}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label className="text-right col-span-1">{dict.Representatives?.Name || "Name"}</Label>
+                            <Label className="text-right col-span-1">{dict.Representatives?.Name}</Label>
                             <Input value={data.name} disabled className="col-span-3 bg-muted" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label className="text-right col-span-1">{dict.Representatives?.Reports?.Period || "Period"}</Label>
+                            <Label className="text-right col-span-1">{dict.Representatives?.Reports?.Period}</Label>
                             <Input value={data.period} disabled className="col-span-3 bg-muted text-xs" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label className="text-right col-span-1">{dict.Common?.Amount || "Amount"}</Label>
+                            <Label className="text-right col-span-1">{dict.Common?.Amount}</Label>
                             <div className="col-span-3 flex items-center gap-2">
                                 <Input value={data.amount.toFixed(2)} disabled className="bg-muted font-bold text-green-700" />
                                 <span className="text-sm font-bold">{data.currency}</span>
@@ -90,12 +90,12 @@ export function PayCommissionDialog({ open, setOpen, data }: PayCommissionDialog
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setOpen(false)}>{dict.Common?.Cancel || "Cancel"}</Button>
+                        <Button variant="outline" onClick={() => setOpen(false)}>{dict.Common?.Cancel}</Button>
                         <Button
                             className="bg-purple-600 hover:bg-purple-700 text-white"
                             onClick={() => setConfirmOpen(true)}
                         >
-                            {dict.Representatives?.Reports?.Settle || "Settle & Pay"}
+                            {dict.Representatives?.Reports?.Settle}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -104,19 +104,19 @@ export function PayCommissionDialog({ open, setOpen, data }: PayCommissionDialog
             <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{dict.Common?.Confirm || "Confirm Settlement"}</AlertDialogTitle>
+                        <AlertDialogTitle>{dict.Common?.Confirm}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            {dict.Representatives?.SettlementPrompt || "Confirm payment of financial dues to the representative for the selected period. An automatic cash payment entry will be created."}
+                            {dict.Representatives?.SettlementPrompt}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>{dict.Common?.Cancel || "Cancel"}</AlertDialogCancel>
+                        <AlertDialogCancel>{dict.Common?.Cancel}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleConfirm}
                             disabled={isPending}
                             className="bg-purple-600 hover:bg-purple-700 text-white"
                         >
-                            {isPending ? (dict.Common?.Loading || "Processing...") : (dict.Common?.Confirm || "Confirm")}
+                            {isPending ? (dict.Common?.Loading) : (dict.Common?.Confirm)}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { installments, invoices, accounts, customers } from "@/db/schema";
-import { eq, and, sql, desc, asc } from "drizzle-orm";
+import { eq, and, sql, desc, asc, like } from "drizzle-orm";
 import { requireSession } from "@/lib/tenant-security";
 import { createJournalEntry } from "@/features/accounting/actions";
 
@@ -21,6 +21,8 @@ export async function getInstallments(filters?: { customerId?: number, status?: 
             invoiceId: installments.invoiceId,
             customerName: customers.name,
             invoiceNumber: invoices.invoiceNumber,
+            installmentCount: invoices.installmentCount,
+            installmentInterest: invoices.installmentInterest,
         })
             .from(installments)
             .innerJoin(customers, eq(installments.customerId, customers.id))
@@ -39,22 +41,32 @@ export async function payInstallment(id: number, paymentDate: string) {
     try {
         const { tenantId, userId } = await requireSession();
 
-        return await db.transaction(async (tx) => {
-            const inst = await tx.query.installments.findFirst({
-                where: and(eq(installments.id, id), eq(installments.tenantId, tenantId)),
-                with: {
-                    invoice: true,
-                    customer: true
-                }
-            });
-
-            if (!inst || inst.status === 'paid') {
-                return { success: false, message: "Installment not found or already paid" };
+        // 1. Pre-fetch needed data outside the transaction
+        const inst = await db.query.installments.findFirst({
+            where: and(eq(installments.id, id), eq(installments.tenantId, tenantId)),
+            with: {
+                invoice: true,
+                customer: true
             }
+        });
 
-            const amount = Number(inst.amount);
+        if (!inst || inst.status === 'paid') {
+            return { success: false, message: "Installment not found or already paid" };
+        }
 
-            await tx.update(installments).set({
+        const cashAccount = await db.query.accounts.findFirst({
+            where: and(eq(accounts.tenantId, tenantId), like(accounts.code, '1101%'))
+        });
+
+        const arAccount = await db.query.accounts.findFirst({
+            where: and(eq(accounts.tenantId, tenantId), like(accounts.code, '1103%'))
+        });
+
+        const amount = Number(inst.amount);
+
+        // 2. Perform DB updates in a TRANSACTION (Note: sync is safer for better-sqlite3)
+        db.transaction((tx) => {
+            tx.update(installments).set({
                 status: 'paid',
                 amountPaid: inst.amount,
                 paidDate: paymentDate,
@@ -63,32 +75,25 @@ export async function payInstallment(id: number, paymentDate: string) {
             const currentInvoicePaid = Number(inst.invoice?.amountPaid || 0);
             const newInvoicePaid = currentInvoicePaid + amount;
 
-            await tx.update(invoices).set({
+            tx.update(invoices).set({
                 amountPaid: newInvoicePaid.toFixed(2),
             }).where(and(eq(invoices.id, inst.invoiceId), eq(invoices.tenantId, tenantId)));
-
-            const cashAccount = await tx.query.accounts.findFirst({
-                where: and(eq(accounts.tenantId, tenantId), sql`${accounts.name} LIKE '%Cash%' OR ${accounts.name} LIKE '%Treasury%'`)
-            });
-
-            const arAccount = await tx.query.accounts.findFirst({
-                where: and(eq(accounts.tenantId, tenantId), sql`${accounts.name} LIKE '%Receivable%' OR ${accounts.name} LIKE '%Customer%'`)
-            });
-
-            if (cashAccount && arAccount) {
-                await createJournalEntry({
-                    date: paymentDate,
-                    reference: `INST-${inst.id}`,
-                    description: `Installment collection - ${inst.customer?.name} - Invoice ${inst.invoice?.invoiceNumber}`,
-                    lines: [
-                        { accountId: cashAccount.id, debit: amount, credit: 0, description: `Installment Payment - ${inst.customer?.name}` },
-                        { accountId: arAccount.id, debit: 0, credit: amount, description: `Customer Balance Settlement` }
-                    ]
-                }, tx);
-            }
-
-            return { success: true, message: "Operation successful" };
         });
+
+        // 3. Create Journal Entry (Outside transaction to allow async)
+        if (cashAccount && arAccount) {
+            await createJournalEntry({
+                date: paymentDate,
+                reference: `INST-${inst.id}`,
+                description: `تحصيل قسط - ${inst.customer?.name} - فاتورة ${inst.invoice?.invoiceNumber}`,
+                lines: [
+                    { accountId: cashAccount.id, debit: amount, credit: 0, description: `سداد قسط - ${inst.customer?.name}` },
+                    { accountId: arAccount.id, debit: 0, credit: amount, description: `تسوية رصيد عميل` }
+                ]
+            });
+        }
+
+        return { success: true, message: "Operation successful" };
     } catch (e: any) {
         console.error("Error paying installment:", e);
         return { success: false, message: e.message || "Error" };

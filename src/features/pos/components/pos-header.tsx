@@ -14,7 +14,7 @@ export function POSHeader() {
 
     // Prepare customers list with Cash Customer at top
     const allCustomerOptions = [
-        { id: 0, name: dict?.POS?.CashCustomer || "Cash Customer" },
+        { id: 0, name: dict?.POS?.CashCustomer },
         ...customers
     ];
 
@@ -23,7 +23,7 @@ export function POSHeader() {
         const cust = allCustomerOptions.find(c => String(c.id) === id) as any;
         const updates: any = {
             customerId: Number(id),
-            customerName: cust?.name || dict?.POS?.CashCustomer || "Cash Customer"
+            customerName: cust?.name || dict?.POS?.CashCustomer
         };
 
         // Auto-set price level if customer has one
@@ -47,7 +47,7 @@ export function POSHeader() {
                         <User size={20} />
                     </div>
                     <div>
-                        <h2 className="font-bold text-lg leading-none">{dict?.Sales?.Invoice?.SimpleTitle || "Sales Invoice"}</h2>
+                        <h2 className="font-bold text-lg leading-none">{dict?.Sales?.Invoice?.SimpleTitle}</h2>
                         <span className="text-xs text-gray-500 font-mono">#INV-NEW</span>
                     </div>
                 </div>
@@ -56,10 +56,10 @@ export function POSHeader() {
                     {/* Shift Manager is already localized presumably */}
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" className="gap-2 text-orange-600 border-orange-200 bg-orange-50">
-                            <RotateCcw size={16} /> {dict?.Inventory?.Table?.MovementTypes?.Return || "Return"} (Ctrl+R)
+                            <RotateCcw size={16} /> {dict?.Inventory?.Table?.MovementTypes?.Return} (Ctrl+R)
                         </Button>
                         <Button variant="outline" size="sm" className="gap-2">
-                            <Store size={16} /> {dict?.Inventory?.Table?.MainStore || "Main Store"}
+                            <Store size={16} /> {dict?.Inventory?.Table?.MainStore}
                         </Button>
                     </div>
                 </div>
@@ -70,34 +70,34 @@ export function POSHeader() {
 
                 {/* 1. Customer */}
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500">{dict?.Sidebar?.Customers || "Customers"} (F2)</label>
+                    <label className="text-xs font-bold text-gray-500">{dict?.Sidebar?.Customers} (F2)</label>
                     <CustomerCombobox
                         customers={allCustomerOptions}
-                        value={String(header.customerId)}
+                        defaultValue={String(header.customerId)}
                         onSelect={setCustomer}
-                        placeholder={dict?.POS?.SelectCustomer || "Select Customer"}
+                        placeholder={dict?.POS?.SelectCustomer}
                     />
                 </div>
 
                 {/* 2. Price Type */}
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500">{dict?.Dialogs?.AddCustomer?.PriceLevel || "Price Level"}</label>
+                    <label className="text-xs font-bold text-gray-500">{dict?.Dialogs?.AddCustomer?.PriceLevel}</label>
                     <Select value={header.priceType} onValueChange={setPriceType}>
                         <SelectTrigger className="h-9 bg-white">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="retail">{dict?.Products?.Table?.PriceRetail || "Retail"}</SelectItem>
-                            <SelectItem value="wholesale">{dict?.Products?.Table?.PriceWholesale || "Wholesale"}</SelectItem>
-                            <SelectItem value="half_wholesale">{dict?.Products?.Table?.PriceHalfWholesale || "Half-Wholesale"}</SelectItem>
-                            <SelectItem value="special">{dict?.Products?.Table?.PriceSpecial || "Special"}</SelectItem>
+                            <SelectItem value="retail">{dict?.Products?.Table?.PriceRetail}</SelectItem>
+                            <SelectItem value="wholesale">{dict?.Products?.Table?.PriceWholesale}</SelectItem>
+                            <SelectItem value="half_wholesale">{dict?.Products?.Table?.PriceHalfWholesale}</SelectItem>
+                            <SelectItem value="special">{dict?.Products?.Table?.PriceSpecial}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
 
                 {/* 3. Payment Method */}
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500">{dict?.POS?.PaymentMethod || "Payment Method"}</label>
+                    <label className="text-xs font-bold text-gray-500">{dict?.POS?.PaymentMethod}</label>
                     <Select value={header.paymentMethod} onValueChange={(v: any) => setHeader({ paymentMethod: v })}>
                         <SelectTrigger className="h-9 bg-white">
                             <div className="flex items-center gap-2">
@@ -106,9 +106,9 @@ export function POSHeader() {
                             </div>
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="cash">{dict?.POS?.Cash || "Cash"}</SelectItem>
-                            <SelectItem value="card">{dict?.POS?.Card || "Card"}</SelectItem>
-                            <SelectItem value="credit">{dict?.POS?.Credit || "Credit"}</SelectItem>
+                            <SelectItem value="cash">{dict?.POS?.Cash}</SelectItem>
+                            <SelectItem value="card">{dict?.POS?.Card}</SelectItem>
+                            <SelectItem value="credit">{dict?.POS?.Credit}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

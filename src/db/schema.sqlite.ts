@@ -253,7 +253,7 @@ export const products = sqliteTable('products', {
     createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const productsRelations = relations(products, ({ one }) => ({
+export const productsRelations = relations(products, ({ one, many }) => ({
     tenant: one(tenants, {
         fields: [products.tenantId],
         references: [tenants.id],
@@ -266,6 +266,7 @@ export const productsRelations = relations(products, ({ one }) => ({
         fields: [products.unitId],
         references: [units.id],
     }),
+    stockLevels: many(stockLevels),
 }));
 
 // --- Suppliers ---
@@ -504,6 +505,8 @@ export const purchaseInvoiceItems = sqliteTable('purchase_invoice_items', {
     quantity: text('quantity').notNull(),
     unitCost: text('unit_cost').notNull(), // سعر الشراء
     total: text('total').notNull(),
+    storeId: integer('store_id').default(1), // Added (item level store)
+    unitId: integer('unit_id').references(() => units.id), // Added
 });
 
 export const purchaseInvoicesRelations = relations(purchaseInvoices, ({ one, many }) => ({
@@ -771,6 +774,10 @@ export const partners = sqliteTable('partners', {
     name: text('name').notNull(),
     phone: text('phone'),
     nationalId: text('national_id'),
+    email: text('email'), // Added
+    address: text('address'), // Added
+    joinDate: text('join_date'), // Added
+    notes: text('notes'), // Added
     role: text('role'), // صفة الشريك
     initialCapital: text('initial_capital').default('0.00').notNull(),
     currentCapital: text('current_capital').default('0.00').notNull(), // رأس المال الحالي (للمساهمة)
@@ -822,5 +829,52 @@ export const partnerTransactionsRelations = relations(partnerTransactions, ({ on
     product: one(products, {
         fields: [partnerTransactions.productId],
         references: [products.id],
+    }),
+}));
+
+// --- Warehouses ---
+export const warehouses = sqliteTable('warehouses', {
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    tenantId: text('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+    name: text('name').notNull(),
+    location: text('location'),
+    isDefault: integer('is_default', { mode: 'boolean' }).default(false).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
+export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
+    tenant: one(tenants, {
+        fields: [warehouses.tenantId],
+        references: [tenants.id],
+    }),
+    stockLevels: many(stockLevels),
+}));
+
+// --- Stock Levels (per Warehouse) ---
+export const stockLevels = sqliteTable('stock_levels', {
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    tenantId: text('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+    productId: integer('product_id').references(() => products.id, { onDelete: 'cascade' }).notNull(),
+    warehouseId: integer('warehouse_id').references(() => warehouses.id, { onDelete: 'cascade' }).notNull(),
+    quantity: text('quantity').default('0.00').notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
+}, (table) => {
+    return {
+        productWarehouseIdx: index('stock_levels_prod_wh_idx').on(table.productId, table.warehouseId),
+    };
+});
+
+export const stockLevelsRelations = relations(stockLevels, ({ one }) => ({
+    tenant: one(tenants, {
+        fields: [stockLevels.tenantId],
+        references: [tenants.id],
+    }),
+    product: one(products, {
+        fields: [stockLevels.productId],
+        references: [products.id],
+    }),
+    warehouse: one(warehouses, {
+        fields: [stockLevels.warehouseId],
+        references: [warehouses.id],
     }),
 }));

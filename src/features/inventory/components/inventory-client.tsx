@@ -15,6 +15,13 @@ import { Num } from "@/components/ui/num";
 import { formatNumber } from "@/lib/numbers";
 import { eq, or, isNull } from "drizzle-orm";
 import { cn } from "@/lib/utils";
+import { exportToExcel } from "@/lib/export-excel";
+import { ArrowLeftRight, ArrowRightLeft } from "lucide-react";
+
+import { AddProductDialog } from "@/features/inventory/components/add-product-dialog";
+import { BulkUploadDialog } from "@/features/inventory/components/bulk-upload-dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Warehouse } from "lucide-react";
 
 export function InventoryClient({ initialProducts, dict }: { initialProducts: any[], dict: any }) {
     const { numeralSystem } = useSettings();
@@ -24,7 +31,7 @@ export function InventoryClient({ initialProducts, dict }: { initialProducts: an
 
     useEffect(() => {
         // Sync online data to local mirror if online
-        if (navigator.onLine && initialProducts.length > 0) {
+        if (navigator.onLine && (initialProducts?.length || 0) > 0) {
             mirrorData(STORES.PRODUCTS, initialProducts);
         }
 
@@ -86,11 +93,32 @@ export function InventoryClient({ initialProducts, dict }: { initialProducts: an
     });
 
     return (
-        <div className="bg-white p-3 md:p-4 rounded-xl border shadow-sm space-y-4" dir={dict.Common.Direction || "rtl"}>
+        <div className="space-y-6 animate-in fade-in duration-500 pb-10" dir={dict.Common.Direction}>
+            {/* Standard Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="w-full">
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-800">{dict.Inventory.Title}</h1>
+                    <p className="text-slate-500 mt-1">{dict.Inventory.Description}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 self-end">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => exportToExcel(products, 'Inventory', 'InventoryList')}
+                        className="bg-white hover:bg-slate-50 border-slate-200 text-slate-700 font-bold gap-2 shadow-sm rounded-xl h-10 px-4"
+                    >
+                        <ArrowRightLeft className="h-4 w-4 text-blue-600" />
+                        <span className="hidden sm:inline">{dict.Inventory?.ExportExcel || dict.Common?.ExportExcel}</span>
+                    </Button>
+                    <BulkUploadDialog />
+                    <AddProductDialog triggerLabel={dict.Inventory.NewItem} />
+                </div>
+            </div>
+
             {isOffline && (
-                <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center justify-end gap-3 text-amber-700 text-sm shadow-sm animate-pulse">
-                    <span>{dict.Common.Offline.NoConnection}</span>
+                <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center justify-start gap-3 text-amber-700 shadow-sm animate-pulse">
                     <CloudOff size={18} />
+                    <span className="text-sm font-medium">{dict.Common.Offline.NoConnection}</span>
                 </div>
             )}
 
@@ -99,12 +127,11 @@ export function InventoryClient({ initialProducts, dict }: { initialProducts: an
                     <Search className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder={dict.Inventory.SearchPlaceholder || `${dict.Common.Search}...`}
-                        className="pr-8"
+                        className="pr-8 h-10 border-slate-200 focus:border-blue-400"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <Button variant="outline" className="w-full sm:w-auto">{dict.Common.Search}</Button>
             </div>
 
             {/* Desktop Table View */}
@@ -114,10 +141,10 @@ export function InventoryClient({ initialProducts, dict }: { initialProducts: an
                         <TableRow>
                             <TableHead className="text-start font-black w-[120px]">{dict.Inventory.Table.SKU}</TableHead>
                             <TableHead className="text-start font-black">{dict.Inventory.Table.Product}</TableHead>
-                            <TableHead className="text-center font-black">{dict.Inventory.Table.Type}</TableHead>
-                            <TableHead className="text-end font-black">{dict.Inventory.Table.BuyPrice}</TableHead>
-                            <TableHead className="text-end font-black">{dict.Inventory.Table.SellPrice}</TableHead>
-                            <TableHead className="text-end font-black">{dict.Inventory.Table.Stock}</TableHead>
+                            <TableHead className="text-start font-black">{dict.Inventory.Table.Type}</TableHead>
+                            <TableHead className="text-start font-black">{dict.Inventory.Table.BuyPrice}</TableHead>
+                            <TableHead className="text-start font-black">{dict.Inventory.Table.SellPrice}</TableHead>
+                            <TableHead className="text-start font-black">{dict.Inventory.Table.Stock}</TableHead>
                             <TableHead className="text-start font-black px-6">{dict.Inventory.Table.Actions}</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -140,23 +167,48 @@ export function InventoryClient({ initialProducts, dict }: { initialProducts: an
                                             <span>{product.name}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-center">
+                                    <TableCell className="text-start">
                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${product.type === 'goods' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-purple-50 text-purple-600 border border-purple-100'}`}>
                                             {product.type === 'goods' ? dict.Inventory.Table.Goods : dict.Inventory.Table.Service}
                                         </span>
                                     </TableCell>
-                                    <TableCell className="text-end font-mono text-slate-600">{formatNumber((Number(product.buyPrice) || 0).toFixed(2), numeralSystem as any)}</TableCell>
-                                    <TableCell className="text-end font-black text-green-700 font-mono">{formatNumber((Number(product.sellPrice) || 0).toFixed(2), numeralSystem as any)}</TableCell>
-                                    <TableCell className="text-end">
-                                        <div className="flex flex-col items-end justify-center">
-                                            <span className={cn(
-                                                "font-black text-sm",
-                                                (Number(product.stockQuantity) || 0) <= 0 && product.type === 'goods' ? "text-red-500" : "text-slate-900"
-                                            )}>
-                                                <Num value={product.stockQuantity || "0"} />
-                                            </span>
-                                            <span className="text-[9px] text-slate-400 font-bold uppercase">{dict.Inventory?.Table?.Stock || "المخزون"}</span>
-                                        </div>
+                                    <TableCell className="text-start font-mono text-slate-600">{formatNumber((Number(product.buyPrice) || 0).toFixed(2), numeralSystem as any)}</TableCell>
+                                    <TableCell className="text-start font-black text-green-700 font-mono">{formatNumber((Number(product.sellPrice) || 0).toFixed(2), numeralSystem as any)}</TableCell>
+                                    <TableCell className="text-start">
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <div className="flex flex-col items-start justify-center cursor-pointer hover:bg-slate-50 p-1 rounded-lg transition-colors border border-transparent hover:border-slate-100">
+                                                    <span className={cn(
+                                                        "font-black text-sm",
+                                                        (Number(product.stockQuantity) || 0) <= 0 && product.type === 'goods' ? "text-red-500" : "text-slate-900"
+                                                    )}>
+                                                        <Num value={product.stockQuantity || "0"} />
+                                                    </span>
+                                                    <span className="text-[9px] text-slate-400 font-bold uppercase flex items-center gap-1">
+                                                        <Warehouse size={10} />
+                                                        {dict.Inventory?.Table?.Stock}
+                                                    </span>
+                                                </div>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-64 p-4 rounded-[1.5rem] shadow-xl border-slate-100" align="start">
+                                                <h4 className="font-black text-slate-800 mb-3 flex items-center gap-2">
+                                                    <Warehouse size={16} className="text-emerald-600" />
+                                                    {dict.Inventory?.Warehouses?.StockPerWarehouse}
+                                                </h4>
+                                                <div className="space-y-2">
+                                                    {product.stockLevels?.length > 0 ? (
+                                                        product.stockLevels.map((sl: any) => (
+                                                            <div key={sl.id} className="flex justify-between items-center text-sm font-bold border-b border-slate-50 pb-2 last:border-0 last:pb-0">
+                                                                <span className="text-slate-600 font-arabic">{sl.warehouse?.name}</span>
+                                                                <span className="text-slate-900"><Num value={sl.quantity} /></span>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <p className="text-xs text-slate-400 italic">No warehouse data.</p>
+                                                    )}
+                                                </div>
+                                            </PopoverContent>
+                                        </Popover>
                                     </TableCell>
                                     <TableCell className="text-start px-6">
                                         <div className="flex items-center justify-start gap-2">
@@ -206,9 +258,27 @@ export function InventoryClient({ initialProducts, dict }: { initialProducts: an
                                 </div>
                                 <div className="bg-slate-50 p-2 rounded">
                                     <span className="text-muted-foreground block text-xs">{dict.Inventory.Table.Stock}</span>
-                                    <span className={(Number(product.stockQuantity) || 0) <= 0 && product.type === 'goods' ? "text-red-500 font-bold" : "font-semibold"}>
-                                        {formatNumber(product.stockQuantity || "0", numeralSystem as any)}
-                                    </span>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <span className={cn(
+                                                "cursor-pointer flex items-center gap-1 font-semibold",
+                                                (Number(product.stockQuantity) || 0) <= 0 && product.type === 'goods' ? "text-red-500" : ""
+                                            )}>
+                                                {formatNumber(product.stockQuantity || "0", numeralSystem as any)}
+                                                <Warehouse size={10} className="text-slate-300" />
+                                            </span>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-56 p-4 rounded-2xl shadow-xl">
+                                            <div className="space-y-2">
+                                                {product.stockLevels?.map((sl: any) => (
+                                                    <div key={sl.id} className="flex justify-between text-xs font-bold">
+                                                        <span>{sl.warehouse?.name}</span>
+                                                        <span>{sl.quantity}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
                             </div>
                             <div className="flex justify-end pt-2 border-t gap-2">

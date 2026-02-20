@@ -38,6 +38,7 @@ export const productSchema = z.object({
     unitId: z.any().optional().nullish(),
     location: z.string().optional().nullish(),
     requiresToken: z.any().optional().default(false),
+    warehouseId: z.any().optional().nullish(),
 });
 
 /**

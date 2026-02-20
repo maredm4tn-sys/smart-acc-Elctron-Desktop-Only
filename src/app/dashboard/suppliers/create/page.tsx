@@ -14,18 +14,18 @@ export default async function CreateSupplierPage() {
         <div className="space-y-6 max-w-2xl mx-auto pb-10">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">{dict.Suppliers?.AddDialog?.Title || "Add Supplier"}</h1>
-                    <p className="text-muted-foreground">{dict.Suppliers?.AddDialog?.Description || "Create a new supplier profile"}</p>
+                    <h1 className="text-2xl font-bold tracking-tight">{dict.Suppliers?.AddDialog?.Title}</h1>
+                    <p className="text-muted-foreground">{dict.Suppliers?.AddDialog?.Description}</p>
                 </div>
                 <Link href="/dashboard/suppliers">
                     <Button variant="outline">
-                        {dict.Common?.Back || "Back"}
+                        {dict.Common?.Back}
                     </Button>
                 </Link>
             </div>
 
             <div className="bg-white p-6 rounded-2xl border shadow-sm">
-                <SupplierForm />
+                <SupplierForm dict={dict} />
             </div>
             <Toaster />
         </div>

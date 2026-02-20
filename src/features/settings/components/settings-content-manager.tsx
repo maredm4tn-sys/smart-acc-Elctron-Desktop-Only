@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Printer, HardDrive, ShieldAlert, Database, Users, ChevronLeft, Receipt, FileText, Monitor } from "lucide-react";
+import { Building2, Printer, HardDrive, ShieldAlert, Database, Users, ChevronLeft, Receipt, FileText, Monitor, Scale } from "lucide-react";
 import { SettingsForm } from "./settings-form";
 import { PrintSettingsForm } from "./print-settings-form";
 import { StorageLocationForm } from "./storage-location-form";
@@ -10,6 +10,8 @@ import { TaxSettingsForm } from "./tax-settings-form";
 import { InvoiceSettingsForm } from "./invoice-settings-form";
 import { BackupManager } from "./backup-manager";
 import { InterfaceSettingsForm } from "./interface-settings-form";
+import { FiscalClosingManager } from "../../accounting/components/fiscal-closing-manager";
+import { WarehouseManager } from "../../inventory/components/warehouse-manager";
 import { DangerZone } from "../../admin/components/danger-zone";
 import { UserList } from "../../admin/components/user-list";
 import { useTranslation } from "@/components/providers/i18n-provider";
@@ -22,15 +24,17 @@ export function SettingsContentManager({ settings, users, isSuperAdmin }: { sett
     const isDesktop = true;
 
     const cards = [
-        { id: "facility", title: dict.Settings?.Tabs?.Facility || "Facility Settings", icon: Building2, color: "text-blue-600", bgColor: "bg-blue-50" },
-        { id: "interface", title: dict.Settings?.Tabs?.Interface || "Interface", icon: Monitor, color: "text-rose-600", bgColor: "bg-rose-50" },
-        { id: "taxes", title: dict.Settings?.Tabs?.Taxes || "Taxes", icon: Receipt, color: "text-green-600", bgColor: "bg-green-50" },
-        { id: "invoices", title: dict.Settings?.Tabs?.Invoices || "Invoices", icon: FileText, color: "text-indigo-600", bgColor: "bg-indigo-50" },
-        { id: "print", title: dict.PrintSettings?.Title || "Print Settings", icon: Printer, color: "text-orange-600", bgColor: "bg-orange-50" },
-        { id: "storage", title: dict.StorageLocation?.Title || "Storage Settings", icon: HardDrive, color: "text-purple-600", bgColor: "bg-purple-50" },
-        { id: "backup", title: dict.Settings?.Tabs?.Backup || "Backup", icon: Database, color: "text-emerald-600", bgColor: "bg-emerald-50", desktopOnly: true },
-        { id: "danger", title: dict.Settings?.Tabs?.Danger || "Danger Zone", icon: ShieldAlert, color: "text-red-600", bgColor: "bg-red-50", desktopOnly: true },
-        { id: "subscribers", title: dict.Settings?.Tabs?.Subscribers || "Users", icon: Users, color: "text-cyan-600", bgColor: "bg-cyan-50", superAdminOnly: true }
+        { id: "facility", title: dict.Settings?.Tabs?.Facility, icon: Building2, color: "text-blue-600", bgColor: "bg-blue-50" },
+        { id: "accounting", title: dict.Settings?.Tabs?.Accounting, icon: Scale, color: "text-indigo-600", bgColor: "bg-indigo-50" },
+        { id: "warehouses", title: dict.Inventory?.Warehouses?.Title, icon: HardDrive, color: "text-emerald-600", bgColor: "bg-emerald-50" },
+        { id: "interface", title: dict.Settings?.Tabs?.Interface, icon: Monitor, color: "text-rose-600", bgColor: "bg-rose-50" },
+        { id: "taxes", title: dict.Settings?.Tabs?.Taxes, icon: Receipt, color: "text-green-600", bgColor: "bg-green-50" },
+        { id: "invoices", title: dict.Settings?.Tabs?.Invoices, icon: FileText, color: "text-indigo-600", bgColor: "bg-indigo-50" },
+        { id: "print", title: dict.PrintSettings?.Title, icon: Printer, color: "text-orange-600", bgColor: "bg-orange-50" },
+        { id: "storage", title: dict.StorageLocation?.Title, icon: HardDrive, color: "text-purple-600", bgColor: "bg-purple-50" },
+        { id: "backup", title: dict.Settings?.Tabs?.Backup, icon: Database, color: "text-emerald-600", bgColor: "bg-emerald-50", desktopOnly: true },
+        { id: "danger", title: dict.Settings?.Tabs?.Danger, icon: ShieldAlert, color: "text-red-600", bgColor: "bg-red-50", desktopOnly: true },
+        { id: "subscribers", title: dict.Settings?.Tabs?.Subscribers, icon: Users, color: "text-cyan-600", bgColor: "bg-cyan-50", superAdminOnly: true }
     ];
 
     // ... handle activeTab ...
@@ -67,7 +71,7 @@ export function SettingsContentManager({ settings, users, isSuperAdmin }: { sett
                 <button
                     onClick={() => setActiveTab(null)}
                     className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                    title={dict.Common?.Back || "Back"}
+                    title={dict.Common?.Back}
                 >
                     <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
                 </button>
@@ -101,6 +105,8 @@ export function SettingsContentManager({ settings, users, isSuperAdmin }: { sett
 
             <div className="min-h-[500px]">
                 {activeTab === "facility" && <SettingsForm initialData={settings} />}
+                {activeTab === "accounting" && <FiscalClosingManager />}
+                {activeTab === "warehouses" && <WarehouseManager />}
                 {activeTab === "interface" && <InterfaceSettingsForm initialData={settings} />}
                 {activeTab === "taxes" && <TaxSettingsForm initialData={settings} />}
                 {activeTab === "invoices" && <InvoiceSettingsForm initialData={settings} />}

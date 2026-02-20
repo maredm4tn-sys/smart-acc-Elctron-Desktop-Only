@@ -16,10 +16,16 @@ const DEFAULT_TENANT = 'tenant_default';
 function cleanPhone(phone: any): string | null {
     if (!phone) return null;
     let p = String(phone).trim();
-    // Remove .0 if it's from an Excel float
+    // Remove .0 if it's from an Excel float (e.g., "1034870364.0")
     if (p.endsWith('.0')) p = p.slice(0, -2);
-    // If it starts with 1 and is 10 digits, it might be an Egyptian number missing its 0
-    if (p.length === 10 && p.startsWith('1')) p = '0' + p;
+
+    // Egyptian Mobile Numbers Logic:
+    // If length is 10 and starts with '1', it's almost certainly an Egyptian number missing its leading '0'
+    // (e.g., 10..., 11..., 12..., 15...)
+    if (p.length === 10 && /^[1]/.test(p)) {
+        p = '0' + p;
+    }
+
     return p;
 }
 
@@ -103,15 +109,29 @@ export async function createCustomer(data: any) {
                     });
 
                     if (customerAcc) {
+                        // Correct Accounting Logic: 
+                        // If openBal > 0 (Customer owes us): Debit Customer (+Asset), Credit Opening Balance (+Equity-ish)
+                        // If openBal < 0 (We owe Customer): Credit Customer (+Liability style), Debit Opening Balance
                         await createJournalEntry({
                             date: new Date().toISOString().split('T')[0],
                             description: `${dict.Accounting.SystemAccounts.OpeningBalance}: ${name}`,
                             reference: `OP-${newCustomer.id}`,
                             lines: [
-                                { accountId: customerAcc.id, debit: openBal > 0 ? openBal : 0, credit: openBal < 0 ? Math.abs(openBal) : 0, description: dict.Accounting.SystemAccounts.OpeningBalance },
-                                { accountId: (await getOpeningBalanceAccount(tenantId)).id, debit: openBal < 0 ? Math.abs(openBal) : 0, credit: openBal > 0 ? openBal : 0, description: dict.Accounting.SystemAccounts.OpeningBalance }
+                                {
+                                    accountId: customerAcc.id,
+                                    debit: openBal > 0 ? Math.abs(openBal) : 0,
+                                    credit: openBal < 0 ? Math.abs(openBal) : 0,
+                                    description: dict.Accounting.SystemAccounts.OpeningBalance
+                                },
+                                {
+                                    accountId: (await getOpeningBalanceAccount(tenantId)).id,
+                                    debit: openBal < 0 ? Math.abs(openBal) : 0,
+                                    credit: openBal > 0 ? Math.abs(openBal) : 0,
+                                    description: dict.Accounting.SystemAccounts.OpeningBalance
+                                }
                             ]
                         });
+                        logToDesktop(`✅ [ACCOUNTING] Created opening entry for ${name} with value ${openBal}`);
                     }
                 }
             }
@@ -221,8 +241,8 @@ export async function bulkImportCustomers(customersList: any[]) {
 
         // Map localized headers to internal keys
         const m = {
-            name: [dict.Customers.Table.Name, dict.Customers.AddDialog.Name, "Name", "name", "full name", "الاسم"],
-            phone: [dict.Customers.Table.Phone, dict.Customers.AddDialog.Phone, "Phone", "phone", "الهاتف", "رقم الهاتف"],
+            name: [dict.Customers.Table.Name, dict.Customers.AddDialog.Name, "Name", "name", "full name", "الاسم", "اسم العميل"],
+            phone: [dict.Customers.Table.Phone, dict.Customers.AddDialog.Phone, "Phone", "phone", "الهاتف", "رقم الهاتف", "موبايل"],
             company: [dict.Customers.Table.Company, dict.Customers.AddDialog.Company, "Company", "company", "الشركة", "اسم الشركة"],
             address: [dict.Customers.Table.Address, dict.Customers.AddDialog.Address, "Address", "address", "العنوان"],
             balance: [dict.Customers.AddDialog.OpeningBalance, "Opening Balance", "balance", "الرصيد الافتتاحي", "إجمالي المديونية"],
@@ -232,29 +252,36 @@ export async function bulkImportCustomers(customersList: any[]) {
         const find = (raw: any, keys: string[]) => {
             for (const k of keys) {
                 if (raw[k] !== undefined) return raw[k];
-                // Case-insensitive check
-                const match = Object.keys(raw).find(rk => rk.toLowerCase().trim() === k.toLowerCase().trim());
-                if (match) return raw[match];
+                const match = Object.keys(raw).find(rk => {
+                    const cleanK = k.toLowerCase().trim();
+                    const cleanRK = rk.toLowerCase().trim();
+                    return cleanRK === cleanK || cleanRK.includes(cleanK) || cleanK.includes(cleanRK);
+                });
+                if (match !== undefined) return raw[match];
             }
             return undefined;
         };
 
         for (const raw of customersList) {
-            const name = find(raw, m.name);
-            if (!name) continue;
+            try {
+                const name = find(raw, m.name);
+                if (!name) continue;
 
-            const res = await createCustomer({
-                name: String(name),
-                companyName: find(raw, m.company) || "",
-                phone: String(find(raw, m.phone) || ""),
-                address: find(raw, m.address) || "",
-                openingBalance: Number(find(raw, m.balance) || 0),
-                priceLevel: find(raw, m.priceLevel) || 'retail'
-            });
+                const res = await createCustomer({
+                    name: String(name),
+                    companyName: find(raw, m.company) || "",
+                    phone: find(raw, m.phone) ? String(find(raw, m.phone)) : "",
+                    address: find(raw, m.address) || "",
+                    openingBalance: Number(find(raw, m.balance) || 0),
+                    priceLevel: find(raw, m.priceLevel) || 'retail'
+                });
 
-            if (res.success) count++;
+                if (res) count++;
+            } catch (err: any) {
+                console.error("Customer Import Row Error:", err);
+            }
         }
-        return dict.Common.Success;
+        return count;
     });
 }
 
@@ -302,7 +329,7 @@ export async function getCustomerStatement(id: number) {
         // Sort by date then by id to ensure order
         transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-        let runningBalance = Number(customer.openingBalance || 0);
+        let runningBalance = 0; // Start from 0 because opening balance is already in transactions
         const history = transactions.map(t => {
             runningBalance += (t.debit - t.credit);
             return { ...t, balance: runningBalance };

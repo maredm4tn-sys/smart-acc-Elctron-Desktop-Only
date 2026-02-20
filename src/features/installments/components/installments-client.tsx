@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Calendar, Search, CheckCircle2, AlertCircle, Clock, Wallet } from "lucide-react";
 import { payInstallment } from "../actions";
+import { getInvoiceItems } from "@/features/sales/actions";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/utils";
@@ -20,6 +21,18 @@ export function InstallmentsClient({ initialData }: { initialData: any[] }) {
     const { currency } = useSettings();
     const [installments, setInstallments] = useState(initialData);
     const [search, setSearch] = useState("");
+    const [invoiceItemsData, setInvoiceItemsData] = useState<Record<number, any[]>>({});
+    const [loadingInvoiceId, setLoadingInvoiceId] = useState<number | null>(null);
+
+    const fetchItems = async (invoiceId: number) => {
+        if (invoiceItemsData[invoiceId]) return;
+        setLoadingInvoiceId(invoiceId);
+        const res = await getInvoiceItems(invoiceId);
+        if (res.success) {
+            setInvoiceItemsData(prev => ({ ...prev, [invoiceId]: res.data }));
+        }
+        setLoadingInvoiceId(null);
+    };
 
     const handlePay = async (id: number) => {
         const confirm = window.confirm(dict.Common.Confirm);
@@ -96,7 +109,7 @@ export function InstallmentsClient({ initialData }: { initialData: any[] }) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-black text-orange-900">{formatCurrency(totalPendingAmount, currency)}</div>
-                        <p className="text-xs text-orange-500 mt-1 font-bold">{(dict as any).Installments?.Status?.PendingDesc || "Total value of remaining installments"}</p>
+                        <p className="text-xs text-orange-500 mt-1 font-bold">{(dict as any).Installments?.Status?.PendingDesc }</p>
                     </CardContent>
                 </Card>
 
@@ -117,7 +130,7 @@ export function InstallmentsClient({ initialData }: { initialData: any[] }) {
                                 />
                             </div>
                         </div>
-                        <p className="text-xs text-emerald-500 mt-1 font-bold">{(dict as any).Installments?.Status?.CommitmentDesc || "Ratio of collected items to total"}</p>
+                        <p className="text-xs text-emerald-500 mt-1 font-bold">{(dict as any).Installments?.Status?.CommitmentDesc }</p>
                     </CardContent>
                 </Card>
             </div>
@@ -142,21 +155,31 @@ export function InstallmentsClient({ initialData }: { initialData: any[] }) {
                 </div>
 
                 <TabsContent value="all" className="mt-0">
-                    <InstallmentTable data={filtered} onPay={handlePay} dict={dict} currency={currency} dir={dir} />
+                    <InstallmentTable data={filtered} onPay={handlePay} fetchItems={fetchItems} itemsData={invoiceItemsData} loadingId={loadingInvoiceId} dict={dict} currency={currency} dir={dir} />
                 </TabsContent>
                 <TabsContent value="due" className="mt-0">
-                    <InstallmentTable data={filtered.filter(i => i.status !== 'paid')} onPay={handlePay} dict={dict} currency={currency} dir={dir} />
+                    <InstallmentTable data={filtered.filter(i => i.status !== 'paid')} onPay={handlePay} fetchItems={fetchItems} itemsData={invoiceItemsData} loadingId={loadingInvoiceId} dict={dict} currency={currency} dir={dir} />
                 </TabsContent>
                 <TabsContent value="paid" className="mt-0">
-                    <InstallmentTable data={filtered.filter(i => i.status === 'paid')} onPay={handlePay} dict={dict} currency={currency} dir={dir} />
+                    <InstallmentTable data={filtered.filter(i => i.status === 'paid')} onPay={handlePay} fetchItems={fetchItems} itemsData={invoiceItemsData} loadingId={loadingInvoiceId} dict={dict} currency={currency} dir={dir} />
                 </TabsContent>
             </Tabs>
         </div>
     );
 }
 
-function InstallmentTable({ data, onPay, dict, currency, dir }: { data: any[], onPay: (id: number) => void, dict: any, currency: string, dir: string }) {
+function InstallmentTable({ data, onPay, fetchItems, itemsData, loadingId, dict, currency, dir }: {
+    data: any[],
+    onPay: (id: number) => void,
+    fetchItems: (id: number) => void,
+    itemsData: Record<number, any[]>,
+    loadingId: number | null,
+    dict: any,
+    currency: string,
+    dir: string
+}) {
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+    const [showInvoiceItems, setShowInvoiceItems] = useState<Record<number, boolean>>({});
 
     const toggleGroup = (key: string) => {
         setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
@@ -173,7 +196,9 @@ function InstallmentTable({ data, onPay, dict, currency, dir }: { data: any[], o
                 invoiceNumber: inst.invoiceNumber,
                 installments: [],
                 totalAmount: 0,
-                status: 'paid'
+                status: 'paid',
+                installmentCount: inst.installmentCount,
+                installmentInterest: inst.installmentInterest
             };
         }
         groups[key].installments.push(inst);
@@ -189,11 +214,11 @@ function InstallmentTable({ data, onPay, dict, currency, dir }: { data: any[], o
                 <TableHeader className="bg-slate-50/50">
                     <TableRow>
                         <TableHead className="text-start font-black w-[40px]"></TableHead>
-                        <TableHead className="text-start font-black">{dict.Installments?.Table?.Customer || "Customer"} / {dict.Installments?.Table?.Invoice || "Invoice"}</TableHead>
-                        <TableHead className="text-center font-black">{dict.Installments?.Table?.DueDate || "Due Date"}</TableHead>
-                        <TableHead className="text-center font-black">{dict.Installments?.Table?.Amount || "Amount"}</TableHead>
-                        <TableHead className="text-center font-black">{dict.Installments?.Table?.Status || "Status"}</TableHead>
-                        <TableHead className="text-center font-black">{dict.Installments?.Table?.Actions || "Actions"}</TableHead>
+                        <TableHead className="text-start font-black">{dict.Installments?.Table?.Customer} / {dict.Installments?.Table?.Invoice}</TableHead>
+                        <TableHead className="text-center font-black">{dict.Installments?.Table?.DueDate}</TableHead>
+                        <TableHead className="text-center font-black">{dict.Installments?.Table?.Amount}</TableHead>
+                        <TableHead className="text-center font-black">{dict.Installments?.Table?.Status}</TableHead>
+                        <TableHead className="text-center font-black">{dict.Installments?.Table?.Actions}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -202,7 +227,7 @@ function InstallmentTable({ data, onPay, dict, currency, dir }: { data: any[], o
                             <TableCell colSpan={6} className="text-center py-10 text-gray-400 font-bold">{dict.Installments.NoInstallments}</TableCell>
                         </TableRow>
                     ) : (
-                        groupList.map((group, gIdx) => (
+                        groupList.map((group: any) => (
                             <React.Fragment key={group.key}>
                                 {/* Group Summary Row */}
                                 <TableRow
@@ -217,13 +242,22 @@ function InstallmentTable({ data, onPay, dict, currency, dir }: { data: any[], o
                                     <TableCell>
                                         <div className="flex flex-col gap-0.5">
                                             <span className="font-black text-slate-900 text-sm">{group.customerName}</span>
-                                            <span className="text-[10px] text-blue-600 font-mono font-bold">
-                                                {dict.Sidebar?.Invoice || dict.Invoices?.Title || "Invoice"} #{group.invoiceNumber}
-                                            </span>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const invId = group.installments[0].invoiceId;
+                                                    setShowInvoiceItems(prev => ({ ...prev, [invId]: !prev[invId] }));
+                                                    if (!showInvoiceItems[invId]) fetchItems(invId);
+                                                }}
+                                                className="text-[10px] text-blue-600 font-mono font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded w-fit"
+                                            >
+                                                {dict.Sidebar?.Invoice || dict.Invoices?.Title} #{group.invoiceNumber}
+                                                {loadingId === group.installments[0].invoiceId ? "..." : ""}
+                                            </button>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-center text-xs text-slate-400">
-                                        {group.installments.length} {dict.Installments?.InstallmentsCount || "Installments"}
+                                    <TableCell className="text-center text-xs text-slate-500 font-bold">
+                                        {group.installments.length} {dict.Installments?.InstallmentsCount}
                                     </TableCell>
                                     <TableCell className="text-center font-black text-slate-900">
                                         {formatCurrency(group.totalAmount, currency)}
@@ -231,30 +265,83 @@ function InstallmentTable({ data, onPay, dict, currency, dir }: { data: any[], o
                                     <TableCell className="text-center">
                                         {group.status === 'paid' ? (
                                             <Badge className="bg-emerald-100 text-emerald-700 border-none font-black text-[10px]">
-                                                {dict.Installments?.Table?.Paid || "Paid"}
+                                                {dict.Installments?.Table?.Paid}
                                             </Badge>
                                         ) : (
                                             <Badge variant="outline" className="text-orange-500 border-orange-100 bg-orange-50 font-black text-[10px]">
-                                                {dict.Installments?.Table?.Pending || "Pending"}
+                                                {dict.Installments?.Table?.Pending}
                                             </Badge>
                                         )}
                                     </TableCell>
                                     <TableCell className="text-center">
                                         <Button variant="ghost" size="sm" className="text-[10px] font-bold h-7">
-                                            {expandedGroups[group.key] ? (dict.Common?.Hide || "Hide") : (dict.Common?.Show || "Show")}
+                                            {expandedGroups[group.key] ? (dict.Common?.Hide) : (dict.Common?.Show)}
                                         </Button>
                                     </TableCell>
                                 </TableRow>
 
+                                {/* Full Invoice Details & Context */}
+                                {showInvoiceItems[group.installments[0].invoiceId] && (
+                                    <TableRow className="bg-blue-50/20">
+                                        <TableCell colSpan={6} className="p-0 border-none">
+                                            <div className="p-4 border-x border-b border-blue-100 mx-4 bg-white rounded-b-xl shadow-inner mb-2">
+                                                {/* Plan Summary Enhancement */}
+                                                <div className="bg-orange-50/50 p-3 rounded-xl border border-orange-100 mb-4 flex justify-around items-center text-[10px] relative overflow-hidden">
+                                                    <div className="absolute top-0 right-0 p-1 opacity-10">
+                                                        <Wallet size={40} className="rotate-12" />
+                                                    </div>
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <span className="text-orange-600 font-bold">{dict.Sales?.Invoice?.Form?.InstallmentMonths}</span>
+                                                        <span className="text-sm font-black text-orange-900">{group.installmentCount}</span>
+                                                    </div>
+                                                    <div className="h-8 w-px bg-orange-200/50"></div>
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <span className="text-orange-600 font-bold">{dict.Sales?.Invoice?.Form?.InstallmentInterest}</span>
+                                                        <span className="text-sm font-black text-orange-900">{group.installmentInterest}%</span>
+                                                    </div>
+                                                    <div className="h-8 w-px bg-orange-200/50"></div>
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <span className="text-orange-600 font-bold">{dict.Sales?.Invoice?.Form?.ExpectedMonthlyInstallment}</span>
+                                                        <span className="text-sm font-black text-orange-900">{formatCurrency(group.installments[0].amount, currency)}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-[10px] font-black text-blue-700 mb-2 uppercase tracking-wider flex items-center gap-2">
+                                                    <Search size={12} /> {dict.Sales?.Invoice?.Table?.Item || dict.Sales?.Table?.Item}
+                                                </div>
+
+                                                {itemsData[group.installments[0].invoiceId] ? (
+                                                    <div className="border rounded-lg overflow-hidden">
+                                                        <div className="grid grid-cols-4 gap-2 text-[10px] font-black text-slate-400 bg-slate-50 p-2 border-b">
+                                                            <div className="col-span-2">{dict.Sales?.Table?.Item}</div>
+                                                            <div className="text-center">{dict.Sales?.Table?.Qty}</div>
+                                                            <div className="text-end">{dict.Sales?.Table?.Price}</div>
+                                                        </div>
+                                                        {itemsData[group.installments[0].invoiceId].map((item: any, iIdx: number) => (
+                                                            <div key={iIdx} className="grid grid-cols-4 gap-2 text-xs py-2 px-2 border-b border-slate-50 last:border-0 hover:bg-slate-50/80 transition-colors">
+                                                                <div className="col-span-2 font-bold text-slate-700">{item.description}</div>
+                                                                <div className="text-center font-mono text-slate-500 font-bold">{item.quantity}</div>
+                                                                <div className="text-end font-black text-slate-900">{formatCurrency(item.unitPrice, currency)}</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="py-4 text-center text-xs text-muted-foreground animate-pulse">Loading items...</div>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+
                                 {/* Expanded Installments */}
                                 {expandedGroups[group.key] && group.installments.map((inst: any) => (
-                                    <TableRow key={inst.id} className="bg-slate-50/30 hover:bg-slate-50/60 transition-colors border-b last:border-b-2">
+                                    <TableRow key={inst.id} className="bg-white/50 hover:bg-slate-50 transition-colors border-b last:border-b-2">
                                         <TableCell></TableCell>
                                         <TableCell className="text-start">
                                             <div className="flex items-center gap-3 px-4">
                                                 <div className="h-1.5 w-1.5 rounded-full bg-blue-400"></div>
                                                 <span className="text-xs font-bold text-slate-600">
-                                                    {dict.Installments?.Table?.InstallmentNum || "Installment"} {inst.sequence}
+                                                    {dict.Installments?.Table?.InstallmentNum} {inst.sequence}
                                                 </span>
                                             </div>
                                         </TableCell>
@@ -267,16 +354,16 @@ function InstallmentTable({ data, onPay, dict, currency, dir }: { data: any[], o
                                         <TableCell className="text-center">
                                             {inst.status === 'paid' ? (
                                                 <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[9px] px-2 h-5">
-                                                    {dict.Installments?.Table?.Paid || "Paid"}
+                                                    {dict.Installments?.Table?.Paid}
                                                 </Badge>
                                             ) : new Date(inst.dueDate) < new Date() ? (
                                                 <Badge variant="destructive" className="flex items-center gap-1 mx-auto w-fit font-black text-[9px] px-2 h-5">
                                                     <AlertCircle size={8} />
-                                                    {dict.Installments?.Table?.Overdue || "Overdue"}
+                                                    {dict.Installments?.Table?.Overdue}
                                                 </Badge>
                                             ) : (
                                                 <Badge variant="outline" className="text-blue-500 border-blue-50 bg-white font-black text-[9px] px-2 h-5">
-                                                    {dict.Installments?.Table?.Upcoming || "Upcoming"}
+                                                    {dict.Installments?.Table?.Upcoming}
                                                 </Badge>
                                             )}
                                         </TableCell>
@@ -288,7 +375,7 @@ function InstallmentTable({ data, onPay, dict, currency, dir }: { data: any[], o
                                                         onClick={(e) => { e.stopPropagation(); onPay(inst.id); }}
                                                         className="bg-emerald-600 hover:bg-emerald-700 h-6 px-3 font-black text-[9px] rounded-full"
                                                     >
-                                                        {dict.Installments?.Table?.PayAction || "Pay"}
+                                                        {dict.Installments?.Table?.PayAction}
                                                     </Button>
                                                 )}
                                                 {inst.status === 'paid' && (

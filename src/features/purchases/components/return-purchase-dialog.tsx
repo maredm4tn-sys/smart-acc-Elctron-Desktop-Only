@@ -43,7 +43,7 @@ export function ReturnPurchaseDialog({ open, onOpenChange, invoice }: ReturnPurc
             return;
         }
         if (qty > maxQty) {
-            toast.error(dict.Purchases?.Return?.ErrorQtyLimit || "Returned quantity cannot exceed purchased quantity");
+            toast.error(dict.Purchases?.Return?.ErrorQtyLimit);
             setReturnQuantities(prev => ({ ...prev, [itemId]: maxQty }));
             return;
         }
@@ -70,7 +70,7 @@ export function ReturnPurchaseDialog({ open, onOpenChange, invoice }: ReturnPurc
             .filter(item => item.quantity > 0);
 
         if (itemsToReturn.length === 0) {
-            toast.warning(dict.Purchases?.Return?.ErrorEmptySelection || "Please select at least one item to return");
+            toast.warning(dict.Purchases?.Return?.ErrorEmptySelection);
             return;
         }
 
@@ -83,17 +83,17 @@ export function ReturnPurchaseDialog({ open, onOpenChange, invoice }: ReturnPurc
             });
 
             if (result.success) {
-                toast.success(result.message || "Return invoice created successfully");
+                toast.success(result.message );
                 onOpenChange(false);
                 setReturnQuantities({});
                 router.refresh();
                 window.location.reload();
             } else {
-                toast.error(result.error || "Failed to register return");
+                toast.error(result.error );
             }
         } catch (error) {
             console.error(error);
-            toast.error(dict.Common?.Error || "An error occurred");
+            toast.error(dict.Common?.Error);
         } finally {
             setIsPending(false);
         }
@@ -105,10 +105,10 @@ export function ReturnPurchaseDialog({ open, onOpenChange, invoice }: ReturnPurc
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <RotateCcw className="h-5 w-5 text-red-500" />
-                        {dict.Purchases?.Return?.Title || "Purchase Return"} - {invoice.invoiceNumber}
+                        {dict.Purchases?.Return?.Title} - {invoice.invoiceNumber}
                     </DialogTitle>
                     <DialogDescription>
-                        {dict.Purchases?.Return?.Description || "Return goods to supplier and update stock."}
+                        {dict.Purchases?.Return?.Description}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -116,11 +116,11 @@ export function ReturnPurchaseDialog({ open, onOpenChange, invoice }: ReturnPurc
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>{dict.Common?.Item || "Item"}</TableHead>
-                                <TableHead className="text-center">{dict.Purchases?.Table?.QtyBought || "Qty Bought"}</TableHead>
-                                <TableHead className="text-center">{dict.Purchases?.Form?.Cost || "Cost"}</TableHead>
-                                <TableHead className="text-center w-[150px]">{dict.Purchases?.Table?.QtyReturn || "Qty to Return"}</TableHead>
-                                <TableHead className="font-bold">{dict.Purchases?.Table?.Total || "Total"}</TableHead>
+                                <TableHead>{dict.Common?.Item}</TableHead>
+                                <TableHead className="text-center">{dict.Purchases?.Table?.QtyBought}</TableHead>
+                                <TableHead className="text-center">{dict.Purchases?.Form?.Cost}</TableHead>
+                                <TableHead className="text-center w-[150px]">{dict.Purchases?.Table?.QtyReturn}</TableHead>
+                                <TableHead className="font-bold">{dict.Purchases?.Table?.Total}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -149,7 +149,7 @@ export function ReturnPurchaseDialog({ open, onOpenChange, invoice }: ReturnPurc
                     </Table>
 
                     <div className="mt-6 flex justify-between items-center bg-red-50 p-4 rounded-lg border border-red-100">
-                        <span className="font-bold text-gray-700">{dict.Purchases?.Form?.Total || "Total Refund"}:</span>
+                        <span className="font-bold text-gray-700">{dict.Purchases?.Form?.Total}:</span>
                         <span className="text-2xl font-bold text-red-600">
                             {calculateTotalRefund().toFixed(2)}
                         </span>
@@ -158,7 +158,7 @@ export function ReturnPurchaseDialog({ open, onOpenChange, invoice }: ReturnPurc
 
                 <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-                        {dict.Common?.Cancel || "Cancel"}
+                        {dict.Common?.Cancel}
                     </Button>
                     <Button
                         onClick={handleReturn}
@@ -166,7 +166,7 @@ export function ReturnPurchaseDialog({ open, onOpenChange, invoice }: ReturnPurc
                         className="bg-red-600 hover:bg-red-700 text-white"
                     >
                         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {dict.Common?.Confirm || "Confirm Return"}
+                        {dict.Common?.Confirm}
                     </Button>
                 </DialogFooter>
             </DialogContent>

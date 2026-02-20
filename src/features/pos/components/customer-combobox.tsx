@@ -9,9 +9,10 @@ interface CustomerComboboxProps {
     customers: any[];
     onSelect: (customer: any) => void;
     defaultValue?: string;
+    placeholder?: string;
 }
 
-export function CustomerCombobox({ customers, onSelect, defaultValue }: CustomerComboboxProps) {
+export function CustomerCombobox({ customers, onSelect, defaultValue, placeholder }: CustomerComboboxProps) {
     const { dict } = useTranslation() as any;
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
@@ -64,7 +65,7 @@ export function CustomerCombobox({ customers, onSelect, defaultValue }: Customer
                         "placeholder:text-slate-400 placeholder:font-normal",
                         open ? "border-blue-500 ring-2 ring-blue-50" : "border-slate-200"
                     )}
-                    placeholder={dict?.Common?.CashCustomer || "عميل نقدي"}
+                    placeholder={placeholder || dict?.Common?.CashCustomer}
                     value={search}
                     onFocus={() => {
                         setOpen(true);
@@ -85,7 +86,7 @@ export function CustomerCombobox({ customers, onSelect, defaultValue }: Customer
                     <div className="max-h-[250px] overflow-y-auto custom-scrollbar">
                         {filtered.length === 0 && search !== "" ? (
                             <div className="p-4 text-center text-slate-400 text-xs italic">
-                                {dict?.Common?.NoData || "لا توجد نتائج للبحث..."}
+                                {dict?.Common?.NoData}
                             </div>
                         ) : (
                             filtered.map((customer) => (
@@ -109,15 +110,15 @@ export function CustomerCombobox({ customers, onSelect, defaultValue }: Customer
                         )}
 
                         {/* Optional: Static "Back to Cash" if searched or scrolled */}
-                        {search !== "" && (dict?.Common?.CashCustomer || "عميل نقدي").includes(search.toLowerCase()) && (
+                        {search !== "" && (dict?.Common?.CashCustomer).includes(search.toLowerCase()) && (
                             <div
                                 className="px-4 py-2.5 text-[13px] cursor-pointer text-blue-600 font-bold hover:bg-blue-50 border-t border-slate-100"
                                 onMouseDown={() => {
-                                    onSelect({ id: 0, name: dict?.Common?.CashCustomer || "عميل نقدي" });
+                                    onSelect({ id: 0, name: dict?.Common?.CashCustomer });
                                     setOpen(false);
                                 }}
                             >
-                                {dict?.Common?.CashCustomer || "عميل نقدي"} (إفتراضي)
+                                {dict?.Common?.CashCustomer} (إفتراضي)
                             </div>
                         )}
                     </div>

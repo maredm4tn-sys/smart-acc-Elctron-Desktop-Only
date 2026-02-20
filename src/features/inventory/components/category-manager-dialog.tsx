@@ -49,10 +49,10 @@ export function CategoryManagerDialog({ onCategoryAdded, trigger }: CategoryMana
                 fetchCategories();
                 if (onCategoryAdded) onCategoryAdded();
             } else {
-                toast.error((res as any).message || dict.Common?.Error || "Error");
+                toast.error((res as any).message || dict.Common?.Error);
             }
         } catch (error) {
-            toast.error(dict.Common?.Error || "An error occurred");
+            toast.error(dict.Common?.Error);
         } finally {
             setLoading(false);
         }
@@ -70,7 +70,7 @@ export function CategoryManagerDialog({ onCategoryAdded, trigger }: CategoryMana
                 toast.error(res.message);
             }
         } catch (error) {
-            toast.error(dict.Common?.Error || "Error deleting category");
+            toast.error(dict.Common?.Error);
         }
     };
 

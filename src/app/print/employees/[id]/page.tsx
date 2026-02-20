@@ -16,7 +16,7 @@ export default async function PrintEmployeeReport({
 
     const settings = await getSettings();
     const currency = settings?.currency || "EGP";
-    const dict = await getDictionary();
+    const dict = await getDictionary() as any;
 
     // In print mode, if dates are missing, we use current month or wide range
     const startDate = start || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
@@ -38,33 +38,33 @@ export default async function PrintEmployeeReport({
                     <h1 className="text-3xl font-black text-slate-900 mb-1">{dict.Reports.Statements.Employees}</h1>
                     <h2 className="text-2xl font-black text-blue-700">{employee.name}</h2>
                     <div className="text-slate-500 text-sm mt-2 flex gap-4">
-                        <span>من: {startDate}</span>
-                        <span>إلى: {endDate}</span>
+                        <span>{dict.Employees?.Report?.Print?.From} {startDate}</span>
+                        <span>{dict.Employees?.Report?.Print?.To} {endDate}</span>
                     </div>
                 </div>
                 <div className="text-left">
                     <h2 className="text-xl font-bold">Smart Accountant</h2>
-                    <p className="text-xs text-muted-foreground">تقرير مالي للموظف</p>
-                    <p className="text-[10px] mt-1">تاريخ الطباعة: {new Date().toLocaleDateString('ar-EG')}</p>
+                    <p className="text-xs text-muted-foreground">{dict.Employees?.Report?.Print?.Title}</p>
+                    <p className="text-[10px] mt-1">{dict.Employees?.Report?.Print?.PrintDate} {new Date().toLocaleDateString('en-GB')}</p>
                 </div>
             </div>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-4 gap-4 mb-10 border p-4 rounded-xl bg-slate-50">
                 <div className="text-center border-l">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1">إجمالي الأساسي</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1">{dict.Employees?.Report?.Print?.TotalBasic}</p>
                     <p className="text-lg font-black">{formatCurrency(summary.totalBasic, currency)}</p>
                 </div>
                 <div className="text-center border-l">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1">إجمالي الحوافز</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1">{dict.Employees?.Report?.Print?.TotalIncentives}</p>
                     <p className="text-lg font-black text-green-600">+{formatCurrency(summary.totalIncentives, currency)}</p>
                 </div>
                 <div className="text-center border-l">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1">إجمالي الاستقطاعات</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1">{dict.Employees?.Report?.Print?.TotalDeductions}</p>
                     <p className="text-lg font-black text-red-600">-{formatCurrency(summary.totalDeductions + summary.totalAdvanceDed, currency)}</p>
                 </div>
                 <div className="text-center">
-                    <p className="text-[10px] font-bold text-slate-400 mb-1">صافي المنصرف</p>
+                    <p className="text-[10px] font-bold text-slate-400 mb-1">{dict.Employees?.Report?.Print?.NetDisbursed}</p>
                     <p className="text-lg font-black text-blue-700">{formatCurrency(summary.totalNet, currency)}</p>
                 </div>
             </div>
@@ -72,22 +72,22 @@ export default async function PrintEmployeeReport({
             {/* Payrolls Table */}
             {(type === 'all' || type === 'payroll') && (
                 <div className="mb-10">
-                    <h3 className="font-bold text-slate-700 mb-4 border-r-4 border-blue-500 pr-2">سجلات الرواتب</h3>
+                    <h3 className="font-bold text-slate-700 mb-4 border-r-4 border-blue-500 pr-2">{dict.Employees?.Report?.Print?.PayrollRecords}</h3>
                     <Table className="border rounded-lg">
                         <TableHeader className="bg-slate-100">
                             <TableRow>
-                                <TableHead className="text-center">التاريخ</TableHead>
-                                <TableHead className="text-center">الشهر</TableHead>
-                                <TableHead className="text-center">الأساسي</TableHead>
-                                <TableHead className="text-center">حوافز</TableHead>
-                                <TableHead className="text-center">استقطاعات</TableHead>
-                                <TableHead className="text-center">خصم سلف</TableHead>
-                                <TableHead className="text-center font-bold text-blue-700">الصافي</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Date}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Month}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Basic}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Incentives}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Deductions}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.AdvanceDeduction}</TableHead>
+                                <TableHead className="text-center font-bold text-blue-700">{dict.Employees?.Report?.Print?.Table?.Net}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {payrolls.length === 0 ? (
-                                <TableRow><TableCell colSpan={7} className="text-center">لا يوجد بيانات</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={7} className="text-center">{dict.Employees?.Report?.Print?.NoData}</TableCell></TableRow>
                             ) : (
                                 payrolls.map((p: any) => (
                                     <TableRow key={p.id}>
@@ -109,29 +109,29 @@ export default async function PrintEmployeeReport({
             {/* Advances Table */}
             {(type === 'all' || type === 'advances') && (
                 <div className="mb-10">
-                    <h3 className="font-bold text-slate-700 mb-4 border-r-4 border-orange-500 pr-2">سجلات السلف والقروض</h3>
+                    <h3 className="font-bold text-slate-700 mb-4 border-r-4 border-orange-500 pr-2">{dict.Employees?.Report?.Print?.AdvancesRecords}</h3>
                     <Table className="border rounded-lg">
                         <TableHeader className="bg-slate-100">
                             <TableRow>
-                                <TableHead className="text-center">التاريخ</TableHead>
-                                <TableHead className="text-center">النوع</TableHead>
-                                <TableHead className="text-center">المبلغ</TableHead>
-                                <TableHead className="text-center">شهر الخصم</TableHead>
-                                <TableHead className="text-center">الحالة</TableHead>
-                                <TableHead className="text-right">ملاحظات</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Date}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Type}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Amount}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.DeductionMonth}</TableHead>
+                                <TableHead className="text-center">{dict.Employees?.Report?.Print?.Table?.Status}</TableHead>
+                                <TableHead className="text-right">{dict.Employees?.Report?.Print?.Table?.Notes}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {advances.length === 0 ? (
-                                <TableRow><TableCell colSpan={6} className="text-center">لا يوجد بيانات</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={6} className="text-center">{dict.Employees?.Report?.Print?.NoData}</TableCell></TableRow>
                             ) : (
                                 advances.map((a: any) => (
                                     <TableRow key={a.id}>
                                         <TableCell className="text-center font-mono">{a.date}</TableCell>
-                                        <TableCell className="text-center">{a.type === 'advance' ? 'صرف سلفة' : 'استرداد نقدي'}</TableCell>
+                                        <TableCell className="text-center">{a.type === 'advance' ? dict.Employees?.Report?.Print?.AdvanceTypeDisburse : dict.Employees?.Report?.Print?.AdvanceTypeRepay}</TableCell>
                                         <TableCell className={`text-center font-mono font-bold ${a.type === 'advance' ? 'text-orange-700' : 'text-green-700'}`}>{formatCurrency(a.amount, currency)}</TableCell>
                                         <TableCell className="text-center">{a.salaryMonth}</TableCell>
-                                        <TableCell className="text-center">{a.status === 'deducted' ? 'تم الخصم' : 'رصيد مفتوح'}</TableCell>
+                                        <TableCell className="text-center">{a.status === 'deducted' ? dict.Employees?.Report?.Print?.StatusDeducted : dict.Employees?.Report?.Print?.StatusOpen}</TableCell>
                                         <TableCell className="text-right text-xs">{a.notes || "-"}</TableCell>
                                     </TableRow>
                                 ))
@@ -144,15 +144,15 @@ export default async function PrintEmployeeReport({
             {/* Footer */}
             <div className="mt-20 flex justify-between items-end border-t pt-10 px-10">
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">توقيع الموظف</p>
+                    <p className="font-bold underline mb-10">{dict.Employees?.Report?.Print?.EmpSignature}</p>
                     <p className="text-slate-300">..............................</p>
                 </div>
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">المراجعة والاعتماد</p>
+                    <p className="font-bold underline mb-10">{dict.Employees?.Report?.Print?.ReviewApproval}</p>
                     <p className="text-slate-300">..............................</p>
                 </div>
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">ختم المنشأة</p>
+                    <p className="font-bold underline mb-10">{dict.Employees?.Report?.Print?.FacilityStamp}</p>
                     <div className="h-20 w-20 border-4 border-slate-100 rounded-full mx-auto opacity-20"></div>
                 </div>
             </div>

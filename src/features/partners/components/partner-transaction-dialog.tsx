@@ -45,14 +45,14 @@ export function PartnerTransactionDialog({ partner, dict, onSuccess }: { partner
             });
 
             if (res.success) {
-                toast.success(dict.PartnersManagement?.Transaction?.Success || "Success");
+                toast.success(dict.PartnersManagement?.Transaction?.Success);
                 setOpen(false);
                 onSuccess();
             } else {
-                toast.error(res.message || dict.PartnersManagement?.Transaction?.Error || "Error");
+                toast.error(res.message || dict.PartnersManagement?.Transaction?.Error);
             }
         } catch (err) {
-            toast.error(dict.PartnersManagement?.Transaction?.Error || "Error");
+            toast.error(dict.PartnersManagement?.Transaction?.Error);
         } finally {
             setLoading(false);
         }

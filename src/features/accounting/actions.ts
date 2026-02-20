@@ -521,9 +521,12 @@ export async function seedDefaultAccounts(_tenantId?: string) {
             { code: '5', name: `${dict.Accounting.Categories.Expense} (5)`, type: 'expense' },
             { code: '51', name: dict.Accounting.SystemAccounts.PurchasesCost, type: 'expense', parentCode: '5' },
             { code: '52', name: dict.Accounting.SystemAccounts.GeneralExpenses, type: 'expense', parentCode: '5' },
-            { code: '505', name: dict.Accounting.SystemAccounts.AllowedDiscount, type: 'expense', parentCode: '5' },
+            { code: '5101', name: dict.Accounting.SystemAccounts.COGS, type: 'expense', parentCode: '51' },
+            { code: '5103', name: dict.Accounting.SystemAccounts.AllowedDiscount, type: 'expense', parentCode: '5' },
             { code: '2102', name: dict.Accounting.SystemAccounts.VatTax, type: 'liability', parentCode: '21' },
             { code: '5201', name: dict.Accounting.SystemAccounts.Salaries, type: 'expense', parentCode: '52' },
+            { code: '4102', name: dict.Accounting.SystemAccounts.InterestIncome, type: 'revenue', parentCode: '41' },
+            { code: '4103', name: dict.Accounting.SystemAccounts.DeliveryRevenue, type: 'revenue', parentCode: '41' },
         ];
 
         for (const acc of defaultAccounts) {
@@ -578,5 +581,137 @@ export async function seedDefaultAccounts(_tenantId?: string) {
     } catch (e: any) {
         console.error("Seed Accounts Error:", e);
         return { success: false, message: e.message };
+    }
+}
+
+/**
+ * 🛠️ [SERVER ACTION] closeFiscalYear
+ * 1. Zeros out nominal accounts (Revenue 4xxx, Expenses 5xxx).
+ * 2. Transfers net profit/loss to Profit/Loss account (32).
+ * 3. Marks current fiscal year as closed.
+ * 4. Opens a new fiscal year.
+ */
+export async function closeFiscalYear() {
+    try {
+        const { tenantId, userId } = await requireSession();
+        const dict = (await getAccDict()) as any;
+
+        // 1. All Async operations outside the transaction
+        const fy = await db.query.fiscalYears.findFirst({
+            where: (fy: any, { eq, and }: any) => and(eq(fy.tenantId, tenantId), eq(fy.isClosed, false))
+        });
+
+        if (!fy) return { success: false, message: dict.Settings?.Accounting?.FiscalClosing?.NoOpenYear };
+
+        const nominalAccounts = await db.query.accounts.findMany({
+            where: (accounts: any, { eq, and, or, like }: any) => and(
+                eq(accounts.tenantId, tenantId),
+                or(
+                    like(accounts.code, '4%'),
+                    like(accounts.code, '5%')
+                )
+            )
+        });
+
+        const profitLossAccount = await db.query.accounts.findFirst({
+            where: (accounts: any, { eq, and }: any) => and(
+                eq(accounts.tenantId, tenantId),
+                eq(accounts.code, '32')
+            )
+        });
+
+        if (!profitLossAccount) return { success: false, message: "Profit/Loss account (32) not found." };
+
+        const entryNumber = await getNextEntryNumber(tenantId, db);
+        const settings = await getSettings();
+        const defaultCurrency = settings?.currency || "EGP";
+
+        // 2. Synchronous Transaction
+        const result = db.transaction((tx) => {
+            const lines: any[] = [];
+            let totalNetProfit = 0;
+
+            for (const acc of nominalAccounts) {
+                const bal = Number(acc.balance || 0);
+                if (Math.abs(bal) < 0.01) continue;
+
+                if (bal > 0) {
+                    lines.push({ accountId: acc.id, debit: 0, credit: bal, description: "Year-End Closing" });
+                    totalNetProfit -= bal;
+                } else {
+                    const positiveBal = Math.abs(bal);
+                    lines.push({ accountId: acc.id, debit: positiveBal, credit: 0, description: "Year-End Closing" });
+                    totalNetProfit += positiveBal;
+                }
+            }
+
+            if (lines.length === 0 && Math.abs(totalNetProfit) < 0.01) {
+                return { success: false, message: "No balances to close." };
+            }
+
+            if (Math.abs(totalNetProfit) >= 0.01) {
+                if (totalNetProfit > 0) {
+                    lines.push({ accountId: profitLossAccount.id, debit: 0, credit: totalNetProfit, description: "Current Year Net Profit" });
+                } else {
+                    const positiveLoss = Math.abs(totalNetProfit);
+                    lines.push({ accountId: profitLossAccount.id, debit: positiveLoss, credit: 0, description: "Current Year Net Loss" });
+                }
+            }
+
+            // Create Journal Entry SYNC (since Drizzle better-sqlite3 runner is sync)
+            const [entry] = tx.insert(journalEntries).values({
+                tenantId,
+                fiscalYearId: fy.id,
+                entryNumber,
+                transactionDate: fy.endDate,
+                description: `Year-End Closing for ${fy.name}`,
+                reference: `CLS-${fy.name}`,
+                currency: defaultCurrency,
+                exchangeRate: "1.00",
+                status: "posted",
+                createdBy: userId
+            }).returning();
+
+            for (const line of lines) {
+                tx.insert(journalLines).values({
+                    journalEntryId: entry.id,
+                    accountId: line.accountId,
+                    description: line.description,
+                    debit: line.debit.toFixed(2),
+                    credit: line.credit.toFixed(2),
+                }).run();
+
+                tx.update(accounts)
+                    .set({
+                        balance: sql`CAST(CAST(COALESCE(${accounts.balance}, 0) AS REAL) + ${line.debit} - ${line.credit} AS TEXT)`
+                    })
+                    .where(and(eq(accounts.id, line.accountId), eq(accounts.tenantId, tenantId)))
+                    .run();
+            }
+
+            // Mark closed
+            tx.update(fiscalYears).set({ isClosed: true }).where(eq(fiscalYears.id, fy.id)).run();
+
+            // Create next
+            const nextYearNum = (parseInt(fy.name) || new Date().getFullYear()) + 1;
+            const nextYear = nextYearNum.toString();
+            tx.insert(fiscalYears).values({
+                tenantId,
+                name: nextYear,
+                startDate: `${nextYear}-01-01`,
+                endDate: `${nextYear}-12-31`,
+                isClosed: false
+            }).run();
+
+            return { success: true, message: dict.Settings?.Accounting?.FiscalClosing?.Success || `Successfully closed year ${fy.name}.`, nextYear };
+        });
+
+        if (result.success) {
+            revalidatePath("/dashboard");
+        }
+        return result;
+    } catch (error: any) {
+        logToDesktop(`❌ [closeFiscalYear] Error: ${error.message}`, 'error');
+        return { success: false, message: error.message };
     }
 }

@@ -9,7 +9,7 @@ export default async function PrintCustomerStatement({ params }: { params: Promi
     const { id } = await params;
     const settings = await getSettings();
     const currency = settings?.currency || "EGP";
-    const dict = await getDictionary();
+    const dict = await getDictionary() as any;
     const data = await getCustomerStatement(Number(id));
 
     if (!data) return <div>Error loading data</div>;
@@ -23,11 +23,11 @@ export default async function PrintCustomerStatement({ params }: { params: Promi
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 mb-1">{dict.Customers.Statement.Title}</h1>
                     <h2 className="text-2xl font-black text-blue-700">{customer.name}</h2>
-                    <p className="text-slate-500 text-sm">تاريخ التقرير: {new Date().toLocaleDateString('ar-EG')}</p>
+                    <p className="text-slate-500 text-sm">{dict.Customers?.Report?.Print?.ReportDate} {new Date().toLocaleDateString('en-GB')}</p>
                 </div>
                 <div className="text-left">
                     <h2 className="text-xl font-bold">Smart Accountant</h2>
-                    <p className="text-xs text-muted-foreground">كشف حساب عميل مالي</p>
+                    <p className="text-xs text-muted-foreground">{dict.Customers?.Report?.Print?.Subtitle}</p>
                 </div>
             </div>
 
@@ -51,13 +51,13 @@ export default async function PrintCustomerStatement({ params }: { params: Promi
             <Table className="border rounded-xl">
                 <TableHeader className="bg-slate-50">
                     <TableRow>
-                        <TableHead className="text-right">التاريخ</TableHead>
-                        <TableHead className="text-center">النوع</TableHead>
-                        <TableHead className="text-center">المرجع</TableHead>
-                        <TableHead className="text-right">البيان</TableHead>
-                        <TableHead className="text-center text-blue-600">مدين</TableHead>
-                        <TableHead className="text-center text-green-600">دائن</TableHead>
-                        <TableHead className="text-center font-bold">الرصيد</TableHead>
+                        <TableHead className="text-right">{dict.Customers?.Report?.Print?.Table?.Date}</TableHead>
+                        <TableHead className="text-center">{dict.Customers?.Report?.Print?.Table?.Type}</TableHead>
+                        <TableHead className="text-center">{dict.Customers?.Report?.Print?.Table?.Reference}</TableHead>
+                        <TableHead className="text-right">{dict.Customers?.Report?.Print?.Table?.Description}</TableHead>
+                        <TableHead className="text-center text-blue-600">{dict.Customers?.Report?.Print?.Table?.Debit}</TableHead>
+                        <TableHead className="text-center text-green-600">{dict.Customers?.Report?.Print?.Table?.Credit}</TableHead>
+                        <TableHead className="text-center font-bold">{dict.Customers?.Report?.Print?.Table?.Balance}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -67,7 +67,7 @@ export default async function PrintCustomerStatement({ params }: { params: Promi
                                 {format(new Date(t.date), "dd/MM/yyyy")}
                             </TableCell>
                             <TableCell className="text-center">
-                                {t.type === 'INVOICE' ? 'فاتورة بيع' : 'سند قبض'}
+                                {t.type === 'INVOICE' ? dict.Customers?.Report?.Print?.SaleInvoice : dict.Customers?.Report?.Print?.ReceiptVoucher}
                             </TableCell>
                             <TableCell className="text-center font-mono text-xs">{t.reference || t.ref || "-"}</TableCell>
                             <TableCell className="text-right">{t.description}</TableCell>
@@ -82,15 +82,15 @@ export default async function PrintCustomerStatement({ params }: { params: Promi
             {/* Footer */}
             <div className="mt-20 flex justify-between items-end border-t pt-10">
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">توقيع المحاسب</p>
+                    <p className="font-bold underline mb-10">{dict.Customers?.Report?.Print?.AccountantSignature}</p>
                     <p className="text-slate-300">..............................</p>
                 </div>
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">توقيع المراجعة</p>
+                    <p className="font-bold underline mb-10">{dict.Customers?.Report?.Print?.ReviewSignature}</p>
                     <p className="text-slate-300">..............................</p>
                 </div>
                 <div className="text-center">
-                    <p className="font-bold underline mb-10">ختم المؤسسة</p>
+                    <p className="font-bold underline mb-10">{dict.Customers?.Report?.Print?.FacilityStamp}</p>
                     <div className="h-20 w-20 border-4 border-slate-100 rounded-full mx-auto opacity-20"></div>
                 </div>
             </div>

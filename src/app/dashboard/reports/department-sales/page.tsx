@@ -9,6 +9,8 @@ import { startOfMonth, endOfMonth } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatMoney, formatNumber } from "@/lib/numbers";
+import { ReportsBackButton } from "@/components/dashboard/reports-back-button";
 import {
     Table,
     TableBody,
@@ -59,6 +61,7 @@ export default function CategoryReportPage() {
 
     return (
         <div className="space-y-6 p-6">
+            <ReportsBackButton />
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">{dict.Reports.DepartmentSalesPage.Title}</h1>
@@ -113,9 +116,9 @@ export default function CategoryReportPage() {
                             <PieChart className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{totalRevenue.toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US')} {dict.Common.EGP}</div>
+                            <div className="text-2xl font-bold">{formatMoney(totalRevenue, dict.Common.EGP)}</div>
                             <p className="text-xs text-muted-foreground">
-                                {dict.Reports.DepartmentSalesPage.FromCategories.replace('{count}', data.length.toString())}
+                                {dict.Reports.DepartmentSalesPage.FromCategories.replace('{count}', formatNumber(data.length))}
                             </p>
                         </CardContent>
                     </Card>
@@ -157,11 +160,11 @@ export default function CategoryReportPage() {
                                     ) : (
                                         data.map((item, index) => (
                                             <TableRow key={index}>
-                                                <TableCell className="font-medium text-start">{index + 1}</TableCell>
+                                                <TableCell className="font-medium text-start">{formatNumber(index + 1)}</TableCell>
                                                 <TableCell className="font-semibold text-start">{item.name}</TableCell>
-                                                <TableCell className="text-center">{item.count}</TableCell>
+                                                <TableCell className="text-center">{formatNumber(item.count)}</TableCell>
                                                 <TableCell className="text-end font-bold text-green-600 dir-ltr">
-                                                    {item.value.toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US')} {dict.Common.EGP}
+                                                    {formatMoney(item.value, dict.Common.EGP)}
                                                 </TableCell>
                                                 <TableCell className="text-end text-muted-foreground">
                                                     {totalRevenue > 0 ? ((item.value / totalRevenue) * 100).toFixed(1) + '%' : '0%'}

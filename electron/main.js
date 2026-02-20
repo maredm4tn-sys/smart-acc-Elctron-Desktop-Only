@@ -374,7 +374,7 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
-        icon: path.join(__dirname, '../public/icon.png'),
+        icon: path.join(__dirname, '../public/android-chrome-512x512.png'),
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,

@@ -20,15 +20,15 @@ export default async function CreateVoucherPage({ searchParams }: { searchParams
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">
-                        {type === 'receipt' ? (dict.Vouchers?.Receipt || "Receipt") : (dict.Vouchers?.Payment || "Payment")}
+                        {type === 'receipt' ? (dict.Vouchers?.Receipt) : (dict.Vouchers?.Payment)}
                     </h1>
                     <p className="text-muted-foreground">
-                        {type === 'receipt' ? (dict.Vouchers?.NewReceipt || "New Receipt") : (dict.Vouchers?.NewPayment || "New Payment")}
+                        {type === 'receipt' ? (dict.Vouchers?.NewReceipt) : (dict.Vouchers?.NewPayment)}
                     </p>
                 </div>
                 <Link href="/dashboard/vouchers">
                     <Button variant="outline">
-                        {dict.Common?.Back || "Back"}
+                        {dict.Common?.Back}
                     </Button>
                 </Link>
             </div>

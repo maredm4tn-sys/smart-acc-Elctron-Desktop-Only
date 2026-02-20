@@ -24,20 +24,19 @@ export async function getDashboardStats() {
         const isPg = !!(process.env.VERCEL || process.env.POSTGRES_URL || process.env.DATABASE_URL);
         const castNum = (col: any) => isPg ? sql`CAST(${col} AS DOUBLE PRECISION)` : sql`CAST(${col} AS REAL)`;
 
+        // 1. Fetch Basic Totals (Revenue, Counts, Low Stock, etc)
         const [
             revenueRes,
             accRes,
             prodRes,
             invRes,
-            recRes,
             lowStockItems,
             overdueInvoices,
             duePurchases,
-            cashLiquidityRes,
-            upcomingInstallmentsTotalRes,
-            upcomingInstallments,
             dailySalesRes,
-            dailyCountRes
+            dailyCountRes,
+            upcomingInstallmentsTotalRes,
+            upcomingInstallments
         ] = await Promise.all([
             db.select({ value: sql`COALESCE(SUM(${castNum(invoices.totalAmount)}), 0)` })
                 .from(invoices)
@@ -45,13 +44,6 @@ export async function getDashboardStats() {
             db.select({ value: count() }).from(accounts).where(eq(accounts.tenantId, tenantId)).then(res => res[0]),
             db.select({ value: count() }).from(products).where(eq(products.tenantId, tenantId)).then(res => res[0]),
             db.select({ value: count() }).from(invoices).where(eq(invoices.tenantId, tenantId)).then(res => res[0]),
-            db.select({ value: sql`COALESCE(SUM(${castNum(invoices.totalAmount)} - ${castNum(invoices.amountPaid)}), 0)` })
-                .from(invoices)
-                .where(and(
-                    eq(invoices.tenantId, tenantId),
-                    eq(invoices.type, 'sale'),
-                    gt(sql`${castNum(invoices.totalAmount)} - ${castNum(invoices.amountPaid)}`, 0.5) // Allow small floating point tolerance
-                )).then(res => res[0]),
             db.select({
                 id: products.id,
                 name: products.name,
@@ -81,10 +73,20 @@ export async function getDashboardStats() {
                     gt(sql`${castNum(purchaseInvoices.totalAmount)} - ${castNum(purchaseInvoices.amountPaid)}`, 0)
                 )
             ).orderBy(desc(purchaseInvoices.issueDate)).limit(5),
-            db.select({ value: sql`COALESCE(SUM(${castNum(journalLines.debit)} - ${castNum(journalLines.credit)}), 0)` })
-                .from(journalLines)
-                .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
-                .where(and(eq(accounts.tenantId, tenantId), eq(accounts.type, 'asset'))).then(res => res[0]),
+            db.select({ value: sql`COALESCE(SUM(${castNum(invoices.totalAmount)}), 0)` })
+                .from(invoices)
+                .where(and(
+                    eq(invoices.tenantId, tenantId),
+                    gte(invoices.issueDate, new Date().toISOString().split('T')[0])
+                ))
+                .then(res => res[0]),
+            db.select({ value: count() })
+                .from(invoices)
+                .where(and(
+                    eq(invoices.tenantId, tenantId),
+                    gte(invoices.issueDate, new Date().toISOString().split('T')[0])
+                ))
+                .then(res => res[0]),
             db.select({ value: sql`COALESCE(SUM(${castNum(installments.amount)}), 0)` })
                 .from(installments)
                 .where(and(eq(installments.tenantId, tenantId), eq(installments.status, 'unpaid')))
@@ -100,25 +102,82 @@ export async function getDashboardStats() {
                 .where(and(eq(installments.tenantId, tenantId), eq(installments.status, 'unpaid')))
                 .orderBy(installments.dueDate)
                 .limit(5),
-            db.select({ value: sql`COALESCE(SUM(${castNum(invoices.totalAmount)}), 0)` })
-                .from(invoices)
-                .where(and(
-                    eq(invoices.tenantId, tenantId),
-                    gte(invoices.issueDate, new Date().toISOString().split('T')[0])
-                ))
-                .then(res => res[0]),
-            db.select({ value: count() })
-                .from(invoices)
-                .where(and(
-                    eq(invoices.tenantId, tenantId),
-                    gte(invoices.issueDate, new Date().toISOString().split('T')[0])
-                ))
-                .then(res => res[0])
         ]);
 
+        // 2. Fetch Accounting Balances (Receivables & Liquidity) & Inventory Value & Payables
+        const [recRes, cashRes, inventoryRes, payablesRes] = await Promise.all([
+            // Receivables: Sum balances of accounts under '1103' or type 'customer'
+            db.select({ value: sql`COALESCE(SUM(${castNum(journalLines.debit)} - ${castNum(journalLines.credit)}), 0)` })
+                .from(journalLines)
+                .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
+                .where(and(
+                    eq(accounts.tenantId, tenantId),
+                    or(
+                        eq(accounts.type, 'customer'),
+                        like(accounts.code, '1103%'), // User's Customer code
+                        like(accounts.name, '%عملاء%'),
+                        like(accounts.name, '%عميل%')
+                    )
+                )).then(res => res[0]),
+
+            // Liquidity: Sum balances of cash/bank accounts (1101 for this user)
+            db.select({ value: sql`COALESCE(SUM(${castNum(journalLines.debit)} - ${castNum(journalLines.credit)}), 0)` })
+                .from(journalLines)
+                .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
+                .where(and(
+                    eq(accounts.tenantId, tenantId),
+                    or(
+                        eq(accounts.type, 'cash'),
+                        eq(accounts.type, 'bank'),
+                        like(accounts.code, '1101%'), // User's Cash/Bank code
+                        like(accounts.name, '%خزينة%'),
+                        like(accounts.name, '%بنك%'),
+                        like(accounts.name, '%صندوق%')
+                    )
+                )).then(res => res[0]),
+
+            // Inventory Value (Calculated from Assets Group 1104 or Products table)
+            // We use the Products table as the primary source for stock value
+            db.select({
+                total: sql`SUM(${castNum(products.buyPrice)} * ${castNum(products.stockQuantity)})`
+            }).from(products).where(eq(products.tenantId, tenantId)).then(res => res[0]),
+
+            // Payables: Sum balances of accounts under '2101' or type 'supplier'
+            db.select({ value: sql`COALESCE(SUM(${castNum(journalLines.credit)} - ${castNum(journalLines.debit)}), 0)` })
+                .from(journalLines)
+                .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
+                .where(and(
+                    eq(accounts.tenantId, tenantId),
+                    or(
+                        eq(accounts.type, 'supplier'),
+                        like(accounts.code, '2101%'), // Supplier Group
+                        like(accounts.name, '%مورد%'),
+                        like(accounts.name, '%موردين%')
+                    )
+                )).then(res => res[0]),
+        ]);
+
+        const totalReceivables = Number(recRes?.value || 0);
+        const cashLiquidity = Number(cashRes?.value || 0);
+        const totalInventoryValue = Number(inventoryRes?.total || 0);
+        const totalPayables = Number(payablesRes?.value || 0);
+
+        // 3. Daily Stats Logic
         const dailyTotal = Number(dailySalesRes?.value || 0);
         const dailyCount = Number(dailyCountRes?.value || 0);
         const averageBasket = dailyCount > 0 ? dailyTotal / dailyCount : 0;
+
+        // 4. Total Assets = Sum of all Group 1 accounts (or Cash + Inventory + Receivables)
+        // For accuracy with manual entries, we fetch the balance of all accounts starting with '1'
+        const totalAssetsRes = await db.select({ value: sql`COALESCE(SUM(${castNum(journalLines.debit)} - ${castNum(journalLines.credit)}), 0)` })
+            .from(journalLines)
+            .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
+            .where(and(
+                eq(accounts.tenantId, tenantId),
+                like(accounts.code, '1%') // All Assets
+            )).then(res => res[0]);
+
+        const totalAssets = Number(totalAssetsRes?.value || 0);
 
         return {
             role: 'admin',
@@ -127,8 +186,11 @@ export async function getDashboardStats() {
                 totalAccounts: Number(accRes?.value || 0),
                 activeProducts: Number(prodRes?.value || 0),
                 invoicesCount: Number(invRes?.value || 0),
-                totalReceivables: Number(recRes?.value || 0).toFixed(2),
-                cashLiquidity: Number(cashLiquidityRes?.value || 0).toFixed(2),
+                totalReceivables: totalReceivables.toFixed(2),
+                totalPayables: totalPayables.toFixed(2),
+                cashLiquidity: cashLiquidity.toFixed(2),
+                totalAssets: totalAssets.toFixed(2),
+                inventoryValue: totalInventoryValue.toFixed(2),
                 avgBasket: averageBasket.toFixed(2),
                 lowStockItems: lowStockItems.map(p => ({
                     id: p.id,
@@ -150,14 +212,10 @@ export async function getDashboardStats() {
                     .groupBy(products.id)
                     .orderBy(desc(sql`SUM(${castNum(sql`invoice_items.quantity`)})`))
                     .limit(5),
-                inventoryValue: await db.select({
-                    total: sql`SUM(${castNum(products.buyPrice)} * ${castNum(products.stockQuantity)})`
-                }).from(products).where(eq(products.tenantId, tenantId)).then(res => res[0]?.total || 0),
             }
         };
     } catch (e: any) {
-        console.error("Dashboard stats error (Possible migration pending)", e);
-        // Fallback for when tables are not yet created (First run)
+        console.error("Dashboard stats error", e);
         return {
             role: 'admin',
             data: {
@@ -176,7 +234,6 @@ export async function getDashboardStats() {
                 topProducts: [],
                 inventoryValue: 0,
             },
-            // Don't mark as error to allow UI to render zeros instead of crashing
             error: false
         };
     }

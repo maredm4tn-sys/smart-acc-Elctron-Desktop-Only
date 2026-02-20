@@ -39,23 +39,23 @@ export function POSFooter() {
 
             {/* Subtotal Row */}
             <div className="flex justify-between items-center text-slate-500 font-bold">
-                <span className="text-sm font-mono">{formatNumber(totals.subtotal.toFixed(2), settings?.numeralSystem)}</span>
-                <span className="text-[11px]">{dict?.Sales?.Table?.Subtotal || "Subtotal"}</span>
+                <span className="text-sm font-mono">{formatNumber(totals.subtotal.toFixed(2))}</span>
+                <span className="text-[11px]">{dict.Sales?.Table?.Subtotal}</span>
             </div>
 
             {/* Conditional Tax Row - ONLY IF ENABLED IN SETTINGS */}
             {((settings as any)?.taxEnabled && totals.taxRate > 0) && (
                 <div className="flex justify-between items-center text-orange-600 font-bold animate-in fade-in slide-in-from-top-1 duration-200">
-                    <span className="text-sm font-mono">+{formatNumber((totals.taxAmount + ((totals.subtotal - totals.discountAmount) * (totals.taxRate / 100))).toFixed(2), settings?.numeralSystem)}</span>
-                    <span className="text-[10px]">{dict?.Sales?.Table?.Tax || "Tax"} ({formatNumber((settings as any)?.taxRate || 14, settings?.numeralSystem)}%)</span>
+                    <span className="text-sm font-mono">+{formatNumber((totals.taxAmount + ((totals.subtotal - totals.discountAmount) * (totals.taxRate / 100))).toFixed(2))}</span>
+                    <span className="text-[10px]">{dict.Sales?.Table?.Tax} ({formatNumber((settings as any)?.taxRate || 14)}%)</span>
                 </div>
             )}
 
             {/* Conditional Discount Row */}
             {totals.discountAmount > 0 && (
                 <div className="flex justify-between items-center text-green-600 font-bold animate-in fade-in slide-in-from-top-1 duration-200">
-                    <span className="text-sm font-mono">-{formatNumber(totals.discountAmount.toFixed(2), settings?.numeralSystem)}</span>
-                    <span className="text-[10px]">{dict?.Sales?.Table?.Discount || "Discount"}</span>
+                    <span className="text-sm font-mono">-{formatNumber(totals.discountAmount.toFixed(2))}</span>
+                    <span className="text-[10px]">{dict.Sales?.Table?.Discount}</span>
                 </div>
             )}
 
@@ -65,9 +65,9 @@ export function POSFooter() {
             <div className="flex justify-between items-center mb-1">
                 <div className="flex items-baseline gap-1">
                     <span className="text-[10px] text-slate-400 font-bold">{currency}</span>
-                    <span className="text-3xl font-black text-slate-900 tracking-tighter">{formatNumber(totals.total.toFixed(2), settings?.numeralSystem)}</span>
+                    <span className="text-3xl font-black text-slate-900 tracking-tighter">{formatNumber(totals.total.toFixed(2))}</span>
                 </div>
-                <span className="font-black text-xl text-slate-800">{dict?.Sales?.Table?.Total || "Total"}</span>
+                <span className="font-black text-xl text-slate-800">{dict.Sales?.Table?.Total}</span>
             </div>
 
             {/* Calculations Row: Tax & Discount */}
@@ -81,7 +81,7 @@ export function POSFooter() {
                             onCheckedChange={(c) => handleTaxChange(c as boolean)}
                             className="rounded-full w-4 h-4 border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 shadow-none"
                         />
-                        <Label htmlFor="tax-mode" className="cursor-pointer text-[10px] font-extrabold text-slate-600 leading-none">{dict?.Sales?.Table?.Tax || "Tax"}</Label>
+                        <Label htmlFor="tax-mode" className="cursor-pointer text-[10px] font-extrabold text-slate-600 leading-none">{dict.Sales?.Table?.Tax}</Label>
                     </div>
                 ) : <div />}
 
@@ -93,16 +93,16 @@ export function POSFooter() {
                         value={totals.discountAmount > 0 ? totals.discountAmount : ''}
                         onChange={(e) => setTotals({ discountAmount: Number(e.target.value) })}
                     />
-                    <span className="absolute right-2 top-2.5 text-[9px] text-slate-400 font-black uppercase pointer-events-none group-focus-within:text-blue-500">{dict?.Sales?.Table?.Discount || "Discount"}</span>
+                    <span className="absolute right-2 top-2.5 text-[9px] text-slate-400 font-black uppercase pointer-events-none group-focus-within:text-blue-500">{dict?.Sales?.Table?.Discount}</span>
                 </div>
             </div>
 
             {/* Payment Methods Tabs */}
             <Tabs value={header.paymentMethod} onValueChange={(v: any) => setHeader({ paymentMethod: v })} className="w-full">
                 <TabsList className="w-full grid grid-cols-3 h-8 bg-slate-100 p-1 rounded-lg">
-                    <TabsTrigger value="credit" className="text-[10px] font-black rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm">{dict?.POS?.Credit || "Credit"}</TabsTrigger>
-                    <TabsTrigger value="card" className="text-[10px] font-black rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm">{dict?.POS?.Card || "Card"}</TabsTrigger>
-                    <TabsTrigger value="cash" className="text-[10px] font-black rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm">{dict?.POS?.Cash || "Cash"}</TabsTrigger>
+                    <TabsTrigger value="credit" className="text-[10px] font-black rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm">{dict?.POS?.Credit}</TabsTrigger>
+                    <TabsTrigger value="card" className="text-[10px] font-black rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm">{dict?.POS?.Card}</TabsTrigger>
+                    <TabsTrigger value="cash" className="text-[10px] font-black rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm">{dict?.POS?.Cash}</TabsTrigger>
                 </TabsList>
             </Tabs>
 
@@ -111,12 +111,12 @@ export function POSFooter() {
                 <div className="bg-amber-50 p-2 rounded-lg border border-amber-100 flex flex-col gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="flex justify-between items-center px-1">
                         <span className="text-[10px] font-black text-amber-800 uppercase italic">
-                            {dict?.Sales?.Invoice?.Form?.DueDate || "Due Date"}
+                            {dict?.Sales?.Invoice?.Form?.DueDate}
                         </span>
                         <input
                             id="pos-due-date"
                             type="date"
-                            aria-label={dict?.Sales?.Invoice?.Form?.DueDate || "Due Date"}
+                            aria-label={dict?.Sales?.Invoice?.Form?.DueDate}
                             className="bg-white border-amber-200 outline-none rounded-md px-2 py-0.5 text-[11px] font-bold text-amber-900"
                             value={header.dueDate ? (header.dueDate instanceof Date ? header.dueDate.toISOString().split('T')[0] : header.dueDate) : ''}
                             onChange={(e) => setHeader({ dueDate: new Date(e.target.value) })}
@@ -154,10 +154,10 @@ export function POSFooter() {
                     <Banknote size={24} />
                     <span>
                         {header.paymentMethod === 'cash'
-                            ? (dict?.POS?.PayCash || "Pay Cash")
+                            ? (dict?.POS?.PayCash)
                             : header.paymentMethod === 'card'
-                                ? (dict?.POS?.PayCard || "Pay Card")
-                                : (dict?.POS?.PayCredit || "Confirm Sale (Credit)")}
+                                ? (dict?.POS?.PayCard)
+                                : (dict?.POS?.PayCredit)}
                     </span>
                 </div>
             </Button>
@@ -172,7 +172,7 @@ export function POSFooter() {
                             onCheckedChange={(c) => setAutoPrint(c as boolean)}
                             className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 rounded w-3.5 h-3.5"
                         />
-                        <Label htmlFor="auto-print" className="text-[10px] text-slate-500 font-extrabold cursor-pointer">{dict?.POS?.AutoPrint || "Auto Print"}</Label>
+                        <Label htmlFor="auto-print" className="text-[10px] text-slate-500 font-extrabold cursor-pointer">{dict?.POS?.AutoPrint}</Label>
                     </div>
 
                     <Tabs

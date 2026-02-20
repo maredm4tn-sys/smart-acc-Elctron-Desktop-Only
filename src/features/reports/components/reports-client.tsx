@@ -42,7 +42,7 @@ export default function ReportsClient({ initialSummary, dict }: ReportsClientPro
         try {
             const res = await syncAllPurchasesToLedger() as any;
             if (res.success) {
-                const msg = (dict.Reports.SyncResult || "")
+                const msg = (dict.Reports.SyncResult)
                     .replace("{fixed}", res.fixedCount.toString())
                     .replace("{skipped}", res.skippedCount.toString());
                 toast.success(msg);
@@ -50,13 +50,13 @@ export default function ReportsClient({ initialSummary, dict }: ReportsClientPro
                 if (updatedSummary.success) {
                     setSummary(updatedSummary.data);
                 } else {
-                    toast.error(updatedSummary.message || "Failed to update summary");
+                    toast.error(updatedSummary.message );
                 }
             } else {
                 toast.error(res.error);
             }
         } catch (e) {
-            toast.error(dict?.Common?.Error || "An error occurred");
+            toast.error(dict?.Common?.Error);
         } finally {
             setIsSyncing(false);
         }
@@ -164,6 +164,13 @@ export default function ReportsClient({ initialSummary, dict }: ReportsClientPro
 
             {/* Section 3: Detailed Audit Links (Optimized Grid) */}
             <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+                <Link href="/dashboard/reports/financial-command" className="bg-indigo-600 hover:bg-indigo-700 p-6 rounded-3xl flex flex-col items-center justify-center text-center transition-all border-none group col-span-2 lg:col-span-4 shadow-xl shadow-indigo-100 hover:scale-[1.01] active:scale-95 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                    <ShieldCheck className="mb-3 text-indigo-100 w-8 h-8 group-hover:scale-110 transition-transform" />
+                    <span className="text-lg font-black text-white">{dict.Reports?.FinancialCommand?.Title}</span>
+                    <span className="text-xs font-bold text-indigo-100/80 mt-1">{dict.Reports?.FinancialCommand?.Description}</span>
+                </Link>
+
                 <Link href="/dashboard/reports/statement?search=customers" className="bg-slate-100 hover:bg-slate-200 p-5 rounded-2xl flex flex-col items-center justify-center text-center transition-all border border-slate-200 group">
                     <Users className="mb-2 text-slate-500 group-hover:text-slate-900" />
                     <span className="text-sm font-bold text-slate-800">{dict.Reports.Statements.Customers}</span>
@@ -200,13 +207,29 @@ export default function ReportsClient({ initialSummary, dict }: ReportsClientPro
                     <PieChart className="mb-2 text-teal-600 group-hover:text-teal-900" />
                     <span className="text-sm font-bold text-slate-800">{dict.Reports.Statements.DepartmentSales}</span>
                 </Link>
+                <Link href="/dashboard/reports/trial-balance" className="bg-violet-50 hover:bg-violet-100 p-5 rounded-2xl flex flex-col items-center justify-center text-center transition-all border border-violet-200 group">
+                    <Scale className="mb-2 text-violet-600 group-hover:text-violet-900" />
+                    <span className="text-sm font-bold text-slate-800">{dict.Reports.Statements.TrialBalance}</span>
+                </Link>
+                <Link href="/dashboard/reports/balance-sheet" className="bg-blue-50 hover:bg-blue-100 p-5 rounded-2xl flex flex-col items-center justify-center text-center transition-all border border-blue-200 group">
+                    <FileText className="mb-2 text-blue-600 group-hover:text-blue-900" />
+                    <span className="text-sm font-bold text-slate-800">{dict.Reports.Statements.BalanceSheet}</span>
+                </Link>
                 <Link href="/dashboard/reports/stagnant-stock" className="bg-amber-50 hover:bg-amber-100 p-5 rounded-2xl flex flex-col items-center justify-center text-center transition-all border border-amber-200 group">
                     <TrendingDown className="mb-2 text-amber-600 group-hover:text-amber-900" />
-                    <span className="text-sm font-bold text-slate-800">{dict.Reports?.StagnantStock?.Title || "Stagnant Stock"}</span>
+                    <span className="text-sm font-bold text-slate-800">{dict.Reports?.StagnantStock?.Title}</span>
                 </Link>
                 <Link href="/dashboard/reports/credit" className="bg-emerald-50 hover:bg-emerald-100 p-5 rounded-2xl flex flex-col items-center justify-center text-center transition-all border border-emerald-200 group">
                     <Calendar className="mb-2 text-emerald-600 group-hover:text-emerald-900" />
-                    <span className="text-sm font-bold text-slate-800">{dict.Reports?.CreditReport?.Title || "Credit/Aging Report"}</span>
+                    <span className="text-sm font-bold text-slate-800">{dict.Reports?.CreditReport?.Title}</span>
+                </Link>
+                <Link href="/dashboard/reports/debit" className="bg-rose-50 hover:bg-rose-100 p-5 rounded-2xl flex flex-col items-center justify-center text-center transition-all border border-rose-200 group">
+                    <Calendar className="mb-2 text-rose-600 group-hover:text-rose-900" />
+                    <span className="text-sm font-bold text-slate-800">{dict.Reports?.SupplierDebitReport?.Title}</span>
+                </Link>
+                <Link href="/dashboard/reports/customer-credit" className="bg-sky-50 hover:bg-sky-100 p-5 rounded-2xl flex flex-col items-center justify-center text-center transition-all border border-sky-200 group">
+                    <Users className="mb-2 text-sky-600 group-hover:text-sky-900" />
+                    <span className="text-sm font-bold text-slate-800">{dict.Reports?.CustomerCreditReport?.Title}</span>
                 </Link>
 
 

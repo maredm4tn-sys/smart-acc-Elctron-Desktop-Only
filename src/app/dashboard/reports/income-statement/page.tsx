@@ -11,6 +11,7 @@ import { Loader2, TrendingDown, TrendingUp, Calendar as CalendarIcon, FileText }
 import { cn, formatCurrency } from "@/lib/utils";
 import { useTranslation } from "@/components/providers/i18n-provider";
 import { useSettings } from "@/components/providers/settings-provider";
+import { ReportsBackButton } from "@/components/dashboard/reports-back-button";
 
 export default function IncomeStatementPage() {
     const { dict, lang } = useTranslation();
@@ -78,7 +79,8 @@ export default function IncomeStatementPage() {
     };
 
     return (
-        <div className="space-y-8" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="space-y-8 p-6" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+            <ReportsBackButton />
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className={lang === 'ar' ? 'text-right' : 'text-left'}>
                     <h2 className="text-3xl font-black tracking-tight text-slate-800">{dict.Reports.IncomeStatement.Title}</h2>

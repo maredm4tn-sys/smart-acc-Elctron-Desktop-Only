@@ -73,7 +73,7 @@ export function InvoicesTable({ initialInvoices }: { initialInvoices: any[] }) {
                             <TableHead className="text-start">{dict.Sales.Table.Type}</TableHead>
                             <TableHead className="text-start">{dict.Sales.Table.SaleMode}</TableHead>
                             <TableHead className="text-start">{dict.Sales.Table.Status}</TableHead>
-                            <TableHead className="text-center">{dict.Sales.Table.Total}</TableHead>
+                            <TableHead className="text-start">{dict.Sales.Table.Total}</TableHead>
                             <TableHead className="text-start">{dict.Sales.Table.Actions}</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -97,7 +97,7 @@ export function InvoicesTable({ initialInvoices }: { initialInvoices: any[] }) {
                                     <TableCell className="text-start">
                                         <div className="flex flex-col items-start gap-0.5">
                                             <span className="font-medium text-gray-700">{invoice?.issueDate}</span>
-                                            <span className="text-[11px] text-muted-foreground dir-ltr">
+                                            <span className="text-[11px] text-muted-foreground dir-ltr text-start">
                                                 {invoice?.createdAt ? new Date(invoice.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : ''}
                                             </span>
                                         </div>
@@ -121,7 +121,7 @@ export function InvoicesTable({ initialInvoices }: { initialInvoices: any[] }) {
                                     <TableCell className="text-start">
                                         <StatusBadge status={invoice?.status} dict={dict} />
                                     </TableCell>
-                                    <TableCell className={`font-bold dir-ltr text-center ${invoice?.type === 'return' ? 'text-orange-600' : ''}`}>
+                                    <TableCell className={`font-bold text-start ${invoice?.type === 'return' ? 'text-orange-600' : ''}`}>
                                         {formatCurrency(invoice?.totalAmount, currency)}
                                     </TableCell>
                                     <TableCell className="text-start">

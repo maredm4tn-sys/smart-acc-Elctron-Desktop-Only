@@ -35,7 +35,7 @@ export function ExcelExportButton({
             // Handle wrapped response from withErrorHandling
             if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
                 if (!data.success) {
-                    throw new Error(data.message || "Failed to fetch export data");
+                    throw new Error(data.message );
                 }
                 data = data.data;
             }

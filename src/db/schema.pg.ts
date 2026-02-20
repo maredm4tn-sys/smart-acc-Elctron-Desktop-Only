@@ -458,6 +458,8 @@ export const purchaseInvoiceItems = pgTable('purchase_invoice_items', {
     quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
     unitCost: decimal('unit_cost', { precision: 15, scale: 2 }).notNull(),
     total: decimal('total', { precision: 15, scale: 2 }).notNull(),
+    storeId: integer('store_id').default(1),
+    unitId: integer('unit_id').references(() => units.id),
 });
 
 export const purchaseInvoicesRelations = relations(purchaseInvoices, ({ one, many }) => ({
@@ -696,4 +698,51 @@ export const shiftsRelations = relations(shifts, ({ one, many }) => ({
     }),
     invoices: many(invoices),
     vouchers: many(vouchers),
+}));
+
+// --- Warehouses ---
+export const warehouses = pgTable('warehouses', {
+    id: serial('id').primaryKey(),
+    tenantId: uuid('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+    name: text('name').notNull(),
+    location: text('location'),
+    isDefault: boolean('is_default').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
+    tenant: one(tenants, {
+        fields: [warehouses.tenantId],
+        references: [tenants.id],
+    }),
+    stockLevels: many(stockLevels),
+}));
+
+// --- Stock Levels (per Warehouse) ---
+export const stockLevels = pgTable('stock_levels', {
+    id: serial('id').primaryKey(),
+    tenantId: uuid('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+    productId: integer('product_id').references(() => products.id, { onDelete: 'cascade' }).notNull(),
+    warehouseId: integer('warehouse_id').references(() => warehouses.id, { onDelete: 'cascade' }).notNull(),
+    quantity: decimal('quantity', { precision: 15, scale: 2 }).default('0.00').notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+    return {
+        productWarehouseIdx: index('stock_pg_prod_wh_idx').on(table.productId, table.warehouseId),
+    };
+});
+
+export const stockLevelsRelations = relations(stockLevels, ({ one }) => ({
+    tenant: one(tenants, {
+        fields: [stockLevels.tenantId],
+        references: [tenants.id],
+    }),
+    product: one(products, {
+        fields: [stockLevels.productId],
+        references: [products.id],
+    }),
+    warehouse: one(warehouses, {
+        fields: [stockLevels.warehouseId],
+        references: [warehouses.id],
+    }),
 }));

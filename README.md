@@ -34,3 +34,15 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🌍 Localization & I18n Rules
+
+This project uses a strict localization system. **Hardcoding strings in Arabic or English within the UI or server actions is strictly prohibited.**
+
+### The Rule
+- All user-facing text must reside in `src/messages/ar.json` and `src/messages/en.json`.
+- Use the `useTranslation()` hook in client components to access the `dict` object.
+- Pass the `dict` object to sub-components that need it.
+- For server components/actions, use keys and let the client handle translation, or use `getDictionary()` from `@/lib/i18n-server`.
+
+### Verification
+Future code audits will flag any hardcoded Arabic characters or non-localized English UI labels.

@@ -1,21 +1,26 @@
 import { getInventoryReport } from "@/features/reports/actions";
 import { Package, TrendingUp, DollarSign, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { getDictionary } from "@/lib/i18n-server";
+import { getDictionary, getLocale } from "@/lib/i18n-server";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import { getSettings } from "@/features/settings/actions";
+import { ReportsBackButton } from "@/components/dashboard/reports-back-button";
 
 export default async function InventoryReportPage() {
-    const data = await getInventoryReport();
+    const response = await getInventoryReport();
     const settings = await getSettings();
     const currency = settings?.currency || "EGP";
-    const { dict, lang } = (await getDictionary()) as any;
-    if (!data) return <div className="p-8 text-center">{dict?.Common?.Loading || "Loading..."}</div>;
+    const dict = (await getDictionary()) as any;
+    const lang = await getLocale() as string;
+    if (!response || !response.success || !response.data) return <div className="p-8 text-center">{dict?.Common?.Loading}</div>;
 
-    const reportTitle = dict?.Reports?.InventoryReport?.Title || "تقرير المخزون";
+    const data = response.data;
+
+    const reportTitle = dict?.Reports?.InventoryReport?.Title;
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500" dir="rtl">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 p-6" dir="rtl">
+            <ReportsBackButton />
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
@@ -90,11 +95,11 @@ export default async function InventoryReportPage() {
                         </div>
                         <div>
                             <h2 className="text-xl font-black text-slate-900">{dict.Reports.InventoryReport.LowStock}</h2>
-                            <p className="text-xs font-bold text-rose-600 tracking-tight">نواقص المخزون التي تتطلب توريد فوري</p>
+                            <p className="text-xs font-bold text-rose-600 tracking-tight">{dict.Dashboard?.LowStockAlert}</p>
                         </div>
                     </div>
                     <div className="px-4 py-1.5 bg-rose-100 rounded-full text-rose-700 text-xs font-black">
-                        {data.lowStockItems.length} صنف متبقي
+                        {dict.Dashboard?.ItemsShortCount?.replace('{count}', data.lowStockItems.length.toString()) || `${data.lowStockItems.length} Items`}
                     </div>
                 </div>
 
@@ -128,11 +133,29 @@ export default async function InventoryReportPage() {
                                         <td className="px-6 py-4">
                                             <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">{item.sku}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black shadow-sm ${Number(item.stockQuantity) === 0 ? 'bg-rose-500 text-white shadow-rose-200' : 'bg-amber-400 text-white shadow-amber-100'
-                                                }`}>
-                                                {item.stockQuantity}
-                                            </span>
+                                        <td className="px-6 py-4 text-center relative">
+                                            <div className="flex flex-col items-center group/breakdown">
+                                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black shadow-sm ${Number(item.stockQuantity) === 0 ? 'bg-rose-500 text-white shadow-rose-200' : 'bg-amber-400 text-white shadow-amber-100'
+                                                    }`}>
+                                                    {item.stockQuantity}
+                                                </span>
+                                                {item.stockBreakdown?.length > 0 && (
+                                                    <div className="opacity-0 group-hover/breakdown:opacity-100 pointer-events-none group-hover/breakdown:pointer-events-auto absolute bottom-full mb-2 z-20 bg-white border border-slate-100 p-3 rounded-2xl shadow-xl min-w-[150px] transition-all duration-200">
+                                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-50 pb-1 flex items-center gap-1">
+                                                            <Package size={10} className="text-blue-500" />
+                                                            {dict.Inventory?.Warehouses?.StockPerWarehouse}
+                                                        </div>
+                                                        <div className="space-y-1.5">
+                                                            {item.stockBreakdown.map((sb: any) => (
+                                                                <div key={sb.warehouseName} className="flex justify-between items-center text-[11px] font-bold">
+                                                                    <span className="text-slate-500 font-arabic">{sb.warehouseName}</span>
+                                                                    <span className="text-slate-900">{sb.quantity}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-end font-black text-slate-900 dir-ltr">{formatCurrency(Number(item.buyPrice), currency)}</td>
                                         <td className="px-6 py-4 text-end">

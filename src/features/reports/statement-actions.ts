@@ -98,7 +98,7 @@ export async function getAccountStatement(
     finalStatement.push({
         date: startDate,
         type: 'OPENING',
-        description: dict.Reports.GeneralStatement?.OpeningBalance || "Opening Balance",
+        description: dict.Reports.GeneralStatement?.OpeningBalance,
         debit: 0,
         credit: 0,
         balance: runningBalance

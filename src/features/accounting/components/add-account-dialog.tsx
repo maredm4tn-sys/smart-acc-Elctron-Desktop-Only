@@ -62,7 +62,6 @@ export function AddAccountDialog({ parentAccounts, triggerLabel }: { parentAccou
                 name: data.name,
                 type: data.type,
                 parentId: data.parentId ? parseInt(data.parentId) : null,
-                tenantId: "uuid",
             });
 
             if (response.success) {

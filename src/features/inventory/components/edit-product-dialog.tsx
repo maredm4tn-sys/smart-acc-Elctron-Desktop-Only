@@ -94,13 +94,13 @@ export function EditProductDialog({ product, open: externalOpen, onOpenChange: e
             } as any);
 
             if (response.success) {
-                toast.success(response.message || dict.Dialogs?.EditProduct?.Success || "Success");
+                toast.success(response.message || dict.Dialogs?.EditProduct?.Success);
                 setOpen(false);
             } else {
-                toast.error(response.message || dict.Common?.Error || "Error");
+                toast.error(response.message || dict.Common?.Error);
             }
         } catch (error) {
-            toast.error(dict.Common?.Error || "Error");
+            toast.error(dict.Common?.Error);
         }
     };
 

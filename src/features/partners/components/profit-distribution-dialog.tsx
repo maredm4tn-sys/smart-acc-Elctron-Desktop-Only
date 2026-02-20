@@ -54,10 +54,10 @@ export function ProfitDistributionDialog({ dict, onSuccess }: { dict: Translatio
                 setOpen(false);
                 onSuccess();
             } else {
-                toast.error(res.message || dict.PartnersManagement?.Distribution?.Process || "Error");
+                toast.error(res.message || dict.PartnersManagement?.Distribution?.Process);
             }
         } catch (err) {
-            toast.error(dict.PartnersManagement?.Distribution?.Process || "Error");
+            toast.error(dict.PartnersManagement?.Distribution?.Process);
         } finally {
             setProcessing(false);
         }

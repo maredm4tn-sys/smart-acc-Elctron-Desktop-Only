@@ -106,12 +106,12 @@ export function AddRepresentativeDialog({ editMode, initialData, open: controlle
             }
 
             if (result.success) {
-                toast.success(dict?.Representatives?.Dialog?.Success || "Success");
+                toast.success(dict?.Representatives?.Dialog?.Success);
                 setIsOpen(false);
                 if (!editMode) form.reset();
                 window.location.reload(); // Force refresh to show new representative
             } else {
-                toast.error(result.message || dict?.Representatives?.Dialog?.Error || "Error");
+                toast.error(result.message || dict?.Representatives?.Dialog?.Error);
             }
 
         });
@@ -123,18 +123,18 @@ export function AddRepresentativeDialog({ editMode, initialData, open: controlle
                 <DialogTrigger asChild>
                     <Button className="gap-2">
                         <PlusCircle size={16} />
-                        {dict?.Representatives?.Dialog?.AddTitle || "Add Representative"}
+                        {dict?.Representatives?.Dialog?.AddTitle}
                     </Button>
                 </DialogTrigger>
             )}
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>{editMode ? (dict?.Representatives?.Dialog?.EditTitle || "Edit") : (dict?.Representatives?.Dialog?.AddTitle || "Add")}</DialogTitle>
-                    <DialogDescription>{dict?.Representatives?.Dialog?.Description || "Add or modify representative and official data in the system."}</DialogDescription>
+                    <DialogTitle>{editMode ? (dict?.Representatives?.Dialog?.EditTitle) : (dict?.Representatives?.Dialog?.AddTitle)}</DialogTitle>
+                    <DialogDescription>{dict?.Representatives?.Dialog?.Description}</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
                     <div className="space-y-2">
-                        <Label>{dict?.Representatives?.Dialog?.Name || "Name"} *</Label>
+                        <Label>{dict?.Representatives?.Dialog?.Name} *</Label>
                         <Input {...form.register("name")} />
                         {form.formState.errors.name && (
                             <p className="text-sm text-red-500">{form.formState.errors.name.message as string}</p>
@@ -143,11 +143,11 @@ export function AddRepresentativeDialog({ editMode, initialData, open: controlle
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>{dict?.Representatives?.Dialog?.Phone || "Phone"}</Label>
+                            <Label>{dict?.Representatives?.Dialog?.Phone}</Label>
                             <Input {...form.register("phone")} dir="ltr" className="text-left" />
                         </div>
                         <div className="space-y-2">
-                            <Label>{dict?.Representatives?.Dialog?.Type || "Type"}</Label>
+                            <Label>{dict?.Representatives?.Dialog?.Type}</Label>
                             <Select
                                 onValueChange={(val) => form.setValue("type", val as "sales" | "delivery")}
                                 defaultValue={form.getValues("type")}
@@ -157,15 +157,15 @@ export function AddRepresentativeDialog({ editMode, initialData, open: controlle
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="sales">{dict?.Representatives?.Dialog?.Types?.Sales || "Sales"}</SelectItem>
-                                    <SelectItem value="delivery">{dict?.Representatives?.Dialog?.Types?.Delivery || "Delivery"}</SelectItem>
+                                    <SelectItem value="sales">{dict?.Representatives?.Dialog?.Types?.Sales}</SelectItem>
+                                    <SelectItem value="delivery">{dict?.Representatives?.Dialog?.Types?.Delivery}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label>{dict?.Representatives?.Dialog?.CommissionBasis || "Commission Basis"}</Label>
+                        <Label>{dict?.Representatives?.Dialog?.CommissionBasis}</Label>
                         <Select
                             onValueChange={(val) => form.setValue("commissionBasis", val as "sale" | "collection" | "both")}
                             defaultValue={form.getValues("commissionBasis")}
@@ -175,16 +175,16 @@ export function AddRepresentativeDialog({ editMode, initialData, open: controlle
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="sale">{dict?.Representatives?.Basis?.Sale || "On Sale"}</SelectItem>
-                                <SelectItem value="collection">{dict?.Representatives?.Basis?.Collection || "On Collection"}</SelectItem>
-                                <SelectItem value="both">{dict?.Representatives?.Basis?.Both || "Both"}</SelectItem>
+                                <SelectItem value="sale">{dict?.Representatives?.Basis?.Sale}</SelectItem>
+                                <SelectItem value="collection">{dict?.Representatives?.Basis?.Collection}</SelectItem>
+                                <SelectItem value="both">{dict?.Representatives?.Basis?.Both}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>{dict?.Representatives?.Dialog?.CommissionType || "Commission Type"}</Label>
+                            <Label>{dict?.Representatives?.Dialog?.CommissionType}</Label>
                             <Select
                                 onValueChange={(val) => form.setValue("commissionType", val as "percentage" | "fixed_per_invoice")}
                                 defaultValue={form.getValues("commissionType")}
@@ -194,16 +194,16 @@ export function AddRepresentativeDialog({ editMode, initialData, open: controlle
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="percentage">{dict?.Representatives?.Dialog?.Types?.Percentage || "Percentage (%)"}</SelectItem>
-                                    <SelectItem value="fixed_per_invoice">{dict?.Representatives?.Dialog?.Types?.Fixed || "Fixed Amount"}</SelectItem>
+                                    <SelectItem value="percentage">{dict?.Representatives?.Dialog?.Types?.Percentage}</SelectItem>
+                                    <SelectItem value="fixed_per_invoice">{dict?.Representatives?.Dialog?.Types?.Fixed}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
                             <Label>
                                 {form.watch("commissionType") === "percentage"
-                                    ? (dict?.Representatives?.Dialog?.CommissionRate || "Commission (%)")
-                                    : (dict?.Representatives?.Dialog?.CommissionValue || "Value")
+                                    ? (dict?.Representatives?.Dialog?.CommissionRate)
+                                    : (dict?.Representatives?.Dialog?.CommissionValue)
                                 }
                             </Label>
                             <Input
@@ -218,7 +218,7 @@ export function AddRepresentativeDialog({ editMode, initialData, open: controlle
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>{dict?.Representatives?.Dialog?.Salary || "Monthly Salary"}</Label>
+                            <Label>{dict?.Representatives?.Dialog?.Salary}</Label>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -228,23 +228,23 @@ export function AddRepresentativeDialog({ editMode, initialData, open: controlle
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>{dict?.Representatives?.Dialog?.Address || "Address"}</Label>
+                            <Label>{dict?.Representatives?.Dialog?.Address}</Label>
                             <Input {...form.register("address")} />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label>{dict?.Representatives?.Dialog?.Notes || "Notes"}</Label>
+                        <Label>{dict?.Representatives?.Dialog?.Notes}</Label>
                         <Input {...form.register("notes")} />
                     </div>
 
                     <div className="pt-4 flex justify-end gap-2">
                         <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-                            {dict?.Common?.Cancel || "Cancel"}
+                            {dict?.Common?.Cancel}
                         </Button>
                         <Button type="submit" disabled={isPending}>
                             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {dict?.Representatives?.Dialog?.Save || "Save"}
+                            {dict?.Representatives?.Dialog?.Save}
                         </Button>
                     </div>
                 </form>

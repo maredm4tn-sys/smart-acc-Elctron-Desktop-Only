@@ -143,12 +143,12 @@ export function PurchaseForm({ products, suppliers, initialProductId, initialDat
             }
 
             if (res.success) {
-                toast.success(initialData ? (dict.Purchases.Messages?.UpdateSuccess || "Invoice updated successfully") : (dict.Purchases.Messages?.Success || "Purchase invoice saved successfully"));
+                toast.success(initialData ? (dict.Purchases.Messages?.UpdateSuccess) : (dict.Purchases.Messages?.Success));
                 router.push("/dashboard/purchases");
                 router.refresh(); // Ensure list updates
                 if (!initialData) reset();
             } else {
-                toast.error(res.error || "Error saving invoice");
+                toast.error(res.error );
             }
         } catch (e) {
             console.error(e);

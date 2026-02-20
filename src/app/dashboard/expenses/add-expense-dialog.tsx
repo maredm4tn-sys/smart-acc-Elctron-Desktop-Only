@@ -55,7 +55,7 @@ export function AddExpenseDialog({ accounts }: { accounts: Account[] }) {
                 setAmount("");
                 setDescription("");
             } else {
-                toast.error(dict.Common?.Error || "Error", { description: result.message });
+                toast.error(dict.Common?.Error, { description: result.message });
             }
         });
     };

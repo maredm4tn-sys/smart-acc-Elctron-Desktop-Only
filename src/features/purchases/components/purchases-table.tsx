@@ -43,14 +43,14 @@ export function PurchasesTable({ initialInvoices }: { initialInvoices: any[] }) 
                 <Table>
                     <TableHeader className="bg-slate-50/50">
                         <TableRow>
-                            <TableHead className="text-right font-black text-slate-900 pr-4 w-[140px]">{dict.Purchases.Table.Actions || "إجراءات"}</TableHead>
-                            <TableHead className="text-right font-black text-slate-900">{dict.Purchases.Table.InvoiceNo}</TableHead>
-                            <TableHead className="text-right font-black text-slate-900">{dict.Purchases.Table.Supplier}</TableHead>
-                            <TableHead className="text-right font-black text-slate-900">{dict.Purchases.Table.Date}</TableHead>
-                            <TableHead className="text-center font-black text-slate-900">{dict.Purchases.Table.Status}</TableHead>
-                            <TableHead className="text-right font-black text-slate-900">{dict.Purchases.Table.Total}</TableHead>
-                            <TableHead className="text-right font-black text-slate-900">{dict.Purchases.Table.PaidAmount}</TableHead>
-                            <TableHead className="text-right font-black text-slate-900">{dict.Purchases.Table.Balance}</TableHead>
+                            <TableHead className="text-start font-black text-slate-900">{dict.Purchases.Table.InvoiceNumber}</TableHead>
+                            <TableHead className="text-start font-black text-slate-900">{dict.Purchases.Table.Supplier}</TableHead>
+                            <TableHead className="text-start font-black text-slate-900">{dict.Purchases.Table.Date}</TableHead>
+                            <TableHead className="text-start font-black text-slate-900">{dict.Purchases.Table.Status}</TableHead>
+                            <TableHead className="text-start font-black text-slate-900">{dict.Purchases.Table.Total}</TableHead>
+                            <TableHead className="text-start font-black text-slate-900">{dict.Purchases.Table.PaidAmount}</TableHead>
+                            <TableHead className="text-start font-black text-slate-900">{dict.Purchases.Table.Balance}</TableHead>
+                            <TableHead className="text-start font-black text-slate-900 pr-4 w-[140px]">{dict.Purchases.Table.Actions}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -63,7 +63,34 @@ export function PurchasesTable({ initialInvoices }: { initialInvoices: any[] }) 
                         ) : (
                             invoices.map((inv) => (
                                 <TableRow key={inv.id} className={inv.type === 'return' ? 'bg-red-50/30' : 'hover:bg-slate-50/50 transition-colors'}>
-                                    <TableCell className="text-right pr-2">
+                                    <TableCell className="font-bold text-start text-slate-900">
+                                        <Link href={`/dashboard/purchases/${inv.id}`} className="flex items-center gap-2 hover:text-blue-600 transition-colors">
+                                            <FileText className="h-4 w-4 text-gray-400 shrink-0" />
+                                            <span className="truncate">{inv.invoiceNumber === 'DRAFT' ? dict.Purchases.Table.Draft : inv.invoiceNumber}</span>
+                                            {inv.type === 'return' && <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none px-1 h-5 text-[10px]">{dict.Purchases.Table.Returned}</Badge>}
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell className="text-start font-bold text-slate-700">{inv.supplier ? inv.supplier.name : inv.supplierName}</TableCell>
+                                    <TableCell className="text-start text-xs font-bold text-slate-500 tabular-nums">
+                                        {inv.issueDate}
+                                    </TableCell>
+                                    <TableCell className="text-start">
+                                        <Badge variant="outline" className="font-black text-[10px] rounded-full px-3">
+                                            {inv.paymentStatus === 'paid' ? dict.Purchases.Table.StatusLabels.Paid :
+                                                inv.paymentStatus === 'unpaid' ? dict.Purchases.Table.StatusLabels.Unpaid :
+                                                    inv.paymentStatus === 'partial' ? dict.Purchases.Table.StatusLabels.Partial : inv.paymentStatus}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="font-black text-start text-slate-900 tabular-nums">
+                                        {(Number(inv.totalAmount)).toLocaleString()}
+                                    </TableCell>
+                                    <TableCell className="text-start text-emerald-600 font-bold tabular-nums">
+                                        {(Number(inv.amountPaid || 0)).toLocaleString()}
+                                    </TableCell>
+                                    <TableCell className="text-start text-rose-600 font-black tabular-nums">
+                                        {(Number(inv.totalAmount) - Number(inv.amountPaid || 0)).toLocaleString()}
+                                    </TableCell>
+                                    <TableCell className="text-start pr-2">
                                         <TooltipProvider delayDuration={100}>
                                             <div className="flex gap-1 justify-start">
                                                 {/* Print Button */}
@@ -78,7 +105,7 @@ export function PurchasesTable({ initialInvoices }: { initialInvoices: any[] }) 
                                                             <Printer size={16} />
                                                         </Button>
                                                     </TooltipTrigger>
-                                                    <TooltipContent>{dict.Common?.Print || "طباعة الفاتورة"}</TooltipContent>
+                                                    <TooltipContent>{dict.Common?.Print}</TooltipContent>
                                                 </Tooltip>
 
                                                 {inv.type !== 'return' && (
@@ -122,7 +149,7 @@ export function PurchasesTable({ initialInvoices }: { initialInvoices: any[] }) 
                                                             size="icon"
                                                             className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8"
                                                             onClick={() => {
-                                                                if (confirm(dict.Common?.ConfirmDelete || "هل أنت متأكد من الحذف؟")) {
+                                                                if (confirm(dict.Common?.ConfirmDelete)) {
                                                                     alert("Delete action requested");
                                                                 }
                                                             }}
@@ -130,37 +157,10 @@ export function PurchasesTable({ initialInvoices }: { initialInvoices: any[] }) 
                                                             <Trash2 size={16} />
                                                         </Button>
                                                     </TooltipTrigger>
-                                                    <TooltipContent>{dict.Common?.Delete || "حذف الفاتورة"}</TooltipContent>
+                                                    <TooltipContent>{dict.Common?.Delete}</TooltipContent>
                                                 </Tooltip>
                                             </div>
                                         </TooltipProvider>
-                                    </TableCell>
-                                    <TableCell className="font-bold text-right text-slate-900">
-                                        <div className="flex items-center gap-2">
-                                            <FileText className="h-4 w-4 text-gray-400 shrink-0" />
-                                            <span className="truncate">{inv.invoiceNumber === 'DRAFT' ? dict.Purchases.Table.Draft : inv.invoiceNumber}</span>
-                                            {inv.type === 'return' && <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none px-1 h-5 text-[10px]">{dict.Purchases.Table.Returned}</Badge>}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-right font-bold text-slate-700">{inv.supplier ? inv.supplier.name : inv.supplierName}</TableCell>
-                                    <TableCell className="text-right text-xs font-bold text-slate-500 tabular-nums">
-                                        {inv.issueDate}
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        <Badge variant="outline" className="font-black text-[10px] rounded-full px-3">
-                                            {inv.paymentStatus === 'paid' ? dict.Purchases.Table.StatusLabels.Paid :
-                                                inv.paymentStatus === 'unpaid' ? dict.Purchases.Table.StatusLabels.Unpaid :
-                                                    inv.paymentStatus === 'partial' ? dict.Purchases.Table.StatusLabels.Partial : inv.paymentStatus}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="font-black text-right text-slate-900 tabular-nums">
-                                        {(Number(inv.totalAmount)).toLocaleString()}
-                                    </TableCell>
-                                    <TableCell className="text-right text-emerald-600 font-bold tabular-nums">
-                                        {(Number(inv.amountPaid || 0)).toLocaleString()}
-                                    </TableCell>
-                                    <TableCell className="text-right text-rose-600 font-black tabular-nums">
-                                        {(Number(inv.totalAmount) - Number(inv.amountPaid || 0)).toLocaleString()}
                                     </TableCell>
                                 </TableRow>
                             ))
